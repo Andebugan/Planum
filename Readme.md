@@ -36,7 +36,7 @@ Planum
 # Lab 2
 
 ## Технологический стек
-Cross-platform на Dart + Flutter.
+Cross-platform на C# + Avalonia.
 
 Fixes:
 Добавить viewmodel/DTO для UI
