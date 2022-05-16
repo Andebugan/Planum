@@ -25,17 +25,18 @@ namespace Planum.Models.BuisnessLayer.Managers
         protected Task ConvertFromDTO(TaskDTO taskDTO)
         {
             return new Task(taskDTO.Id, taskDTO.UserId, taskDTO.Name, taskDTO.StartTime, taskDTO.Deadline, taskDTO.RepeatPeriod,
-                taskDTO.TagIds, taskDTO.Description, taskDTO.ParentId, taskDTO.IsRepeated);
+                taskDTO.TagIds, taskDTO.Timed, taskDTO.Description, taskDTO.ParentId, taskDTO.IsRepeated);
         }
 
         protected TaskDTO ConvertToDTO(Task task)
         {
             return new TaskDTO(task.Id, task.UserId, task.Name, task.StartTime, task.Deadline, task.RepeatPeriod,
-                task.TagIds, task.Description, task.ParentId, task.IsRepeated);
+                task.TagIds, task.Timed, task.Description, task.ParentId, task.IsRepeated);
         }
 
         public void CreateTask(int user_id, string? name, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, List<int> tagIds, string? description = null, int parentId = -1, bool isRepeated = false)
+            TimeSpan repeatPeriod, List<int> tagIds, bool timed = false, string? description = null,
+            int parentId = -1, bool isRepeated = false)
         {
             List<Task> tasks = GetAll();
 
@@ -46,12 +47,12 @@ namespace Planum.Models.BuisnessLayer.Managers
                     id += 1;
             }
 
-            Task new_task = new Task(id, user_id, name, startTime, deadline, repeatPeriod, tagIds, description, parentId, isRepeated);
+            Task new_task = new Task(id, user_id, name, startTime, deadline, repeatPeriod, tagIds, timed, description, parentId, isRepeated);
             TaskDTO taskDTO = ConvertToDTO(new_task);
             _taskRepo.Add(taskDTO);
         }
 
-        public void CreateTask(int user_id, string? name, List<int> tagIds,
+        public void CreateTask(int user_id, string? name, List<int> tagIds, bool timed = false,
             string? description = null, int parentId = -1, bool isRepeated = false)
         {
             List<Task> tasks = GetAll();
@@ -63,13 +64,13 @@ namespace Planum.Models.BuisnessLayer.Managers
                     id += 1;
             }
 
-            Task new_task = new Task(id, user_id, name, tagIds, description, parentId, isRepeated);
+            Task new_task = new Task(id, user_id, name, tagIds, timed, description, parentId, isRepeated);
             TaskDTO taskDTO = ConvertToDTO(new_task);
             _taskRepo.Add(taskDTO);
         }
 
         public void Update(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, List<int> tagIds, string? name, string? description = null,
+            TimeSpan repeatPeriod, List<int> tagIds, string? name, bool timed = false, string? description = null,
             int parentId = -1, bool isRepeated = false)
         {
             Task task = GetTask(id);
@@ -91,10 +92,10 @@ namespace Planum.Models.BuisnessLayer.Managers
                 repeatPeriod = task.RepeatPeriod;
 
             TaskDTO taskDTO = new TaskDTO(id, task.UserId, name, startTime, 
-                deadline, repeatPeriod, tagIds, description, parentId, isRepeated);
+                deadline, repeatPeriod, tagIds, timed, description, parentId, isRepeated);
             _taskRepo.Update(taskDTO);
         }
-        public void Update(int id, List<int> tagIds, string? name = null,
+        public void Update(int id, List<int> tagIds, bool timed = false, string? name = null,
             string? description = null, int parentId = -1, bool isRepeated = false)
         {
             Task task = GetTask(id);
@@ -109,7 +110,7 @@ namespace Planum.Models.BuisnessLayer.Managers
             if (isRepeated == false)
                 isRepeated = task.IsRepeated;
 
-            TaskDTO taskDTO = new TaskDTO(id, task.UserId, name, description, parentId, isRepeated);
+            TaskDTO taskDTO = new TaskDTO(id, task.UserId, name, timed, description, parentId, isRepeated);
             _taskRepo.Update(taskDTO);
         }
 

@@ -16,6 +16,7 @@ namespace Planum.Models.BuisnessLayer.Interfaces
         public void Unarchive(int id);
         public TaskDTO Get(int id);
         public List<TaskDTO> GetAll();
+        public List<TaskDTO> GetAllArchived();
         public void Reset();
     }
 }
