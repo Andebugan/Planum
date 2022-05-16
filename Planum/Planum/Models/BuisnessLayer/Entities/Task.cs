@@ -8,21 +8,22 @@ namespace Planum.Models.BuisnessLayer.Entities
 {
     public class Task
     {
-        public int Id { get; protected set; }
-        public int UserId { get; protected set; }
-        public int ParentId { get; protected set; }
-        public string? Name { get; protected set; }
-        public string? Description { get; protected set; }
+        public int Id { get; }
+        public int UserId { get; }
+        public int ParentId { get; }
+        public string Name { get; }
+        public string Description { get; }
 
         private List<int> tagIds = new List<int>();
-        public List<int> TagIds { get { return tagIds; } protected set { tagIds = value; } }
-        public DateTime StartTime { get; protected set; }
-        public DateTime Deadline { get; protected set; }
-        public bool IsRepeated { get; protected set; }
-        public TimeSpan RepeatPeriod { get; protected set; }
+        public IReadOnlyList<int> TagIds => tagIds;
+        public DateTime StartTime { get; }
+        public DateTime Deadline { get; }
+        public bool IsRepeated { get; }
+        public TimeSpan RepeatPeriod { get; }
 
-        public Task(int id, int userId, string? name, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, List<int> tagIds, string? description = null, int parentId = -1, bool isRepeated = false)
+        public Task(int id, DateTime startTime, DateTime deadline,
+            TimeSpan repeatPeriod, List<int> TagIds, int userId = -1,
+            string name = "", string description = "", int parentId = -1, bool isRepeated = false)
         {
             if (parentId == -1)
                 parentId = id;
@@ -32,77 +33,19 @@ namespace Planum.Models.BuisnessLayer.Entities
             ParentId = parentId;
             Name = name;
             Description = description;
-            TagIds = tagIds;
+
+            tagIds = TagIds;
             StartTime = startTime;
             Deadline = deadline;
             IsRepeated = isRepeated;
             RepeatPeriod = repeatPeriod;
-        }
-
-        public Task(int id, int userId, string? name, List<int> tagIds, 
-            string? description = null, int parentId = -1, bool isRepeated = false)
-        {
-            DateTime startTime = DateTime.MinValue;
-            DateTime deadline = DateTime.MinValue;
-            TimeSpan repeatPeriod = TimeSpan.Zero;
-
-            if (parentId == -1)
-                parentId = id;
-
-            Id = id;
-            UserId = userId;
-            ParentId = parentId;
-            Name = name;
-            Description = description;
-            TagIds = tagIds;
-            StartTime = startTime;
-            Deadline = deadline;
-            IsRepeated = isRepeated;
-            RepeatPeriod = repeatPeriod;
-        }
-
-        public Task(int id, int userId, string? name,
-            string? description = null, int parentId = -1, bool isRepeated = false)
-        {
-            List<int> tagIds = new List<int>();
-            DateTime startTime = DateTime.MinValue;
-            DateTime deadline = DateTime.MinValue;
-            TimeSpan repeatPeriod = TimeSpan.Zero;
-
-            if (parentId == -1)
-                parentId = id;
-
-            Id = id;
-            UserId = userId;
-            ParentId = parentId;
-            Name = name;
-            Description = description;
-            TagIds = tagIds;
-            StartTime = startTime;
-            Deadline = deadline;
-            IsRepeated = isRepeated;
-            RepeatPeriod = repeatPeriod;
-        }
-
-        public Task(Task task)
-        {
-            Id = task.Id;
-            UserId = task.UserId;
-            ParentId = task.ParentId;
-            Name = task.Name;
-            Description = task.Description;
-            TagIds = tagIds;
-            StartTime = task.StartTime;
-            Deadline = task.Deadline;
-            IsRepeated = task.IsRepeated;
-            RepeatPeriod = task.RepeatPeriod;
         }
 
         public void AddTag(int tagId)
         {
-            if (TagIds.Any(x => x == tagId))
+            if (tagIds.Any(x => x == tagId))
                 return;
-            TagIds.Add(tagId);
+            tagIds.Add(tagId);
         }
 
         public void RemoveTag(int id)
@@ -111,7 +54,7 @@ namespace Planum.Models.BuisnessLayer.Entities
             {
                 if (node == id)
                 {
-                    TagIds.Remove(node);
+                    tagIds.Remove(node);
                     return;
                 }
             }
@@ -119,17 +62,7 @@ namespace Planum.Models.BuisnessLayer.Entities
 
         public void ClearTags()
         {
-            TagIds.Clear();
-        }
-
-        public void AddParent(int parentId)
-        {
-            ParentId = parentId;
-        }
-
-        public void RemoveParent()
-        {
-            ParentId = Id;
+            tagIds.Clear();
         }
     }
 }

@@ -8,24 +8,17 @@ namespace Planum.Models.BuisnessLayer.Entities
 {
     public class User
     {
-        public int Id { get; protected set; }
+        public int Id { get; }
 
-        public string? Login { get; protected set; }
+        public string Login { get; }
 
-        public string? Password { get; protected set; }
+        public string Password { get; }
 
-        public User(int id, string? login, string? password)
+        public User(int id, string login, string password)
         {
             Id = id;
             Login = login;
             Password = password;
-        }
-
-        public User(User user)
-        {
-            Id = user.Id;
-            Login = user.Login;
-            Password = user.Password;
         }
     }
 }

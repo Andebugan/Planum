@@ -8,52 +8,22 @@ namespace Planum.Models.BuisnessLayer.Entities
 {
     public class Tag
     {
-        int _id;
-        public int Id
+        public int Id { get; }
+        public int UserId { get; }
+        public int Category { get; }
+        public string Name { get; }
+        public string Description { get; }
+
+        public Tag(int id, int user_id, int category, string name, string description)
         {
-            get { return _id; }
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name can not be null or empty", nameof(name));
 
-            private set
-            {
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException(nameof(value));
-                _id = value;
-            }
-        }
-
-        int _userId;
-        public int UserId
-        {
-            get { return _userId; }
-
-            private set
-            {
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException(nameof(value));
-                _userId = value;
-            }
-        }
-
-        public int Category { get; private set; }
-        public string? Name { get; private set; }
-        public string? Description { get; private set; }
-
-        public Tag(int id, int user_id, int category, string? name, string? description)
-        {
             Id = id;
             UserId = user_id;
             Category = category;
             Name = name;
             Description = description;
-        }
-
-        public Tag(Tag tag)
-        {
-            Id = tag.Id;
-            UserId = tag.UserId;
-            Category = tag.Category;
-            Name = tag.Name;
-            Description = tag.Description;
         }
     }
 }

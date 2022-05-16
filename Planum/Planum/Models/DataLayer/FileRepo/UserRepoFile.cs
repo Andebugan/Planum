@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Planum.Models.BuisnessLayer.Interfaces;
+using Planum.Models.BuisnessLayer.RepoInterfaces;
 using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.DataLayer
 {
     public class UserRepoFile : IUserRepo
     {
-        public void Add(UserDTO userDTO)
+        public int AddUser(UserDTO userDTO)
         {
             throw new NotImplementedException();
         }
 
-        public void Delete(int id)
+        public void DeleteUser(int id)
         {
             throw new NotImplementedException();
         }
 
-        public UserDTO Get(int id)
+        public UserDTO? FindUser(int id)
         {
             throw new NotImplementedException();
         }
@@ -30,12 +27,12 @@ namespace Planum.Models.DataLayer
             throw new NotImplementedException();
         }
 
-        public void Reset()
+        public UserDTO GetUser(int id)
         {
             throw new NotImplementedException();
         }
 
-        public void Update(UserDTO userDTO)
+        public void UpdateUser(UserDTO userDTO)
         {
             throw new NotImplementedException();
         }
