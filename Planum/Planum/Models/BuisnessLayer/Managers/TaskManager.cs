@@ -11,7 +11,7 @@ using Task = Planum.Models.BuisnessLayer.Entities.Task;
 
 namespace Planum.Models.BuisnessLayer.Managers
 {
-    internal class TaskManager
+    public class TaskManager
     {
         protected ITaskRepo _taskRepo;
 
@@ -24,61 +24,103 @@ namespace Planum.Models.BuisnessLayer.Managers
 
         protected Task ConvertFromDTO(TaskDTO taskDTO)
         {
-            TaskParams taskParams = new TaskParams();
-
-            taskParams.id = taskDTO.Id;
-            taskParams.userId = taskDTO.UserId;
-            taskParams.parentId = taskDTO.ParentId;
-            taskParams.name = taskDTO.Name;
-            taskParams.description = taskDTO.Description;
-            taskParams.tags = taskDTO.Tags;
-            taskParams.startTime = taskDTO.StartTime;
-            taskParams.deadline = taskDTO.Deadline;
-            taskParams.repeatPeriod = taskDTO.RepeatPeriod;
-            taskParams.isRepeated = taskDTO.IsRepeated;
-
-            return new Task(taskParams);
+            return new Task(taskDTO.Id, taskDTO.UserId, taskDTO.Name, taskDTO.StartTime, taskDTO.Deadline, taskDTO.RepeatPeriod,
+                taskDTO.TagIds, taskDTO.Description, taskDTO.ParentId, taskDTO.IsRepeated);
         }
 
         protected TaskDTO ConvertToDTO(Task task)
         {
-            TaskParamsDTO taskParamsDTO = new TaskParamsDTO();
-
-            taskParamsDTO.id = task.Id;
-            taskParamsDTO.userId = task.UserId;
-            taskParamsDTO.parentId = task.ParentId;
-            taskParamsDTO.name = task.Name;
-            taskParamsDTO.description = task.Description;
-            taskParamsDTO.tags = task.Tags;
-            taskParamsDTO.startTime = task.StartTime;
-            taskParamsDTO.deadline = task.Deadline;
-            taskParamsDTO.repeatPeriod = task.RepeatPeriod;
-            taskParamsDTO.isRepeated = task.IsRepeated;
-
-            return new TaskDTO(taskParamsDTO);
+            return new TaskDTO(task.Id, task.UserId, task.Name, task.StartTime, task.Deadline, task.RepeatPeriod,
+                task.TagIds, task.Description, task.ParentId, task.IsRepeated);
         }
 
-        public void CreateTask(TaskParams taskParams)
+        public void CreateTask(int user_id, string? name, DateTime startTime, DateTime deadline,
+            TimeSpan repeatPeriod, List<int> tagIds, string? description = null, int parentId = -1, bool isRepeated = false)
         {
-            Task task = new Task(taskParams);
-            TaskDTO taskDTO = ConvertToDTO(task);
+            List<Task> tasks = GetAll();
+
+            int id = 0;
+            foreach (var task in tasks)
+            {
+                if (id == task.Id)
+                    id += 1;
+            }
+
+            Task new_task = new Task(id, user_id, name, startTime, deadline, repeatPeriod, tagIds, description, parentId, isRepeated);
+            TaskDTO taskDTO = ConvertToDTO(new_task);
             _taskRepo.Add(taskDTO);
         }
 
-        public void UpdateTask(ref Task task, TaskParams taskParams)
+        public void CreateTask(int user_id, string? name, List<int> tagIds,
+            string? description = null, int parentId = -1, bool isRepeated = false)
         {
-            task.Update(taskParams);
+            List<Task> tasks = GetAll();
+
+            int id = 0;
+            foreach (var task in tasks)
+            {
+                if (id == task.Id)
+                    id += 1;
+            }
+
+            Task new_task = new Task(id, user_id, name, tagIds, description, parentId, isRepeated);
+            TaskDTO taskDTO = ConvertToDTO(new_task);
+            _taskRepo.Add(taskDTO);
+        }
+
+        public void Update(int id, DateTime startTime, DateTime deadline,
+            TimeSpan repeatPeriod, List<int> tagIds, string? name, string? description = null,
+            int parentId = -1, bool isRepeated = false)
+        {
+            Task task = GetTask(id);
+            if (tagIds == null)
+                tagIds = task.TagIds;
+            if (name == null)
+                name = task.Name;
+            if (description == null)
+                description = task.Description;
+            if (parentId == -1)
+                parentId = task.ParentId;
+            if (isRepeated == false)
+                isRepeated = task.IsRepeated;
+            if (Math.Abs((startTime - DateTime.MinValue).TotalSeconds) > 1)
+                startTime = task.StartTime;
+            if (Math.Abs((deadline - DateTime.MinValue).TotalSeconds) > 1)
+                deadline = task.Deadline;
+            if (Math.Abs((repeatPeriod - TimeSpan.Zero).TotalSeconds) > 1)
+                repeatPeriod = task.RepeatPeriod;
+
+            TaskDTO taskDTO = new TaskDTO(id, task.UserId, name, startTime, 
+                deadline, repeatPeriod, tagIds, description, parentId, isRepeated);
+            _taskRepo.Update(taskDTO);
+        }
+        public void Update(int id, List<int> tagIds, string? name = null,
+            string? description = null, int parentId = -1, bool isRepeated = false)
+        {
+            Task task = GetTask(id);
+            if (tagIds == null)
+                tagIds = task.TagIds;
+            if (name == null)
+                name = task.Name;
+            if (description == null)
+                description = task.Description;
+            if (parentId == -1)
+                parentId = task.ParentId;
+            if (isRepeated == false)
+                isRepeated = task.IsRepeated;
+
+            TaskDTO taskDTO = new TaskDTO(id, task.UserId, name, description, parentId, isRepeated);
+            _taskRepo.Update(taskDTO);
+        }
+
+        public void Update(Task task)
+        {
             TaskDTO taskDTO = ConvertToDTO(task);
             _taskRepo.Update(taskDTO);
         }
 
-        public void UpdateTask(ref Task task)
-        {
-            TaskDTO taskDTO = ConvertToDTO(task);
-            _taskRepo.Update(taskDTO);
-        }
 
-        public void UpdateTask(Task task)
+        public void Update(ref Task task)
         {
             TaskDTO taskDTO = ConvertToDTO(task);
             _taskRepo.Update(taskDTO);
@@ -99,7 +141,7 @@ namespace Planum.Models.BuisnessLayer.Managers
             _taskRepo.Unarchive(taskId);
         }
 
-        public Task? GetTask(int taskId)
+        public Task GetTask(int taskId)
         {
             return ConvertFromDTO(_taskRepo.Get(taskId));
         }
@@ -110,7 +152,7 @@ namespace Planum.Models.BuisnessLayer.Managers
             foreach (Task task in tasks)
             {
                 task.RemoveTag(tagId);
-                UpdateTask(task);
+                Update(task);
             }
         }
 

@@ -3,16 +3,13 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using System;
 
-using Planum.Testing.ModelsTesting;
-
 namespace Planum
 {
     internal class Program
     {
         public static void Main(string[] args)
         {
-            ModelUnitTesting modelUnitTesting = new ModelUnitTesting();
-            modelUnitTesting.Test();
+
         }
         /*
         // Initialization code. Don't use any Avalonia, third-party APIs or any

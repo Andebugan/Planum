@@ -6,28 +6,17 @@ using System.Threading.Tasks;
 
 namespace Planum.Models.DTO.ModelData
 {
-    struct UserParamsDTO
+    public class UserDTO
     {
-        public int id;
-        public string login;
-        public string password;
-    }
-    internal class UserDTO
-    {
-        protected int _id;
-        public int Id { get { return _id; } set { _id = value; } }
+        public int Id { get; protected set; }
+        public string? Login { get; protected set; }
+        public string? Password { get; protected set; }
 
-        protected string _login = "user";
-        public string Login { get { return _login; } set { _login = value; } }
-
-        protected string _password = "user";
-        public string Password { get { return _password; } set { _password = value; } }
-
-        public UserDTO(UserParamsDTO userParams)
+        public UserDTO(int id, string? login, string? password)
         {
-            Id = userParams.id;
-            Login = userParams.login;
-            Password = userParams.password;
+            Id = id;
+            Login = login;
+            Password = password;
         }
     }
 }

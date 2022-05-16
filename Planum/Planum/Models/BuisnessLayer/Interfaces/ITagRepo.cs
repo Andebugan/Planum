@@ -7,7 +7,7 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.BuisnessLayer.Interfaces
 {
-    internal interface ITagRepo
+    public interface ITagRepo
     {
         // TODO: check if already existis -> existance check for repo interface
         public void Add(TagDTO tag);

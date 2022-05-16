@@ -6,61 +6,54 @@ using System.Threading.Tasks;
 
 namespace Planum.Models.BuisnessLayer.Entities
 {
-    struct TagParams
+    public class Tag
     {
-        public int id;
-        public int userId;
-        public int category;
-        public string name;
-        public string description;
-    }
-
-    internal class Tag
-    {
-        protected int _id;
-        public int Id { get { return _id; } }
-
-        protected int _userId;
-        public int UserId { get { return _userId; } } 
-
-        protected int _category;
-        public int Category { get { return _category; } }
-
-        protected string _name = "";
-        public string Name { get { return _name; } }
-
-        protected string _description = "";
-        public string Description { get { return _description; } }
-
-        public Tag(TagParams tagParams)
+        int _id;
+        public int Id
         {
-            _id = tagParams.id;
-            _userId = tagParams.userId;
-            _category = tagParams.category;
-            _name = tagParams.name;
-            _description = tagParams.description;
+            get { return _id; }
+
+            private set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                _id = value;
+            }
         }
 
-        public void Update(TagParams tagParams)
+        int _userId;
+        public int UserId
         {
-            _id = tagParams.id;
-            _userId = tagParams.userId;
-            _category = tagParams.category;
-            _name = tagParams.name;
-            _description = tagParams.description;
+            get { return _userId; }
+
+            private set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                _userId = value;
+            }
         }
 
-        public TagParams GetTagParams()
+        public int Category { get; private set; }
+        public string? Name { get; private set; }
+        public string? Description { get; private set; }
+
+        public Tag(int id, int user_id, int category, string? name, string? description)
         {
-            TagParams tagParams = new TagParams();
+            Id = id;
+            UserId = user_id;
+            Category = category;
+            Name = name;
+            Description = description;
+        }
 
-            tagParams.id = Id;
-            tagParams.userId = UserId;
-            tagParams.category = Category;
-            tagParams.name = Name;
-            tagParams.description = Description;
-
-            return tagParams;
+        public Tag(Tag tag)
+        {
+            Id = tag.Id;
+            UserId = tag.UserId;
+            Category = tag.Category;
+            Name = tag.Name;
+            Description = tag.Description;
         }
     }
 }

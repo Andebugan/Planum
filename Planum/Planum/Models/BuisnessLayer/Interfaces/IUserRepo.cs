@@ -7,7 +7,7 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.BuisnessLayer.Interfaces
 {
-    internal interface IUserRepo
+    public interface IUserRepo
     {
         public void Add(UserDTO userDTO);
         public void Update(UserDTO userDTO);

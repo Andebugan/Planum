@@ -10,7 +10,7 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.BuisnessLayer.Managers
 {
-    internal class TagManager
+    public class TagManager
     {
         protected ITagRepo tagRepo;
         protected TaskManager taskManager;
@@ -27,34 +27,27 @@ namespace Planum.Models.BuisnessLayer.Managers
 
         protected TagDTO ConvertToDTO(Tag tag)
         {
-            TagParamsDTO tagParamsDTO = new TagParamsDTO();
-
-            tagParamsDTO.id = tag.Id;
-            tagParamsDTO.userId = tag.UserId;
-            tagParamsDTO.name = tag.Name;
-            tagParamsDTO.description = tag.Description;
-            tagParamsDTO.category = tag.Category;
-
-            return new TagDTO(tagParamsDTO);
+            TagDTO tagDTO = new TagDTO(tag.Id, tag.UserId, tag.Category, tag.Name, tag.Description);
+            return tagDTO;
         }
 
         protected Tag ConvertFromDTO(TagDTO tagDTO)
         {
-            TagParams tagParams = new TagParams();
-
-            tagParams.id = tagDTO.Id;
-            tagParams.userId = tagDTO.UserId;
-            tagParams.category = tagDTO.Category;
-            tagParams.name = tagDTO.Name;
-            tagParams.description = tagDTO.Description;
-
-            return new Tag(tagParams);
+            Tag tag = new Tag(tagDTO.Id, tagDTO.UserId, tagDTO.Category, tagDTO.Name, tagDTO.Description);
+            return tag;
         }
 
-        public void UpdateTag(ref Tag tag, TagParams tagParams)
+        public void Update(int id, int category = -1, string? name = null, string? description = null)
         {
-            tag.Update(tagParams);
-            TagDTO tagDTO = ConvertToDTO(tag);
+            Tag tag = GetTag(id);
+            if (category == -1)
+                category = tag.Category;
+            if (name == null)
+                name = tag.Name;
+            if (description == null)
+                description = tag.Description;
+            Tag newTag = new Tag(tag.Id, tag.UserId, category, name, description);
+            TagDTO tagDTO = ConvertToDTO(newTag);
             tagRepo.Update(tagDTO);
         }
 
@@ -74,14 +67,23 @@ namespace Planum.Models.BuisnessLayer.Managers
             }
         }
 
-        public void CreateTag(TagParams tagParams)
+        public void CreateTag(int user_id, int category, string? name, string? description)
         {
-            Tag tag = new Tag(tagParams);
-            TagDTO tagDTO = ConvertToDTO(tag);
+            int id = 0; 
+            List<Tag> tags = GetAll();
+
+            foreach (var tag in tags)
+            {
+                if (id == tag.Id)
+                    id += 1;
+            }
+
+            Tag new_tag = new Tag(id, user_id, category, name, description);
+            TagDTO tagDTO = ConvertToDTO(new_tag);
             tagRepo.Add(tagDTO);
         }
 
-        public Tag? GetTag(int tagId)
+        public Tag GetTag(int tagId)
         {
             TagDTO tagDTO = tagRepo.Get(tagId);
             Tag tag = ConvertFromDTO(tagDTO);

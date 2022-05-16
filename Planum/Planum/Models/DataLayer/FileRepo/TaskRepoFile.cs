@@ -8,7 +8,7 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.DataLayer
 {
-    internal class TaskRepoFile : ITaskRepo
+    public class TaskRepoFile : ITaskRepo
     {
         public void Add(TaskDTO taskDTO)
         {

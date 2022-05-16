@@ -6,36 +6,26 @@ using System.Threading.Tasks;
 
 namespace Planum.Models.BuisnessLayer.Entities
 {
-    struct UserParams
+    public class User
     {
-        public int id;
-        public string login;
-        public string password;
-    }
+        public int Id { get; protected set; }
 
-    internal class User
-    {
-        protected int _id;
-        public int Id { get { return _id; } }
+        public string? Login { get; protected set; }
 
-        protected string _login = "user";
-        public string Login { get { return _login; } }
+        public string? Password { get; protected set; }
 
-        protected string _password = "user";
-        public string Password { get { return _password; } }
-
-        public User(UserParams userParams)
+        public User(int id, string? login, string? password)
         {
-            _id = userParams.id;
-            _login = userParams.login;
-            _password = userParams.password;
+            Id = id;
+            Login = login;
+            Password = password;
         }
 
-        public void Update(UserParams userParams)
+        public User(User user)
         {
-            _id = userParams.id;
-            _login = userParams.login;
-            _password = userParams.password;
+            Id = user.Id;
+            Login = user.Login;
+            Password = user.Password;
         }
     }
 }

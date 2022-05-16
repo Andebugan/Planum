@@ -7,7 +7,7 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.BuisnessLayer.Interfaces
 {
-    internal interface ITaskRepo
+    public interface ITaskRepo
     {
         public void Add(TaskDTO taskDTO);
         public void Update(TaskDTO taskDTO);

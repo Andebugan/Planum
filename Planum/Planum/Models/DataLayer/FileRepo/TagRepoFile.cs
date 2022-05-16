@@ -8,7 +8,7 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.DataLayer
 {
-    internal class TagRepoFile : ITagRepo
+    public class TagRepoFile : ITagRepo
     {
         public void Add(TagDTO tag)
         {

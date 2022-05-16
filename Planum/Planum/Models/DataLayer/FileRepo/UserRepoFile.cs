@@ -8,7 +8,7 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.DataLayer
 {
-    internal class UserRepoFile : IUserRepo
+    public class UserRepoFile : IUserRepo
     {
         public void Add(UserDTO userDTO)
         {

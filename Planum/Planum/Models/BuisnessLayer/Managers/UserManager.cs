@@ -10,14 +10,31 @@ using Planum.Models.DTO.ModelData;
 
 namespace Planum.Models.BuisnessLayer.Managers
 {
-    internal class UserManager
+    [Serializable]
+    public class UserLoginAlreadyExist : Exception
     {
-        protected User? _currentUser;
+        public UserLoginAlreadyExist() { }
+        public UserLoginAlreadyExist(string message) : base(message) { }
+        public UserLoginAlreadyExist(string message, Exception innerException) : base(message, innerException) { }
+    }
+
+    [Serializable]
+    public class UserInvalidLoginOrPassword : Exception
+    {
+        public UserInvalidLoginOrPassword() { }
+        public UserInvalidLoginOrPassword(string message) : base(message) { }
+        public UserInvalidLoginOrPassword(string message, Exception innerException) : base(message, innerException) { }
+    }
+
+
+    public class UserManager
+    {
+        public User CurrentUser { get; set; }
         protected IUserRepo _userRepo;
         protected TagManager tagManager;
         protected TaskManager taskManager;
 
-        public UserManager(ref User currentUser, ref IUserRepo userRepo, ref TagManager tagManager, ref TaskManager taskManager)
+        public UserManager(ref IUserRepo userRepo, ref TagManager tagManager, ref TaskManager taskManager)
         {
             if (userRepo == null)
                 throw new ArgumentNullException(nameof(userRepo));
@@ -26,44 +43,49 @@ namespace Planum.Models.BuisnessLayer.Managers
             if (tagManager == null)
                 throw new ArgumentNullException(nameof(tagManager));
 
-            _currentUser = currentUser;
             _userRepo = userRepo;
         }
 
         protected UserDTO ConvertToDTO(User user)
         {
-            UserParamsDTO userParamsDTO = new UserParamsDTO();
-
-            userParamsDTO.id = user.Id;
-            userParamsDTO.password = user.Password;
-            userParamsDTO.login = user.Login;
-            
-            return new UserDTO(userParamsDTO);
+            UserDTO userDTO = new UserDTO(user.Id, user.Login, user.Password);
+            return userDTO;
         }
 
-        protected User ConvertFromDTO(UserDTO user)
+        protected User ConvertFromDTO(UserDTO userDTO)
         {
-            UserParams userParams = new UserParams();
-            
-            userParams.id = user.Id;
-            userParams.password = user.Password;
-            userParams.login = user.Login;
-
-            return new User(userParams);
+            User user = new User(userDTO.Id, userDTO.Login, userDTO.Password);
+            return user;
         }
 
-        public void CreateUser(ref UserParams userParams)
+        public void CreateUser(string? login, string? password)
         {
-            User user = new User(userParams);
-            UserDTO userDTO = ConvertToDTO(user);
+            List<User> users = GetAll();
+
+            if (users.Any(x => x.Login == login))
+                throw new UserLoginAlreadyExist();
+
+            int id = 0;
+            foreach (var user in users)
+            {
+                if (id == user.Id)
+                    id += 1;
+            }
+
+            User new_user = new User(id, login, password);
+            UserDTO userDTO = ConvertToDTO(new_user);
             _userRepo.Add(userDTO);
         }
 
-        public void UpdateUser(ref User user, ref UserParams userParams)
+        public void Update(int id, string? login, string? password)
         {
-            user.Update(userParams);
-            UserDTO userDTO = ConvertToDTO(user);
-            _userRepo.Update(userDTO);
+            User user = GetUser(id);
+            if (login == null)
+                login = user.Login;
+            if (password == null)
+                password = user.Password;
+            UserDTO new_user = new UserDTO(user.Id, login, password);
+            _userRepo.Update(new_user);
         }
 
         public void DeleteUser(int id)
@@ -73,15 +95,24 @@ namespace Planum.Models.BuisnessLayer.Managers
             _userRepo.Delete(id);
         }
 
-        public User? GetUser(int id)
+        public User GetUser(int id)
         {
-            if (_currentUser == null)
-                return null;
-            else
-                return _currentUser;
+            UserDTO userDTO = _userRepo.Get(id);
+            return ConvertFromDTO(userDTO);
         }
 
-        public User? SignIn(string login, string password)
+        public List<User> GetAll()
+        {
+            List<UserDTO> userDTOs = _userRepo.GetAll();
+            List<User> userList = new List<User>();
+            foreach (var userDTO in userDTOs)
+            {
+                userList.Add(ConvertFromDTO(userDTO));
+            }
+            return userList;
+        }
+
+        public User SignIn(string login, string password)
         {
             List<UserDTO> userDTOs = _userRepo.GetAll();
             User user = null;
@@ -94,7 +125,7 @@ namespace Planum.Models.BuisnessLayer.Managers
                     return user;
                 }
             }
-            return user;
+            throw new UserInvalidLoginOrPassword();
         }
     }
 }
