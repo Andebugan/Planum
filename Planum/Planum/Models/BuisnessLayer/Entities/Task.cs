@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Planum.Models.BuisnessLayer.Entities
 {
@@ -16,13 +14,14 @@ namespace Planum.Models.BuisnessLayer.Entities
 
         private List<int> tagIds = new List<int>();
         public IReadOnlyList<int> TagIds => tagIds;
+        public bool Timed { get; }
         public DateTime StartTime { get; }
         public DateTime Deadline { get; }
         public bool IsRepeated { get; }
         public TimeSpan RepeatPeriod { get; }
 
         public Task(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, List<int> TagIds, int userId = -1,
+            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, bool timed = false, int userId = -1,
             string name = "", string description = "", int parentId = -1, bool isRepeated = false)
         {
             if (parentId == -1)
@@ -33,8 +32,9 @@ namespace Planum.Models.BuisnessLayer.Entities
             ParentId = parentId;
             Name = name;
             Description = description;
+            Timed = timed;
 
-            tagIds = TagIds;
+            tagIds = (List<int>)TagIds;
             StartTime = startTime;
             Deadline = deadline;
             IsRepeated = isRepeated;

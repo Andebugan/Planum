@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Planum.Models.BuisnessLayer.Entities;
-using Planum.Models.BuisnessLayer.Managers.TagManagement;
 using Planum.Models.BuisnessLayer.RepoInterfaces;
-using Planum.Models.DTO.ModelData;
+using Planum.Models.DTO;
 
 namespace Planum.Models.BuisnessLayer.Managers
 {
@@ -23,21 +21,25 @@ namespace Planum.Models.BuisnessLayer.Managers
 
         public void UpdateTag(int id, string name, int category, string description)
         {
-            Tag? tag = GetTag(id); // ! change to find tag
+            Tag? tag = FindTag(id);
+            if (tag == null) return;
             Tag newTag = new Tag(tag.Id, tag.UserId, category, name, description);
             TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
-            _tagRepo.UpdateTask(tagDTO);
+            _tagRepo.UpdateTag(tagDTO);
         }
 
         public void DeleteTag(int tagId)
         {
-            _taskManager.RemoveTagFromAll(tagId);
-            _tagRepo.Delete(tagId);
+            if (FindTag(tagId) != null)
+            {
+                _taskManager.RemoveTagFromAll(tagId);
+                _tagRepo.DeleteTag(tagId);
+            }
         }
 
         public void DeleteConnectedToUser(int userId)
         {
-            List<Tag> tags = GetAll();
+            List<Tag> tags = GetAllTags();
             foreach (Tag tag in tags)
             {
                 if (tag.UserId == userId)
@@ -45,14 +47,11 @@ namespace Planum.Models.BuisnessLayer.Managers
             }
         }
 
-        public void CreateTag(int user_id, int category, string? name, string? description)
+        public int CreateTag(int user_id, int category, string? name, string? description)
         {
-            int id = 0;
-            List<Tag> tags = GetAll();
-
-            Tag new_tag = new Tag(id, user_id, category, name, description);
+            Tag new_tag = new Tag(0, user_id, category, name, description);
             TagDTO tagDTO = _tagConverter.ConvertToDTO(new_tag);
-            _tagRepo.Add(tagDTO);
+            return _tagRepo.AddTag(tagDTO);
         }
 
         public Tag GetTag(int tagId)
@@ -65,13 +64,15 @@ namespace Planum.Models.BuisnessLayer.Managers
         public Tag? FindTag(int tagId)
         {
             TagDTO? tagDTO = _tagRepo.FindTag(tagId);
+            if (tagDTO == null)
+                return null;
             Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
             return tag;
         }
 
-        public List<Tag> GetAll()
+        public List<Tag> GetAllTags()
         {
-            List<TagDTO> tagDTOs = _tagRepo.GetAll();
+            List<TagDTO> tagDTOs = _tagRepo.GetAllTags();
             List<Tag> tagList = new List<Tag>();
             foreach (var tagDTO in tagDTOs)
             {

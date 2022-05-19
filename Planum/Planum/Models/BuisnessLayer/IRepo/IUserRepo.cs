@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Planum.Models.DTO.ModelData;
+﻿using System.Collections.Generic;
+using Planum.Models.DTO;
 
 namespace Planum.Models.BuisnessLayer.RepoInterfaces
 {
@@ -14,6 +10,6 @@ namespace Planum.Models.BuisnessLayer.RepoInterfaces
         public void DeleteUser(int id);
         public UserDTO GetUser(int id);
         public UserDTO? FindUser(int id);
-        public List<UserDTO> GetAll();
+        public List<UserDTO> GetAllUsers();
     }
 }

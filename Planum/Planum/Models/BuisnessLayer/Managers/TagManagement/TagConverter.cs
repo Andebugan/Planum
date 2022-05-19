@@ -1,5 +1,5 @@
 ﻿using Planum.Models.BuisnessLayer.Entities;
-using Planum.Models.DTO.ModelData;
+using Planum.Models.DTO;
 
 namespace Planum.Models.BuisnessLayer.Managers.TagManagement
 {

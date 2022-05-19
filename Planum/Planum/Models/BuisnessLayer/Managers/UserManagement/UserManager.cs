@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Planum.Models.BuisnessLayer.Entities;
-using Planum.Models.BuisnessLayer.Managers.UserManagement;
 using Planum.Models.BuisnessLayer.RepoInterfaces;
-using Planum.Models.DTO.ModelData;
+using Planum.Models.DTO;
 
 namespace Planum.Models.BuisnessLayer.Managers
 {
     public class UserManager : IUserManager
     {
-        public User CurrentUser { get; set; }
+        public User? CurrentUser { get; set; } = null;
         protected IUserRepo _userRepo;
         protected ITagManager _tagManager;
         protected ITaskManager _taskManager;
@@ -27,50 +23,55 @@ namespace Planum.Models.BuisnessLayer.Managers
             _userConverter = userConverter;
         }
 
-        public void CreateUser(string login, string password)
+        public int CreateUser(string login, string password)
         {
-            List<User> users = GetAll();
+            List<User> users = GetAllUsers();
 
             if (users.Any(x => x.Login == login))
                 throw new UserLoginAlreadyExistException();
 
-            // id in bd
-
             User new_user = new User(-1, login, password);
             UserDTO userDTO = _userConverter.ConvertToDTO(new_user);
-            _userRepo.Add(userDTO);
+            return _userRepo.AddUser(userDTO);
         }
 
-        public void Update(int id, string login, string password)
+        public void UpdateUser(int id, string login, string password)
         {
+            if (FindUser(id) == null)
+                return;
             UserDTO new_user = new UserDTO(id, login, password);
-            _userRepo.Update(new_user);
+            _userRepo.UpdateUser(new_user);
         }
 
         public void DeleteUser(int id)
         {
-            try
-            {
-                GetUser(id);
-            }
-            catch (UserDoesNotExistException) { }
+            if (FindUser(id) == null)
+                return;
             _tagManager.DeleteConnectedToUser(id);
             _taskManager.DeleteConnectedToUser(id);
-            _userRepo.Delete(id);
+            _userRepo.DeleteUser(id);
         }
 
-        public User GetUser(int id) => _userConverter.ConvertFromDTO(_userRepo.Get(id));
+        public User GetUser(int id) => _userConverter.ConvertFromDTO(_userRepo.GetUser(id));
 
-        public List<User> GetAll()
+        public User? FindUser(int id)
         {
-            List<UserDTO> userDTOs = _userRepo.GetAll();
+            UserDTO? user = _userRepo.FindUser(id);
+            if (user == null)
+                return null;
+            return _userConverter.ConvertFromDTO(user);
+        }
+
+        public List<User> GetAllUsers()
+        {
+            List<UserDTO> userDTOs = _userRepo.GetAllUsers();
 
             return userDTOs.Select(x => _userConverter.ConvertFromDTO(x)).ToList();
         }
 
-        public User SignIn(string login, string password)
+        public User? SignIn(string login, string password)
         {
-            List<UserDTO> userDTOs = _userRepo.GetAll();
+            List<UserDTO> userDTOs = _userRepo.GetAllUsers();
             User user = null;
 
             foreach (var userDTO in userDTOs)
@@ -81,7 +82,7 @@ namespace Planum.Models.BuisnessLayer.Managers
                     return user;
                 }
             }
-            throw new UserInvalidLoginOrPasswordException();
+            return user;
         }
     }
 }

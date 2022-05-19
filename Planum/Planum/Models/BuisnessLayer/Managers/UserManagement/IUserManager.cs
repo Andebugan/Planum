@@ -5,13 +5,14 @@ namespace Planum.Models.BuisnessLayer.Managers
 {
     public interface IUserManager
     {
-        User CurrentUser { get; set; }
+        User? CurrentUser { get; set; }
 
-        void CreateUser(string login, string password);
+        int CreateUser(string login, string password);
         void DeleteUser(int id);
-        List<User> GetAll();
+        User? FindUser(int id);
+        List<User> GetAllUsers();
         User GetUser(int id);
-        User SignIn(string login, string password);
-        void Update(int id, string login, string password);
+        User? SignIn(string login, string password);
+        void UpdateUser(int id, string login, string password);
     }
 }

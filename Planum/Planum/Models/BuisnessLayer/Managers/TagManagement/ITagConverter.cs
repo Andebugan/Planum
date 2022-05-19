@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Planum.Models.BuisnessLayer.Entities;
-using Planum.Models.DTO.ModelData;
+﻿using Planum.Models.BuisnessLayer.Entities;
+using Planum.Models.DTO;
 
-namespace Planum.Models.BuisnessLayer.Managers.TagManagement
+namespace Planum.Models.BuisnessLayer.Managers
 {
     public interface ITagConverter
     {

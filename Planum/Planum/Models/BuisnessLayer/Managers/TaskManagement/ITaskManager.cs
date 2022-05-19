@@ -1,37 +1,20 @@
-﻿using Planum.Models.DTO.ModelData;
+﻿using Planum.Models.BuisnessLayer.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Planum.Models.BuisnessLayer.Managers
 {
     public interface ITaskManager
     {
-        Task ConvertFromDTO(TaskDTO taskDTO);
-
-        TaskDTO ConvertToDTO(Task task);
-
-        void CreateTask(int user_id, string? name, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, List<int> tagIds, string? description = null, int parentId = -1, bool isRepeated = false);
-
-        void UpdateTask(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, List<int> tagIds, string? name, string? description = null,
-            int parentId = -1, bool isRepeated = false);
-
-        void DeleteTask(int taskId);
-
         void ArchiveTask(int taskId);
-
-        void UnarchiveTask(int taskId);
-
-        Task GetTask(int taskId);
-
-        void RemoveTagFromAll(int tagId);
-
+        int CreateTask(int user_id, DateTime startTime, DateTime deadline, TimeSpan repeatPeriod, List<int> tagIds,  bool timed = false, string name = "", string description = "", int parentId = -1, bool isRepeated = false);
         void DeleteConnectedToUser(int userId);
-
-        List<Task> GetAll();
+        void DeleteTask(int taskId);
+        Task? FindTask(int taskId);
+        List<Task> GetAllTasks();
+        Task GetTask(int taskId);
+        void RemoveTagFromAll(int tagId);
+        void UnarchiveTask(int taskId);
+        void UpdateTask(int id, DateTime startTime, DateTime deadline, TimeSpan repeatPeriod, IReadOnlyList<int> tagIds,  bool timed = false, string name = "", string description = "", int parentId = -1, bool isRepeated = false);
     }
 }

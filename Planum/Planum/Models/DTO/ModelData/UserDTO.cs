@@ -1,4 +1,6 @@
-﻿namespace Planum.Models.DTO.ModelData
+﻿using System;
+
+namespace Planum.Models.DTO
 {
     public class UserDTO
     {

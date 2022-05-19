@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Planum.Models.DTO.ModelData;
+﻿using System.Collections.Generic;
+using Planum.Models.DTO;
 
 namespace Planum.Models.BuisnessLayer.RepoInterfaces
 {
@@ -16,6 +12,7 @@ namespace Planum.Models.BuisnessLayer.RepoInterfaces
         public void UnarchiveTask(int id);
         public TaskDTO GetTask(int id);
         public TaskDTO? FindTask(int id);
-        public List<TaskDTO> GetAll();
+        public List<TaskDTO> GetAllTasks();
+        public List<TaskDTO> GetAllArchivedTasks();
     }
 }

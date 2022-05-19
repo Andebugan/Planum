@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace Planum.Models.DTO.ModelData
+namespace Planum.Models.DTO
 {
     public class TaskDTO
     {
@@ -13,13 +14,14 @@ namespace Planum.Models.DTO.ModelData
 
         private List<int> tagIds = new List<int>();
         public IReadOnlyList<int> TagIds => tagIds;
+        public bool Timed { get; }
         public DateTime StartTime { get; }
         public DateTime Deadline { get; }
         public bool IsRepeated { get; }
         public TimeSpan RepeatPeriod { get; }
 
         public TaskDTO(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, int userId = -1,
+            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, bool timed = false, int userId = -1,
             string name = "", string description = "", int parentId = -1, bool isRepeated = false)
         {
             if (parentId == -1)
@@ -30,6 +32,7 @@ namespace Planum.Models.DTO.ModelData
             ParentId = parentId;
             Name = name;
             Description = description;
+            Timed = timed;
 
             tagIds = (List<int>)TagIds;
             StartTime = startTime;
