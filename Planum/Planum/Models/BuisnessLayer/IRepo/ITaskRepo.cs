@@ -11,7 +11,9 @@ namespace Planum.Models.BuisnessLayer.RepoInterfaces
         public void ArchiveTask(int id);
         public void UnarchiveTask(int id);
         public TaskDTO GetTask(int id);
+        public TaskDTO GetArchivedTask(int id);
         public TaskDTO? FindTask(int id);
+        public TaskDTO? FindArchivedTask(int id);
         public List<TaskDTO> GetAllTasks();
         public List<TaskDTO> GetAllArchivedTasks();
     }

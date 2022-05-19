@@ -8,7 +8,12 @@ namespace Planum.Models.BuisnessLayer.Entities
     {
         public int Id { get; }
         public int UserId { get; }
-        public int ParentId { get; }
+
+        private List<int> parentIds = new List<int>();
+        public IReadOnlyList<int> ParentIds => parentIds;
+
+        private List<int> childIds = new List<int>();
+        public IReadOnlyList<int> ChildIds => childIds;
         public string Name { get; }
         public string Description { get; }
 
@@ -21,19 +26,21 @@ namespace Planum.Models.BuisnessLayer.Entities
         public TimeSpan RepeatPeriod { get; }
 
         public Task(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, bool timed = false, int userId = -1,
-            string name = "", string description = "", int parentId = -1, bool isRepeated = false)
+            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
+            string name, bool timed = false, int userId = -1,
+            string description = "", bool isRepeated = false)
         {
-            if (parentId == -1)
-                parentId = id;
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Task name can not be null or empty", nameof(name));
 
             Id = id;
             UserId = userId;
-            ParentId = parentId;
             Name = name;
             Description = description;
             Timed = timed;
-
+            parentIds = (List<int>)ParentIds;
+            childIds = (List<int>)ChildIds;
             tagIds = (List<int>)TagIds;
             StartTime = startTime;
             Deadline = deadline;

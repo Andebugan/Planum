@@ -13,7 +13,7 @@ namespace Planum.Models.BuisnessLayer.Entities
         public Tag(int id, int user_id, int category, string name, string description)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name can not be null or empty", nameof(name));
+                throw new ArgumentException("Tag name can not be null or empty", nameof(name));
 
             Id = id;
             UserId = user_id;

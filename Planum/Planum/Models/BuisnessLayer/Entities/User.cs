@@ -1,4 +1,6 @@
-﻿namespace Planum.Models.BuisnessLayer.Entities
+﻿using System;
+
+namespace Planum.Models.BuisnessLayer.Entities
 {
     public class User
     {
@@ -10,6 +12,9 @@
 
         public User(int id, string login, string password)
         {
+            if (string.IsNullOrWhiteSpace(login))
+                throw new ArgumentException("User name can not be null or empty", nameof(login));
+
             Id = id;
             Login = login;
             Password = password;

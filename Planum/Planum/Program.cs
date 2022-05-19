@@ -7,11 +7,12 @@ namespace Planum
 {
     internal class Program
     {
+        /*
         public static void Main(string[] args)
         {
-
+            Console.WriteLine("Hello world!");
         }
-        /*
+        */
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
@@ -25,6 +26,5 @@ namespace Planum
                 .UsePlatformDetect()
                 .LogToTrace()
                 .UseReactiveUI();
-        */
     }
 }

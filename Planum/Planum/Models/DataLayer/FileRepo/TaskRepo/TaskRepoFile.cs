@@ -46,8 +46,6 @@ namespace Planum.Models.DataLayer
                 return false;
             if (taskDTO_1.UserId != taskDTO_2.UserId)
                 return false;
-            if (taskDTO_1.ParentId != taskDTO_2.ParentId)
-                return false;
             if (taskDTO_1.Name != taskDTO_2.Name)
                 return false;
             if (taskDTO_1.Description != taskDTO_2.Description)
@@ -62,6 +60,14 @@ namespace Planum.Models.DataLayer
             List<int> temp_2 = (List<int>)taskDTO_2.TagIds;
             if (!temp_1.SequenceEqual(temp_2))
                 return false;
+            temp_1 = (List<int>)taskDTO_1.ChildIds;
+            temp_2 = (List<int>)taskDTO_2.ChildIds;
+            if (!temp_1.SequenceEqual(temp_2))
+                return false;
+            temp_1 = (List<int>)taskDTO_1.ParentIds;
+            temp_2 = (List<int>)taskDTO_2.ParentIds;
+            if (!temp_1.SequenceEqual(temp_2))
+                return false;
             if (taskDTO_1.IsRepeated != taskDTO_2.IsRepeated)
                 return false;
             if (Math.Abs((taskDTO_1.RepeatPeriod - taskDTO_2.RepeatPeriod).TotalSeconds) > 1)
@@ -73,7 +79,6 @@ namespace Planum.Models.DataLayer
         {
             int taskId = reader.ReadInt32(); // id
             int userId = reader.ReadInt32(); // user id
-            int parentId = reader.ReadInt32(); // parent id
             string name = reader.ReadString(); // name
             string description = reader.ReadString(); // description
             int list_len = reader.ReadInt32(); // list len
@@ -81,26 +86,47 @@ namespace Planum.Models.DataLayer
             for (int i = 0; i < list_len; i++) // list
                 tagIds.Add(reader.ReadInt32());
 
+            list_len = reader.ReadInt32(); // list len
+            List<int> parentIds = new List<int>();
+            for (int i = 0; i < list_len; i++) // list
+                parentIds.Add(reader.ReadInt32());
+
+            list_len = reader.ReadInt32(); // list len
+            List<int> childIds = new List<int>();
+            for (int i = 0; i < list_len; i++) // list
+                childIds.Add(reader.ReadInt32());
+
             bool timed = reader.ReadBoolean(); // timed
             DateTime startTime = DateTime.Parse(reader.ReadString()); // start time
             DateTime deadline = DateTime.Parse(reader.ReadString()); // deadline
             bool isRepeated = reader.ReadBoolean(); // is repeated 
             TimeSpan repeatPeriod = TimeSpan.Parse(reader.ReadString()); // repeat period
 
-            return new TaskDTO(taskId, startTime, deadline, repeatPeriod, tagIds, timed, userId, name, description, parentId, isRepeated);
+            return new TaskDTO(taskId, startTime, deadline, repeatPeriod, tagIds, parentIds, childIds,
+                name, timed, userId,  description, isRepeated);
         }
 
         protected void WriteFromDTO(TaskDTO taskDTO, int id, BinaryWriter writer)
         {
             writer.Write(id); // id
             writer.Write(taskDTO.UserId); // user id
-            writer.Write(taskDTO.ParentId); // parent id
             writer.Write(taskDTO.Name); // name
             writer.Write(taskDTO.Description); // description
             int list_len = taskDTO.TagIds.Count; // tag id list
             writer.Write(list_len); // list len
             for (int i = 0; i < list_len; i++) // list elems
                 writer.Write(taskDTO.TagIds[i]);
+
+            list_len = taskDTO.ParentIds.Count; // tag id list
+            writer.Write(list_len); // list len
+            for (int i = 0; i < list_len; i++) // list elems
+                writer.Write(taskDTO.ParentIds[i]);
+
+            list_len = taskDTO.ChildIds.Count; // tag id list
+            writer.Write(list_len); // list len
+            for (int i = 0; i < list_len; i++) // list elems
+                writer.Write(taskDTO.ChildIds[i]);
+
             writer.Write(taskDTO.Timed); // timed
             writer.Write(taskDTO.StartTime.ToString()); // start time
             writer.Write(taskDTO.Deadline.ToString()); // end time
@@ -414,6 +440,27 @@ namespace Planum.Models.DataLayer
             return tasks;
         }
 
+        public TaskDTO GetArchivedTask(int id)
+        {
+            using (var stream = File.Open(_taskArchivePath, FileMode.OpenOrCreate))
+            {
+                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
+                {
+                    while (reader.BaseStream.Position != reader.BaseStream.Length)
+                    {
+                        TaskDTO temp = ReadIntoDTO(reader);
+
+                        if (temp.Id == id)
+                        {
+                            return temp;
+                        }
+                    }
+                }
+            }
+
+            throw new ArchivedTaskDoesNotExistException("Task with id = " + id + " does not exist.");
+        }
+
         public TaskDTO? FindTask(int id)
         {
             try
@@ -421,6 +468,18 @@ namespace Planum.Models.DataLayer
                 return GetTask(id);
             }
             catch(TaskDoesNotExistException)
+            {
+                return null;
+            }
+        }
+
+        public TaskDTO? FindArchivedTask(int id)
+        {
+            try
+            {
+                return (GetArchivedTask(id));
+            }
+            catch (ArchivedTaskDoesNotExistException)
             {
                 return null;
             }
