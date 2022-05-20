@@ -159,6 +159,15 @@ namespace Planum.Models.BuisnessLayer.Managers
             }
         }
 
+        void RemoveTagFromTask(int taskId, int tagId)
+        {
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            task.RemoveTag(tagId);
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, new List<int>(task.TagIds),
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
         public void DeleteConnectedToUser(int userId)
         {
             List<Task> tasks = GetAllTasks();

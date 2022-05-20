@@ -18,6 +18,7 @@ namespace Planum.Models.BuisnessLayer.Managers
         List<Task> GetAllTasks();
         Task GetTask(int taskId);
         Task GetArhcivedTask(int taskId);
+        void RemoveTagFromTask(int taskId, int tagId);
         void RemoveTagFromAll(int tagId);
         void UnarchiveTask(int taskId);
         void UpdateTask(int id, DateTime startTime, DateTime deadline,
