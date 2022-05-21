@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 using Planum.Models.DTO;
-using Planum.Models.DataLayer;
-using Planum.Models.BuisnessLayer.RepoInterfaces;
+using Planum.Models.DataModels;
+using Planum.Models.BuisnessLogic.IRepo;
 
 namespace Planum.Testing.UnitTesting
 {
@@ -48,8 +48,6 @@ namespace Planum.Testing.UnitTesting
                 return false;
             if (taskDTO_1.UserId != taskDTO_2.UserId)
                 return false;
-            if (taskDTO_1.ParentId != taskDTO_2.ParentId)
-                return false;
             if (taskDTO_1.Name != taskDTO_2.Name)
                 return false;
             if (taskDTO_1.Description != taskDTO_2.Description)
@@ -62,6 +60,14 @@ namespace Planum.Testing.UnitTesting
                 return false;
             List<int> temp_1 = (List<int>)taskDTO_1.TagIds;
             List<int> temp_2 = (List<int>)taskDTO_2.TagIds;
+            if (!temp_1.SequenceEqual(temp_2))
+                return false;
+            temp_1 = (List<int>)taskDTO_1.ChildIds;
+            temp_2 = (List<int>)taskDTO_2.ChildIds;
+            if (!temp_1.SequenceEqual(temp_2))
+                return false;
+            temp_1 = (List<int>)taskDTO_1.ParentIds;
+            temp_2 = (List<int>)taskDTO_2.ParentIds;
             if (!temp_1.SequenceEqual(temp_2))
                 return false;
             if (taskDTO_1.IsRepeated != taskDTO_2.IsRepeated)
@@ -282,9 +288,12 @@ namespace Planum.Testing.UnitTesting
         public void TestTaskAddGet()
         {
             ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 1, "task_1", "task_1 description", 5, false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.FromHours(5), new List<int>(), false, 2, "task_2", "task_2 description", 5, false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 3, "task_3", "task_3 description", 5, true);
+            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, 1, "task_1 description", false);
+            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_2", false, 1, "task_2 description", false);
+            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3", false, 1, "task_3 description", false);
 
             int id_1 = taskRepo.AddTask(testDTO1);
             int id_3 = taskRepo.AddTask(testDTO3);
@@ -305,9 +314,12 @@ namespace Planum.Testing.UnitTesting
         public void TestTaskGetAll()
         {
             ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 1, "task_1", "task_1 description", 5, false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.FromHours(5), new List<int>(), false, 2, "task_2", "task_2 description", 5, false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 3, "task_3", "task_3 description", 5, true);
+            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, 1, "task_1 description", false);
+            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_2", false, 1, "task_2 description", false);
+            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3", false, 1, "task_3 description", false);
 
             int id_1 = taskRepo.AddTask(testDTO1);
             int id_3 = taskRepo.AddTask(testDTO3);
@@ -325,16 +337,19 @@ namespace Planum.Testing.UnitTesting
         public void TestTaskUpdate()
         {
             ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 1, "task_1", "task_1 description", 5, false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.FromHours(5), new List<int>(), false, 2, "task_2", "task_2 description", 5, false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 3, "task_3", "task_3 description", 5, true);
+            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, 1, "task_1 description", false);
+            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_2", false, 1, "task_2 description", false);
+            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3", false, 1, "task_3 description", false);
 
             int id_1 = taskRepo.AddTask(testDTO1);
             int id_3 = taskRepo.AddTask(testDTO3);
             int id_2 = taskRepo.AddTask(testDTO2);
 
-            testDTO3 = new TaskDTO(id_3, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, -1, "task_1", "task_1 new description", 2, true);
-            taskRepo.UpdateTask(testDTO3);
+            testDTO3 = new TaskDTO(id_3, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3 new", false, 1, "task_3 new description", false);
             TaskDTO temp = taskRepo.GetTask(id_3);
             Assert.IsTrue(CompareTaskDTOs(temp.Id, temp, id_3, testDTO3));
             ((TaskRepoFile)taskRepo).Reset();
@@ -344,9 +359,12 @@ namespace Planum.Testing.UnitTesting
         public void TestTaskDelete()
         {
             ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 1, "task_1", "task_1 description", 5, false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.FromHours(5), new List<int>(), false, 2, "task_2", "task_2 description", 5, false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 3, "task_3", "task_3 description", 5, true);
+            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, 1, "task_1 description", false);
+            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_2", false, 1, "task_2 description", false);
+            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3", false, 1, "task_3 description", false);
 
             int id_1 = taskRepo.AddTask(testDTO1);
             int id_3 = taskRepo.AddTask(testDTO3);
@@ -364,9 +382,12 @@ namespace Planum.Testing.UnitTesting
         public void TestTaskReset()
         {
             ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 1, "task_1", "task_1 description", 5, false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.FromHours(5), new List<int>(), false, 2, "task_2", "task_2 description", 5, false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 3, "task_3", "task_3 description", 5, true);
+            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, 1, "task_1 description", false);
+            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_2", false, 1, "task_2 description", false);
+            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3", false, 1, "task_3 description", false);
 
             int id_1 = taskRepo.AddTask(testDTO1);
             int id_3 = taskRepo.AddTask(testDTO3);
@@ -381,9 +402,12 @@ namespace Planum.Testing.UnitTesting
         public void TestTaskArchive()
         {
             ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 1, "task_1", "task_1 description", 5, false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.FromHours(5), new List<int>(), false, 2, "task_2", "task_2 description", 5, false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 3, "task_3", "task_3 description", 5, true);
+            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, 1, "task_1 description", false);
+            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_2", false, 1, "task_2 description", false);
+            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3", false, 1, "task_3 description", false);
 
             int id_1 = taskRepo.AddTask(testDTO1);
             int id_3 = taskRepo.AddTask(testDTO3);
@@ -406,9 +430,12 @@ namespace Planum.Testing.UnitTesting
         public void TestTaskUnarchive()
         {
             ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 1, "task_1", "task_1 description", 5, false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.FromHours(5), new List<int>(), false, 2, "task_2", "task_2 description", 5, false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), false, 3, "task_3", "task_3 description", 5, true);
+            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, 1, "task_1 description", false);
+            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_2", false, 1, "task_2 description", false);
+            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_3", false, 1, "task_3 description", false);
 
             int id_1 = taskRepo.AddTask(testDTO1);
             int id_3 = taskRepo.AddTask(testDTO3);
