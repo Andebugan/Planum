@@ -40,7 +40,8 @@ namespace Planum
                 new ShowAllUsersCommand(userManager),
                 new ShowUserCommand(userManager),
                 new SignUpCommand(userManager),
-                new UpdateUserCommand(userManager)
+                new UpdateUserCommand(userManager),
+                new DeleteAllUsersCommand(userManager),
             };
             ConsoleShell consoleShell = new ConsoleShell(commands);
             consoleShell.MainLoop();

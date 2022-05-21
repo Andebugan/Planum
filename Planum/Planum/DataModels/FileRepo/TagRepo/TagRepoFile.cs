@@ -135,6 +135,36 @@ namespace Planum.Models.DataModels
             }
         }
 
+        public void DeleteTag(int id, int userId)
+        {
+            List<TagDTO> tags = new List<TagDTO>();
+
+            using (var stream = File.Open(_tagRepoPath, FileMode.Open))
+            {
+                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
+                {
+                    while (reader.BaseStream.Position != reader.BaseStream.Length)
+                    {
+                        TagDTO temp = ReadIntoDTO(reader);
+
+                        if (temp.Id != id && temp.UserId != userId)
+                            tags.Add(temp);
+                    }
+                }
+            }
+
+            using (var stream = File.Open(_tagRepoPath, FileMode.Create))
+            {
+                using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
+                {
+                    foreach (var tagDTO in tags)
+                    {
+                        WriteFromDTO(writer, tagDTO.Id, tagDTO);
+                    }
+                }
+            }
+        }
+
         public TagDTO GetTag(int id)
         {
             using (var stream = File.Open(_tagRepoPath, FileMode.OpenOrCreate))
@@ -146,6 +176,27 @@ namespace Planum.Models.DataModels
                         TagDTO temp = ReadIntoDTO(reader);
 
                         if (temp.Id == id)
+                        {
+                            return temp;
+                        }
+                    }
+                }
+            }
+
+            throw new TagDoesNotExistException("Tag with id = " + id + " does not exist.");
+        }
+
+        public TagDTO GetTag(int id, int userId)
+        {
+            using (var stream = File.Open(_tagRepoPath, FileMode.OpenOrCreate))
+            {
+                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
+                {
+                    while (reader.BaseStream.Position != reader.BaseStream.Length)
+                    {
+                        TagDTO temp = ReadIntoDTO(reader);
+
+                        if (temp.Id == id && temp.UserId == userId)
                         {
                             return temp;
                         }
@@ -171,6 +222,29 @@ namespace Planum.Models.DataModels
                             TagDTO temp = ReadIntoDTO(reader);
 
                             tags.Add(temp);
+                        }
+                    }
+                }
+            }
+            return tags;
+        }
+
+        public List<TagDTO> GetAllTags(int userId)
+        {
+            List<TagDTO> tags = new List<TagDTO>();
+
+            if (File.Exists(_tagRepoPath))
+            {
+                using (var stream = File.Open(_tagRepoPath, FileMode.OpenOrCreate))
+                {
+                    using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
+                    {
+                        while (reader.BaseStream.Position != reader.BaseStream.Length)
+                        {
+                            TagDTO temp = ReadIntoDTO(reader);
+
+                            if (temp.UserId == userId)
+                                tags.Add(temp);
                         }
                     }
                 }
@@ -223,6 +297,19 @@ namespace Planum.Models.DataModels
             try
             {
                 TagDTO tagDTO = GetTag(id);
+                return tagDTO;
+            }
+            catch (TagDoesNotExistException)
+            {
+                return null;
+            }
+        }
+
+        public TagDTO? FindTag(int id, int userId)
+        {
+            try
+            {
+                TagDTO tagDTO = GetTag(id, userId);
                 return tagDTO;
             }
             catch (TagDoesNotExistException)

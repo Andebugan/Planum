@@ -71,5 +71,53 @@ namespace Planum.Models.BuisnessLogic.Entities
         {
             tagIds.Clear();
         }
+
+        public void AddParent(int parentId)
+        {
+            if (parentIds.Any(x => x == parentId))
+                return;
+            parentIds.Add(parentId);
+        }
+
+        public void RemoveParent(int id)
+        {
+            foreach (var node in ParentIds)
+            {
+                if (node == id)
+                {
+                    parentIds.Remove(node);
+                    return;
+                }
+            }
+        }
+
+        public void ClearParents()
+        {
+            parentIds.Clear();
+        }
+
+        public void AddChild(int childId)
+        {
+            if (childIds.Any(x => x == childId))
+                return;
+            childIds.Add(childId);
+        }
+
+        public void RemoveChild(int id)
+        {
+            foreach (var node in ChildIds)
+            {
+                if (node == id)
+                {
+                    childIds.Remove(node);
+                    return;
+                }
+            }
+        }
+
+        public void ClearChildIds()
+        {
+            childIds.Clear();
+        }
     }
 }

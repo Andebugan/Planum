@@ -1,31 +1,49 @@
-﻿using System;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class ShowAllTagsCommand : ICommand
     {
+        ITagManager _tagManager;
+        IUserManager _userManager;
+
+        public ShowAllTagsCommand(ITagManager tagManager, IUserManager userManager)
+        {
+            _tagManager = tagManager;
+            _userManager = userManager;
+        }
+
         public void Execute()
         {
-            throw new NotImplementedException();
+            List<Tag> tags = _tagManager.GetAllTags(_userManager.CurrentUser.Id);
+            foreach (Tag tag in tags)
+            {
+                Console.WriteLine("Tag id: " + tag.Id);
+                Console.WriteLine("Tag name: " + tag.Name);
+                Console.WriteLine("Tag description: " + tag.Description);
+                Console.WriteLine("Tag category: " + tag.Category);
+                Console.WriteLine();
+            }
         }
 
         public string GetDescription()
         {
-            throw new NotImplementedException();
+            return "shows all tags";
         }
 
         public string GetName()
         {
-            throw new NotImplementedException();
+            return "show all tags";
         }
 
         public bool IsAvaliable()
         {
-            throw new NotImplementedException();
+            if (_userManager.CurrentUser == null)
+                return false;
+            return true;
         }
     }
 }

@@ -28,9 +28,27 @@ namespace Planum.Models.BuisnessLogic.Managers
             _tagRepo.UpdateTag(tagDTO);
         }
 
+        public void UpdateTag(int id, int userId, string name, int category, string description)
+        {
+            Tag? tag = FindTag(id, userId);
+            if (tag == null) return;
+            Tag newTag = new Tag(tag.Id, tag.UserId, category, name, description);
+            TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
+            _tagRepo.UpdateTag(tagDTO);
+        }
+
         public void DeleteTag(int tagId)
         {
             if (FindTag(tagId) != null)
+            {
+                _taskManager.RemoveTagFromAll(tagId);
+                _tagRepo.DeleteTag(tagId);
+            }
+        }
+
+        public void DeleteTag(int tagId, int userId)
+        {
+            if (FindTag(tagId, userId) != null)
             {
                 _taskManager.RemoveTagFromAll(tagId);
                 _tagRepo.DeleteTag(tagId);
@@ -61,9 +79,25 @@ namespace Planum.Models.BuisnessLogic.Managers
             return tag;
         }
 
+        public Tag GetTag(int tagId, int userId)
+        {
+            TagDTO tagDTO = _tagRepo.GetTag(tagId, userId);
+            Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
+            return tag;
+        }
+
         public Tag? FindTag(int tagId)
         {
             TagDTO? tagDTO = _tagRepo.FindTag(tagId);
+            if (tagDTO == null)
+                return null;
+            Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
+            return tag;
+        }
+
+        public Tag? FindTag(int tagId, int userId)
+        {
+            TagDTO? tagDTO = _tagRepo.FindTag(tagId, userId);
             if (tagDTO == null)
                 return null;
             Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
@@ -77,6 +111,18 @@ namespace Planum.Models.BuisnessLogic.Managers
             foreach (var tagDTO in tagDTOs)
             {
                 tagList.Add(_tagConverter.ConvertFromDTO(tagDTO));
+            }
+            return tagList;
+        }
+
+        public List<Tag> GetAllTags(int userId)
+        {
+            List<TagDTO> tagDTOs = _tagRepo.GetAllTags(userId);
+            List<Tag> tagList = new List<Tag>();
+            foreach (var tagDTO in tagDTOs)
+            {
+                if (tagDTO.UserId == userId)
+                    tagList.Add(_tagConverter.ConvertFromDTO(tagDTO));
             }
             return tagList;
         }

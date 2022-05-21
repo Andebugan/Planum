@@ -1,31 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
+using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
-    public class ShowTagCommand: ICommand
+    public class ShowTagCommand : ICommand
     {
+        ITagManager _tagManager;
+        IUserManager _userManager;
+
+        public ShowTagCommand(ITagManager tagManager, IUserManager userManager)
+        {
+            _tagManager = tagManager;
+            _userManager = userManager;
+        }
+
         public void Execute()
         {
-            throw new NotImplementedException();
+            int id = 0;
+            Console.Write("Enter id: ");
+            string? input = Console.ReadLine();
+            if (string.IsNullOrEmpty(input) || int.TryParse(input, out id))
+            {
+                Console.WriteLine("Id must be signed integer");
+                return;
+            }
+            Tag? tag = _tagManager.FindTag(id, _userManager.CurrentUser.Id);
+
+            Console.WriteLine("Tag id: " + tag.Id);
+            Console.WriteLine("Tag name: " + tag.Name);
+            Console.WriteLine("Tag description: " + tag.Description);
+            Console.WriteLine("Tag category: " + tag.Category);
         }
 
         public string GetDescription()
         {
-            throw new NotImplementedException();
+            return "shows tag";
         }
 
         public string GetName()
         {
-            throw new NotImplementedException();
+            return "show tag";
         }
 
         public bool IsAvaliable()
         {
-            throw new NotImplementedException();
+            if (_userManager.CurrentUser == null)
+                return false;
+            return true;
         }
     }
 }
