@@ -32,8 +32,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             Console.Write("Enter tag category: ");
             input = Console.ReadLine();
-            int category = 0;
-            if (string.IsNullOrEmpty(input) || int.TryParse(input, out category))
+            int category;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out category))
             {
                 Console.WriteLine("Tag category must be signed integer");
                 return;

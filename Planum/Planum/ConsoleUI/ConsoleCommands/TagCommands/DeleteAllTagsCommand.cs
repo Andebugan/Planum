@@ -1,5 +1,7 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using System;
+using System.Collections.Generic;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
@@ -16,7 +18,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
-            
+            List<Tag> tags = _tagManager.GetAllTags(_userManager.CurrentUser.Id);
+            foreach (Tag tag in tags)
+                _tagManager.DeleteTag(tag.Id);
+            Console.WriteLine();
         }
 
         public string GetDescription()

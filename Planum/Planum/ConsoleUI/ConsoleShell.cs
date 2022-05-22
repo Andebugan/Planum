@@ -50,7 +50,6 @@ namespace Planum.ConsoleUI
                     if (command.GetName() == input)
                     {
                         command.Execute();
-                        Console.WriteLine();
                         executed = true;
                         break;
                     }

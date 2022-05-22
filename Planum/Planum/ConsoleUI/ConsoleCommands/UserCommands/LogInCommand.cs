@@ -32,6 +32,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             User? user = _userManager.SignIn(login, password);
             if (user == null)
                 Console.WriteLine("didn't sign in, login or password incorrect");
+            Console.WriteLine();
         }
 
         public string GetDescription()

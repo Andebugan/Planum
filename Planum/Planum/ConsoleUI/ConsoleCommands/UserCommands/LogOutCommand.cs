@@ -1,4 +1,5 @@
 ﻿using Planum.Models.BuisnessLogic.Managers;
+using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
@@ -14,6 +15,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
         public void Execute()
         {
             _userManager.CurrentUser = null;
+            Console.WriteLine();
         }
 
         public string GetDescription()

@@ -44,6 +44,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
             _userManager.UpdateUser(id, login, password);
+            Console.WriteLine();
         }
 
         public string GetDescription()

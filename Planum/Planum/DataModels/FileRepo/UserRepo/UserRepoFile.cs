@@ -81,7 +81,8 @@ namespace Planum.Models.DataModels
                             return id;
                         }
 
-                        id += 1;
+                        if (id == temp.Id)
+                            id += 1;
                     }
                 }
             }

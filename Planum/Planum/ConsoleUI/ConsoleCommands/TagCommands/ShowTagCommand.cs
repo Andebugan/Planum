@@ -20,7 +20,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int id = 0;
             Console.Write("Enter id: ");
             string? input = Console.ReadLine();
-            if (string.IsNullOrEmpty(input) || int.TryParse(input, out id))
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
             {
                 Console.WriteLine("Id must be signed integer");
                 return;
@@ -31,6 +31,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine("Tag name: " + tag.Name);
             Console.WriteLine("Tag description: " + tag.Description);
             Console.WriteLine("Tag category: " + tag.Category);
+            Console.WriteLine();
         }
 
         public string GetDescription()

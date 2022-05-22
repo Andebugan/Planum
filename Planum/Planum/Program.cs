@@ -19,9 +19,11 @@ namespace Planum
             ITagRepo tagRepo = new TagRepoFile();
             IUserRepo userRepo = new UserRepoFile();
 
+            /*
             ((TaskRepoFile)taskRepo).Reset();
             ((TagRepoFile)tagRepo).Reset();
             ((UserRepoFile)userRepo).Reset();
+            */
 
             ITaskConverter taskConverter = new TaskConverter();
             ITagConverter tagConverter = new TagConverter();
@@ -42,6 +44,13 @@ namespace Planum
                 new SignUpCommand(userManager),
                 new UpdateUserCommand(userManager),
                 new DeleteAllUsersCommand(userManager),
+
+                new CreateTagCommand(tagManager, userManager),
+                new DeleteTagCommand(tagManager, userManager),
+                new DeleteAllTagsCommand(tagManager, userManager),
+                new ShowAllTagsCommand(tagManager, userManager),
+                new ShowTagCommand(tagManager, userManager),
+                new UpdateTagCommand(tagManager, userManager)
             };
             ConsoleShell consoleShell = new ConsoleShell(commands);
             consoleShell.MainLoop();

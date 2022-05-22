@@ -23,6 +23,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine("id: " + _userManager.CurrentUser.Id);
             Console.WriteLine("login: " + _userManager.CurrentUser.Login);
             Console.WriteLine("password: " + _userManager.CurrentUser.Password);
+            Console.WriteLine();
         }
 
         public string GetDescription()

@@ -1,12 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Planum.Models.BuisnessLogic.Managers;
+using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands.TaskCommands
 {
-    internal class AddChildCommand
+    public class AddChildCommand : ICommand
     {
+        ITaskManager _taskManager;
+        IUserManager _userManager;
+
+        public AddChildCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
+        {
+            _taskManager = taskManager;
+            _userManager = userManager;
+        }
+
+        public void Execute()
+        {
+            string? input;
+            Console.Write("Enter task id: ");
+            input = Console.ReadLine();
+            int taskId;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out taskId))
+            {
+                Console.WriteLine("Task id must be signed integer\n");
+                return;
+            }
+            
+            if (_taskManager.FindTask(taskId, _userManager.CurrentUser.Id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist\n");
+                return;
+            }
+
+            Console.WriteLine("Enter child id: ");
+            input = Console.ReadLine();
+            int childId;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out childId))
+            {
+                Console.WriteLine("Task id must be signed integer\n");
+                return;
+            }
+
+            if (_taskManager.FindTask(childId, _userManager.CurrentUser.Id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist\n");
+                return;
+            }
+
+            _taskManager.AddChildToTask(taskId, childId, _userManager.CurrentUser.Id);
+        }
+
+        public string GetDescription()
+        {
+            return "adds child to task";
+        }
+
+        public string GetName()
+        {
+            return "add child";
+        }
+
+        public bool IsAvaliable()
+        {
+            if (_userManager.CurrentUser != null)
+                return true;
+            return false;
+        }
     }
 }

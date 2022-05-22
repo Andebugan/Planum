@@ -1,7 +1,21 @@
-﻿namespace Planum.ConsoleUI.ConsoleCommands
+﻿using Planum.Models.BuisnessLogic.Managers;
+using System;
+
+namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class CreateTaskCommand : ICommand
     {
+        ITaskManager _taskManager;
+        ITagManager _tagManager;
+        IUserManager _userManager;
+
+        public AddTagCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
+        {
+            _taskManager = taskManager;
+            _userManager = userManager;
+            _tagManager = tagManager;
+        }
+
         public void Execute()
         {
             throw new System.NotImplementedException();

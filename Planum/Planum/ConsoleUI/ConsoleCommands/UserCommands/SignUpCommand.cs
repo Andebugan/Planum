@@ -41,11 +41,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             int id = _userManager.CreateUser(login, password);
-            _userManager.CurrentUser = _userManager.GetUser(id);
             Console.WriteLine("Created new user with:");
             Console.WriteLine("id: " + id);
             Console.WriteLine("login: " + login);
             Console.WriteLine("password: " + password);
+            Console.WriteLine();
         }
 
         public string GetDescription()

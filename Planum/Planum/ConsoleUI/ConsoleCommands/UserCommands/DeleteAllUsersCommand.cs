@@ -1,5 +1,6 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
+using System;
 using System.Collections.Generic;
 
 namespace Planum.ConsoleUI.ConsoleCommands
@@ -19,6 +20,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             {
                 _userManager.DeleteUser(user.Id);
             }
+            Console.WriteLine();
         }
 
         public string GetDescription()

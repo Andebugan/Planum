@@ -22,6 +22,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
             _userManager.DeleteUser(id);
+            Console.WriteLine();
         }
 
         public string GetDescription()

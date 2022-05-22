@@ -19,12 +19,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.Write("Deleted task id: ");
             string? input = Console.ReadLine();
             int id;
-            if (string.IsNullOrEmpty(input) || int.TryParse(input, out id))
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
             {
                 Console.WriteLine("Id must be signed integer");
                 return;
             }
             _tagManager.DeleteTag(id);
+            Console.WriteLine();
         }
 
         public string GetDescription()

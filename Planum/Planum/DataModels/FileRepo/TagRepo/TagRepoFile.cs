@@ -87,7 +87,9 @@ namespace Planum.Models.DataModels
                             alreadyExists = true;
                             return id;
                         }
-                        id += 1;
+
+                        if (id == temp.Id)
+                            id += 1;
                     }
                 }
             }

@@ -24,6 +24,7 @@ namespace Planum.Models.DTO
         public DateTime Deadline { get; }
         public bool IsRepeated { get; }
         public TimeSpan RepeatPeriod { get; }
+        public bool Archived { get; set; } = false;
 
         public TaskDTO(int id, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,

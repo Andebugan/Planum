@@ -24,11 +24,6 @@ namespace Planum.Models.BuisnessLogic.Managers
         Task GetTask(int taskId, int userId);
         Task GetArhcivedTask(int taskId);
         Task GetArhcivedTask(int taskId, int userId);
-        void AddTagToTask(int taskId, int tagId);
-        void RemoveTagFromTask(int taskId, int tagId);
-        void RemoveTagFromTask(int taskId, int tagId, int userId);
-        void RemoveTagFromAll(int tagId);
-        void RemoveTagFromAll(int tagId, int userId);
         void UnarchiveTask(int taskId);
         void UnarchiveTask(int taskId, int userId);
         void UpdateTask(int id, DateTime startTime, DateTime deadline,
@@ -37,5 +32,19 @@ namespace Planum.Models.BuisnessLogic.Managers
         void UpdateTask(int id, int userId, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false, string description = "", bool isRepeated = false);
+        void AddTagToTask(int taskId, int tagId);
+        void AddTagToTask(int taskId, int tagId, int userId);
+        void RemoveTagFromTask(int taskId, int tagId);
+        void RemoveTagFromTask(int taskId, int tagId, int userId);
+        void RemoveTagFromAll(int tagId);
+        void RemoveTagFromAll(int tagId, int userId);
+        void AddChildToTask(int taskId, int childId);
+        void AddChildToTask(int taskId, int childId, int userId);
+        void RemoveChildFromTask(int taskId, int childId);
+        void RemoveChildFromTask(int taskId, int childId, int userId);
+        void AddParentToTask(int taskId, int parentId);
+        void AddParentToTask(int taskId, int parentId, int userId);
+        void RemoveParentFromTask(int taskId, int parentId);
+        void RemoveParentFromTask(int taskId, int parentId, int userId);
     }
 }
