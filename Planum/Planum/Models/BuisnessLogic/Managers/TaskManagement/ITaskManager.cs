@@ -20,6 +20,10 @@ namespace Planum.Models.BuisnessLogic.Managers
         Task? FindArchivedTask(int taskId, int userId);
         List<Task> GetAllTasks();
         List<Task> GetAllTasks(int userId);
+        List<Task> GetAllArchivedTasks();
+        List<Task> GetAllArchivedTasks(int userId);
+        List<Task> GetAllExistingTasks();
+        List<Task> GetAllExistingTasks(int userId);
         Task GetTask(int taskId);
         Task GetTask(int taskId, int userId);
         Task GetArhcivedTask(int taskId);
@@ -38,13 +42,19 @@ namespace Planum.Models.BuisnessLogic.Managers
         void RemoveTagFromTask(int taskId, int tagId, int userId);
         void RemoveTagFromAll(int tagId);
         void RemoveTagFromAll(int tagId, int userId);
+        void ClearTags(int taskId);
+        void ClearTags(int taskId, int userId);
         void AddChildToTask(int taskId, int childId);
         void AddChildToTask(int taskId, int childId, int userId);
         void RemoveChildFromTask(int taskId, int childId);
         void RemoveChildFromTask(int taskId, int childId, int userId);
+        void ClearChildren(int taskId);
+        void ClearChildren(int taskId, int userId);
         void AddParentToTask(int taskId, int parentId);
         void AddParentToTask(int taskId, int parentId, int userId);
         void RemoveParentFromTask(int taskId, int parentId);
         void RemoveParentFromTask(int taskId, int parentId, int userId);
+        void ClearParents(int taskId);
+        void ClearParents(int taskId, int userId);
     }
 }

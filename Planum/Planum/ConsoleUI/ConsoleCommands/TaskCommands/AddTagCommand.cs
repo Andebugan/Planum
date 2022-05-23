@@ -43,13 +43,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_tagManager.FindTag(tagId) == null)
+            if (_tagManager.FindTag(tagId, _userManager.CurrentUser.Id) == null)
             {
                 Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
 
-            _taskManager.AddTagToTask(taskId, tagId);
+            _taskManager.AddTagToTask(taskId, tagId, _userManager.CurrentUser.Id);
         }
 
         public string GetDescription()

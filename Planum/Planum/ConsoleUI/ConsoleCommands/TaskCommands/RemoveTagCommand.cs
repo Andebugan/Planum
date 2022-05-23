@@ -6,34 +6,53 @@ namespace Planum.ConsoleUI.ConsoleCommands
     public class RemoveTagCommand : ICommand
     {
         ITaskManager _taskManager;
-        ITagManager _tagManager;
         IUserManager _userManager;
-
-        public AddTagCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
-        {
-            _taskManager = taskManager;
-            _userManager = userManager;
-            _tagManager = tagManager;
-        }
 
         public void Execute()
         {
-            throw new System.NotImplementedException();
+            string? input;
+            Console.Write("Enter task id: ");
+            input = Console.ReadLine();
+            int taskId;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out taskId))
+            {
+                Console.WriteLine("Task id must be signed integer\n");
+                return;
+            }
+
+            if (_taskManager.FindTask(taskId, _userManager.CurrentUser.Id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist\n");
+                return;
+            }
+
+            Console.WriteLine("Enter tag id: ");
+            input = Console.ReadLine();
+            int tagId;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out tagId))
+            {
+                Console.WriteLine("Tag id must be signed integer\n");
+                return;
+            }
+
+            _taskManager.RemoveTagFromTask(taskId, tagId, _userManager.CurrentUser.Id);
         }
 
         public string GetDescription()
         {
-            throw new System.NotImplementedException();
+            return "removes parent from task";
         }
 
         public string GetName()
         {
-            throw new System.NotImplementedException();
+            return "remove parent";
         }
 
         public bool IsAvaliable()
         {
-            throw new System.NotImplementedException();
+            if (_userManager.CurrentUser != null)
+                return true;
+            return false;
         }
     }
 }

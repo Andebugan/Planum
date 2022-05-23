@@ -270,15 +270,66 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void DeleteConnectedToUser(int userId)
         {
-            List<Task> tasks = GetAllTasks();
+            List<Task> tasks = GetAllExistingTasks(userId);
             foreach (Task task in tasks)
             {
-                if (task.UserId == userId)
-                    DeleteTask(task.Id);
+                DeleteTask(task.Id);
             }
         }
 
         public List<Task> GetAllTasks()
+        {
+            List<Task> tasks = new List<Task>();
+            List<TaskDTO> taskDTOs = _taskRepo.GetAllTasks();
+
+            foreach (var taskDTO in taskDTOs)
+            {
+                if (!taskDTO.Archived)
+                    tasks.Add(_taskConverter.ConvertFromDTO(taskDTO));
+            }
+            return tasks;
+        }
+
+        public List<Task> GetAllArchivedTasks(int userId)
+        {
+            List<Task> tasks = new List<Task>();
+            List<TaskDTO> taskDTOs = _taskRepo.GetAllTasks();
+
+            foreach (var taskDTO in taskDTOs)
+            {
+                if (taskDTO.UserId == userId && taskDTO.Archived)
+                    tasks.Add(_taskConverter.ConvertFromDTO(taskDTO));
+            }
+            return tasks;
+        }
+
+        public List<Task> GetAllArchivedTasks()
+        {
+            List<Task> tasks = new List<Task>();
+            List<TaskDTO> taskDTOs = _taskRepo.GetAllTasks();
+
+            foreach (var taskDTO in taskDTOs)
+            {
+                if (taskDTO.Archived)
+                    tasks.Add(_taskConverter.ConvertFromDTO(taskDTO));
+            }
+            return tasks;
+        }
+
+        public List<Task> GetAllTasks(int userId)
+        {
+            List<Task> tasks = new List<Task>();
+            List<TaskDTO> taskDTOs = _taskRepo.GetAllTasks();
+
+            foreach (var taskDTO in taskDTOs)
+            {
+                if (taskDTO.UserId == userId && !taskDTO.Archived)
+                    tasks.Add(_taskConverter.ConvertFromDTO(taskDTO));
+            }
+            return tasks;
+        }
+
+        public List<Task> GetAllExistingTasks()
         {
             List<Task> tasks = new List<Task>();
             List<TaskDTO> taskDTOs = _taskRepo.GetAllTasks();
@@ -290,7 +341,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             return tasks;
         }
 
-        public List<Task> GetAllTasks(int userId)
+        public List<Task> GetAllExistingTasks(int userId)
         {
             List<Task> tasks = new List<Task>();
             List<TaskDTO> taskDTOs = _taskRepo.GetAllTasks();
@@ -323,7 +374,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void RemoveTagFromAll(int tagId)
         {
-            List<Task> tasks = GetAllTasks();
+            List<Task> tasks = GetAllExistingTasks();
             foreach (Task task in tasks)
             {
                 task.RemoveTag(tagId);
@@ -334,7 +385,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void RemoveTagFromAll(int tagId, int userId)
         {
-            List<Task> tasks = GetAllTasks(userId);
+            List<Task> tasks = GetAllExistingTasks(userId);
             foreach (Task task in tasks)
             {
                 task.RemoveTag(tagId);
@@ -471,6 +522,88 @@ namespace Planum.Models.BuisnessLogic.Managers
             parent.RemoveChild(taskId);
             UpdateTask(parent.Id, parent.StartTime, parent.Deadline, parent.RepeatPeriod, parent.TagIds,
                     parent.ParentIds, parent.ChildIds, parent.Name, parent.Timed, parent.Description, parent.IsRepeated);
+        }
+
+        public void ClearTags(int taskId)
+        {
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            task.ClearTags();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void ClearTags(int taskId, int userId)
+        {
+            Task? task = FindTask(taskId, userId);
+            if (task == null) return;
+            task.ClearTags();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void ClearChildren(int taskId)
+        {
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            foreach (int childId in task.ChildIds)
+            {
+                Task temp = GetTask(childId);
+                temp.RemoveParent(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+            task.ClearChildIds();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void ClearChildren(int taskId, int userId)
+        {
+            Task? task = FindTask(taskId, userId);
+            if (task == null) return;
+            foreach (int childId in task.ChildIds)
+            {
+                Task temp = GetTask(childId);
+                temp.RemoveParent(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+            task.ClearChildIds();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void ClearParents(int taskId)
+        {
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            foreach (int parentId in task.ParentIds)
+            {
+                Task temp = GetTask(parentId);
+                temp.RemoveChild(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+            task.ClearParents();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void ClearParents(int taskId, int userId)
+        {
+            Task? task = FindTask(taskId, userId);
+            if (task == null) return;
+            foreach (int parentId in task.ParentIds)
+            {
+                Task temp = GetTask(parentId);
+                temp.RemoveChild(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+            task.ClearParents();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated); throw new NotImplementedException();
         }
     }
 }

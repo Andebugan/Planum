@@ -6,34 +6,48 @@ namespace Planum.ConsoleUI.ConsoleCommands
     public class DeleteTaskCommand : ICommand
     {
         ITaskManager _taskManager;
-        ITagManager _tagManager;
         IUserManager _userManager;
 
-        public AddTagCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
+        public DeleteTaskCommand(ITaskManager taskManager, IUserManager userManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
-            _tagManager = tagManager;
         }
 
         public void Execute()
         {
-            throw new System.NotImplementedException();
+            Console.Write("Enter task id: ");
+            int id;
+            if (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.WriteLine("Task id must be signed integer");
+                return;
+            }
+
+            if (_taskManager.FindTask(id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist");
+                return;
+            }
+
+            _taskManager.DeleteTask(id, _userManager.CurrentUser.Id);
         }
 
         public string GetDescription()
         {
-            throw new System.NotImplementedException();
+            return "deletes task";
         }
 
         public string GetName()
         {
-            throw new System.NotImplementedException();
+            return "delete task";
         }
 
         public bool IsAvaliable()
         {
-            throw new System.NotImplementedException();
+            if (_userManager.CurrentUser != null)
+                return true;
+            return false;
         }
     }
 }

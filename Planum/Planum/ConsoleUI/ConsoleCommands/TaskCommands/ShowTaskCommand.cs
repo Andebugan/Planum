@@ -1,4 +1,5 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
@@ -6,34 +7,70 @@ namespace Planum.ConsoleUI.ConsoleCommands
     public class ShowTaskCommand : ICommand
     {
         ITaskManager _taskManager;
-        ITagManager _tagManager;
         IUserManager _userManager;
 
-        public AddTagCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
+        public ShowTaskCommand(ITaskManager taskManager, IUserManager userManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
-            _tagManager = tagManager;
         }
 
         public void Execute()
         {
-            throw new System.NotImplementedException();
+            Console.Write("Enter task id: ");
+            int taskId;
+            if (!int.TryParse(Console.ReadLine(), out taskId))
+            {
+                Console.WriteLine("Task id must be signed integer");
+                return;
+            }
+
+            Task? task = _taskManager.FindArchivedTask(taskId, _userManager.CurrentUser.Id);
+
+            if (task == null)
+            {
+                Console.WriteLine("Task with specified id does not exist");
+                return;
+            }
+
+            Console.WriteLine("Task id: " + task.Id);
+            Console.WriteLine("Task name: " + task.Name);
+            Console.WriteLine("Task description: " + task.Description);
+            Console.Write("Task tags: ");
+            foreach (int id in task.TagIds)
+                Console.Write(id);
+            Console.WriteLine();
+            Console.WriteLine("Task parents: ");
+            foreach (int id in task.ParentIds)
+                Console.Write(id);
+            Console.WriteLine();
+            Console.WriteLine("Task children: ");
+            foreach (int id in task.ChildIds)
+                Console.Write(id);
+            Console.WriteLine();
+            Console.WriteLine("Task is timed: " + task.Timed);
+            Console.WriteLine("Task start time: " + task.StartTime.ToString());
+            Console.WriteLine("Task deadline: " + task.Deadline.ToString());
+            Console.WriteLine("Task is repeated: " + task.IsRepeated);
+            Console.WriteLine("Task repeat period: " + task.RepeatPeriod.ToString());
+            Console.WriteLine();
         }
 
         public string GetDescription()
         {
-            throw new System.NotImplementedException();
+            return "shows task";
         }
 
         public string GetName()
         {
-            throw new System.NotImplementedException();
+            return "show task";
         }
 
         public bool IsAvaliable()
         {
-            throw new System.NotImplementedException();
+            if (_userManager.CurrentUser != null)
+                return true;
+            return false;
         }
     }
 }

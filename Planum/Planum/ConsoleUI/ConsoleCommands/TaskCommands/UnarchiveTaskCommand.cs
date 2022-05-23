@@ -6,34 +6,48 @@ namespace Planum.ConsoleUI.ConsoleCommands
     public class UnarchiveTaskCommand : ICommand
     {
         ITaskManager _taskManager;
-        ITagManager _tagManager;
         IUserManager _userManager;
 
-        public AddTagCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
+        public UnarchiveTaskCommand(ITaskManager taskManager, IUserManager userManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
-            _tagManager = tagManager;
         }
 
         public void Execute()
         {
-            throw new System.NotImplementedException();
+            Console.Write("Enter task id: ");
+            int id;
+            if (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.WriteLine("Task id must be signed integer");
+                return;
+            }
+
+            if (_taskManager.FindArchivedTask(id, _userManager.CurrentUser.Id) == null)
+            {
+                Console.WriteLine("Archived task with specified id does not exist");
+                return;
+            }
+
+            _taskManager.UnarchiveTask(id);
         }
 
         public string GetDescription()
         {
-            throw new System.NotImplementedException();
+            return "unarchives task";
         }
 
         public string GetName()
         {
-            throw new System.NotImplementedException();
+            return "unarchive task";
         }
 
         public bool IsAvaliable()
         {
-            throw new System.NotImplementedException();
+            if (_userManager.CurrentUser != null)
+                return true;
+            return false;
         }
     }
 }

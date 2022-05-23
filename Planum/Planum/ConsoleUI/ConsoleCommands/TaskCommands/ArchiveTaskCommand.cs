@@ -16,7 +16,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
-            throw new System.NotImplementedException();
+            Console.Write("Enter task id: ");
+            int id;
+            if (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.WriteLine("Task id must be signed integer");
+                return;
+            }
+            
+            if (_taskManager.FindTask(id, _userManager.CurrentUser.Id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist");
+                return;
+            }
+
+            _taskManager.ArchiveTask(id);
         }
 
         public string GetDescription()

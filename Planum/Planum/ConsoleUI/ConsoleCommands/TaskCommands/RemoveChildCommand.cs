@@ -6,34 +6,65 @@ namespace Planum.ConsoleUI.ConsoleCommands.TaskCommands
     public class RemoveChildCommand : ICommand
     {
         ITaskManager _taskManager;
-        ITagManager _tagManager;
         IUserManager _userManager;
 
-        public AddTagCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
+        public RemoveChildCommand(ITaskManager taskManager, IUserManager userManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
-            _tagManager = tagManager;
         }
 
         public void Execute()
         {
-            throw new System.NotImplementedException();
+            string? input;
+            Console.Write("Enter task id: ");
+            input = Console.ReadLine();
+            int taskId;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out taskId))
+            {
+                Console.WriteLine("Task id must be signed integer\n");
+                return;
+            }
+
+            if (_taskManager.FindTask(taskId, _userManager.CurrentUser.Id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist\n");
+                return;
+            }
+
+            Console.WriteLine("Enter child id: ");
+            input = Console.ReadLine();
+            int childId;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out childId))
+            {
+                Console.WriteLine("Task id must be signed integer\n");
+                return;
+            }
+
+            if (_taskManager.FindTask(childId, _userManager.CurrentUser.Id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist\n");
+                return;
+            }
+
+            _taskManager.RemoveChildFromTask(taskId, childId, _userManager.CurrentUser.Id);
         }
 
         public string GetDescription()
         {
-            throw new System.NotImplementedException();
+            return "removes child from a task";
         }
 
         public string GetName()
         {
-            throw new System.NotImplementedException();
+            return "remove child";
         }
 
         public bool IsAvaliable()
         {
-            throw new System.NotImplementedException();
+            if (_userManager.CurrentUser != null)
+                return true;
+            return false;
         }
     }
 }

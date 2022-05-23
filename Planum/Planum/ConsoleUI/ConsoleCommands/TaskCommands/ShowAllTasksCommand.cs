@@ -1,39 +1,65 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using System;
+using System.Collections.Generic;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class ShowAllTasksCommand : ICommand
     {
         ITaskManager _taskManager;
-        ITagManager _tagManager;
         IUserManager _userManager;
 
-        public AddTagCommand(ITaskManager taskManager, ITagManager tagManager, IUserManager userManager)
+        public ShowAllTasksCommand(ITaskManager taskManager, IUserManager userManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
-            _tagManager = tagManager;
         }
 
         public void Execute()
         {
-            throw new System.NotImplementedException();
+            List<Task> tasks = _taskManager.GetAllTasks(_userManager.CurrentUser.Id);
+            foreach (Task task in tasks)
+            {
+                Console.WriteLine("Task id: " + task.Id);
+                Console.WriteLine("Task name: " + task.Name);
+                Console.WriteLine("Task description: " + task.Description);
+                Console.Write("Task tags: ");
+                foreach (int id in task.TagIds)
+                    Console.Write(id);
+                Console.WriteLine();
+                Console.WriteLine("Task parents: ");
+                foreach (int id in task.ParentIds)
+                    Console.Write(id);
+                Console.WriteLine();
+                Console.WriteLine("Task children: ");
+                foreach (int id in task.ChildIds)
+                    Console.Write(id);
+                Console.WriteLine();
+                Console.WriteLine("Task is timed: " + task.Timed);
+                Console.WriteLine("Task start time: " + task.StartTime.ToString());
+                Console.WriteLine("Task deadline: " + task.Deadline.ToString());
+                Console.WriteLine("Task is repeated: " + task.IsRepeated);
+                Console.WriteLine("Task repeat period: " + task.RepeatPeriod.ToString());
+                Console.WriteLine();
+            }
         }
 
         public string GetDescription()
         {
-            throw new System.NotImplementedException();
+            return "shows all tasks";
         }
 
         public string GetName()
         {
-            throw new System.NotImplementedException();
+            return "show all tasks";
         }
 
         public bool IsAvaliable()
         {
-            throw new System.NotImplementedException();
+            if (_userManager.CurrentUser != null)
+                return true;
+            return false;
         }
     }
 }
