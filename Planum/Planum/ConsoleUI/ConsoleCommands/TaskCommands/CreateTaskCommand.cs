@@ -19,20 +19,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
-            Console.Write("Enter task id: ");
-            int id;
-            if (!int.TryParse(Console.ReadLine(), out id))
-            {
-                Console.WriteLine("Task id must be signed integer");
-                return;
-            }
-
-            if (_taskManager.FindTask(id) != null)
-            {
-                Console.WriteLine("Task with specified id already exists");
-                return;
-            }
-
             Console.Write("Enter task name: ");
             string? input = Console.ReadLine();
             string name;
@@ -84,7 +70,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             DateTime startTime;
             if (string.IsNullOrEmpty(input))
                 startTime = DateTime.MinValue;
-            if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime))
+            else if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime))
             {
                 Console.WriteLine("Incorrect input");
                 return;
@@ -95,7 +81,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             DateTime deadline;
             if (string.IsNullOrEmpty(input))
                 deadline = DateTime.MinValue;
-            if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out deadline))
+            else if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out deadline))
             {
                 Console.WriteLine("Incorrect input");
                 return;
@@ -120,8 +106,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             TimeSpan repeatPeriod;
             if (string.IsNullOrEmpty(input))
-                startTime = DateTime.MinValue;
-            if (!TimeSpan.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
+                repeatPeriod = TimeSpan.Zero;
+            else if (!TimeSpan.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
             {
                 Console.WriteLine("Incorrect input");
                 return;

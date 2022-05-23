@@ -27,15 +27,15 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("Task description: " + archivedTask.Description);
                 Console.Write("Task tags: ");
                 foreach (int id in archivedTask.TagIds)
-                    Console.Write(id);
+                    Console.Write(id + " ");
                 Console.WriteLine();
                 Console.WriteLine("Task parents: ");
                 foreach (int id in archivedTask.ParentIds)
-                    Console.Write(id);
+                    Console.Write(id + " ");
                 Console.WriteLine();
                 Console.WriteLine("Task children: ");
                 foreach (int id in archivedTask.ChildIds)
-                    Console.Write(id);
+                    Console.Write(id + " ");
                 Console.WriteLine();
                 Console.WriteLine("Task is timed: " + archivedTask.Timed);
                 Console.WriteLine("Task start time: " + archivedTask.StartTime.ToString());

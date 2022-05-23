@@ -1,7 +1,7 @@
 ﻿using Planum.Models.BuisnessLogic.Managers;
 using System;
 
-namespace Planum.ConsoleUI.ConsoleCommands.TaskCommands
+namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class RemoveParentCommand : ICommand
     {

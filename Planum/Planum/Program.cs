@@ -50,7 +50,26 @@ namespace Planum
                 new DeleteAllTagsCommand(tagManager, userManager),
                 new ShowAllTagsCommand(tagManager, userManager),
                 new ShowTagCommand(tagManager, userManager),
-                new UpdateTagCommand(tagManager, userManager)
+                new UpdateTagCommand(tagManager, userManager),
+
+                new AddChildCommand(taskManager, tagManager, userManager),
+                new AddParentCommand(taskManager, userManager),
+                new ArchiveTaskCommand(taskManager, userManager),
+                new ClearChildrenCommand(taskManager, userManager),
+                new ClearParentsCommand(taskManager, userManager),
+                new ClearTagsCommand(taskManager, userManager),
+                new CreateTaskCommand(taskManager, userManager),
+                new DeleteAllTasksCommand(taskManager, userManager),
+                new DeleteTaskCommand(taskManager, userManager),
+                new RemoveChildCommand(taskManager, userManager),
+                new RemoveParentCommand(taskManager, userManager),
+                new RemoveTagCommand(taskManager, userManager),
+                new ShowAllArchivedTasksCommand(taskManager, userManager),
+                new ShowAllTasksCommand(taskManager, userManager),
+                new ShowArchivedTaskCommand(taskManager, userManager),
+                new ShowTaskCommand(taskManager, userManager),
+                new UnarchiveTaskCommand(taskManager, userManager),
+                new UpdateTaskCommand(taskManager, userManager),
             };
             ConsoleShell consoleShell = new ConsoleShell(commands);
             consoleShell.MainLoop();

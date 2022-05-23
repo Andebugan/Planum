@@ -8,6 +8,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
         ITaskManager _taskManager;
         IUserManager _userManager;
 
+        public RemoveTagCommand(ITaskManager taskManager, IUserManager userManager)
+        {
+            _taskManager = taskManager;
+            _userManager = userManager;
+        }
+
         public void Execute()
         {
             string? input;

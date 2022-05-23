@@ -1,14 +1,14 @@
 ﻿using Planum.Models.BuisnessLogic.Managers;
 using System;
 
-namespace Planum.ConsoleUI.ConsoleCommands.TaskCommands
+namespace Planum.ConsoleUI.ConsoleCommands
 {
-    public class DeleteAllTagsCommand : ICommand
+    public class DeleteAllTasksCommand : ICommand
     {
         ITaskManager _taskManager;
         IUserManager _userManager;
 
-        public DeleteAllTagsCommand(ITaskManager taskManager, IUserManager userManager)
+        public DeleteAllTasksCommand(ITaskManager taskManager, IUserManager userManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
