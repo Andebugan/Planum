@@ -149,7 +149,7 @@ namespace Planum.Models.DataModels
                 }
             }
 
-            throw new UserDoesNotExist("User with id = " + id + " does not exist.");
+            throw new UserDoesNotExist($"User with id = {id} does not exist.");
         }
 
         public List<UserDTO> GetAllUsers()
