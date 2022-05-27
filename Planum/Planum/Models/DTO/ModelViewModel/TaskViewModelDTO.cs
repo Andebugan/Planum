@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Planum.Models.DTO
+namespace Planum.Models.DTO.ModelViewModel
 {
-    public class TaskDTO
+    internal class TaskViewModelDTO
     {
         public int Id { get; }
         public int UserId { get; }
-
-        private List<int> parentIds = new List<int>();
-        public IReadOnlyList<int> ParentIds => parentIds;
-
-        private List<int> childIds = new List<int>();
-        public IReadOnlyList<int> ChildIds => childIds;
+        public int ParentId { get; }
         public string Name { get; }
         public string Description { get; }
 
@@ -24,19 +18,17 @@ namespace Planum.Models.DTO
         public DateTime Deadline { get; }
         public bool IsRepeated { get; }
         public TimeSpan RepeatPeriod { get; }
-        public bool Archived { get; set; } = false;
 
-        public TaskDTO(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
-            string name, bool timed = false, int userId = -1,
-            string description = "", bool isRepeated = false)
+        public TaskViewModelDTO(int id, DateTime startTime, DateTime deadline,
+            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, bool timed = false, int userId = -1,
+            string name = "", string description = "", int parentId = -1, bool isRepeated = false)
         {
+            if (parentId == -1)
+                parentId = id;
 
             Id = id;
             UserId = userId;
-            parentIds = (List<int>)ParentIds;
-            childIds = (List<int>)ChildIds;
-            tagIds = (List<int>)TagIds;
+            ParentId = parentId;
             Name = name;
             Description = description;
             Timed = timed;
