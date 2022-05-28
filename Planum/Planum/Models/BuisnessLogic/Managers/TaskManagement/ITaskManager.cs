@@ -9,52 +9,26 @@ namespace Planum.Models.BuisnessLogic.Managers
         void ArchiveTask(int taskId);
         int CreateTask(DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
-            string name, int userId, bool timed = false,
+            string name, bool timed = false,
             string description = "", bool isRepeated = false);
         void DeleteConnectedToUser(int userId);
         void DeleteTask(int taskId);
-        void DeleteTask(int taskId, int userId);
-        Task? FindTask(int taskId);
-        Task? FindTask(int taskId, int userId);
-        Task? FindArchivedTask(int taskId);
-        Task? FindArchivedTask(int taskId, int userId);
-        List<Task> GetAllTasks();
-        List<Task> GetAllTasks(int userId);
-        List<Task> GetAllArchivedTasks();
-        List<Task> GetAllArchivedTasks(int userId);
-        List<Task> GetAllExistingTasks();
-        List<Task> GetAllExistingTasks(int userId);
-        Task GetTask(int taskId);
-        Task GetTask(int taskId, int userId);
-        Task GetArhcivedTask(int taskId);
-        Task GetArhcivedTask(int taskId, int userId);
+        Task GetTask(int taskId, bool? archived = null);
+        Task? FindTask(int taskId, bool? archived = null);
+        List<Task> GetAllTasks(bool? archived = null);
         void UnarchiveTask(int taskId);
-        void UnarchiveTask(int taskId, int userId);
         void UpdateTask(int id, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false, string description = "", bool isRepeated = false);
-        void UpdateTask(int id, int userId, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
-            string name, bool timed = false, string description = "", bool isRepeated = false);
         void AddTagToTask(int taskId, int tagId);
-        void AddTagToTask(int taskId, int tagId, int userId);
         void RemoveTagFromTask(int taskId, int tagId);
-        void RemoveTagFromTask(int taskId, int tagId, int userId);
         void RemoveTagFromAll(int tagId);
-        void RemoveTagFromAll(int tagId, int userId);
         void ClearTags(int taskId);
-        void ClearTags(int taskId, int userId);
         void AddChildToTask(int taskId, int childId);
-        void AddChildToTask(int taskId, int childId, int userId);
         void RemoveChildFromTask(int taskId, int childId);
-        void RemoveChildFromTask(int taskId, int childId, int userId);
         void ClearChildren(int taskId);
-        void ClearChildren(int taskId, int userId);
         void AddParentToTask(int taskId, int parentId);
-        void AddParentToTask(int taskId, int parentId, int userId);
         void RemoveParentFromTask(int taskId, int parentId);
-        void RemoveParentFromTask(int taskId, int parentId, int userId);
         void ClearParents(int taskId);
-        void ClearParents(int taskId, int userId);
     }
 }
