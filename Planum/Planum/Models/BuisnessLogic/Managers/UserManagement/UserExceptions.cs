@@ -25,4 +25,20 @@ namespace Planum.Models.BuisnessLogic.Managers
         public UserDoesNotExistException(string message) : base(message) { }
         public UserDoesNotExistException(string message, Exception innerException) : base(message, innerException) { }
     }
+
+    [Serializable]
+    public class CurrentUserIsNullException : Exception
+    {
+        public CurrentUserIsNullException() { }
+        public CurrentUserIsNullException(string message) : base(message) { }
+        public CurrentUserIsNullException(string message, Exception innerException) : base(message, innerException) { }
+    }
+
+    [Serializable]
+    public class IncorrectUserException : Exception
+    {
+        public IncorrectUserException() { }
+        public IncorrectUserException(string message) : base(message) { }
+        public IncorrectUserException(string message, Exception innerException) : base(message, innerException) { }
+    }
 }

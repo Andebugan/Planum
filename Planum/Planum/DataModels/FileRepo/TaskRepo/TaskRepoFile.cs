@@ -6,6 +6,7 @@ using Planum.Models.DTO;
 using System.IO;
 using Planum.Models.BuisnessLogic.IRepo;
 using System.Linq;
+using Planum.DataModels;
 
 namespace Planum.Models.DataModels
 {
@@ -14,9 +15,11 @@ namespace Planum.Models.DataModels
         public const string TASK_FILE_NAME = "Planum\\Data\\task_data.dat";
 
         string _taskRepoPath;
+        protected ITaskDTOComparator _taskDTOComparator;
 
-        public TaskRepoFile()
+        public TaskRepoFile(ITaskDTOComparator taskDTOComparator)
         {
+            _taskDTOComparator = taskDTOComparator;
             _taskRepoPath = GetSavePath(TASK_FILE_NAME);
             if (!Directory.Exists(Path.GetDirectoryName(_taskRepoPath)))
             {
@@ -26,41 +29,6 @@ namespace Planum.Models.DataModels
             }
             if (!File.Exists(_taskRepoPath))
                 using (var fs = File.Create(_taskRepoPath)) { }
-        }
-
-        protected bool CompareDTOs(int id_1, TaskDTO taskDTO_1, int id_2, TaskDTO taskDTO_2)
-        {
-            if (id_1 != id_2)
-                return false;
-            if (taskDTO_1.UserId != taskDTO_2.UserId)
-                return false;
-            if (taskDTO_1.Name != taskDTO_2.Name)
-                return false;
-            if (taskDTO_1.Description != taskDTO_2.Description)
-                return false;
-            if (taskDTO_1.Timed != taskDTO_2.Timed)
-                return false;
-            if (Math.Abs((taskDTO_1.StartTime - taskDTO_2.StartTime).TotalSeconds) > 1)
-                return false;
-            if (Math.Abs((taskDTO_1.Deadline - taskDTO_2.Deadline).TotalSeconds) > 1)
-                return false;
-            List<int> temp_1 = (List<int>)taskDTO_1.TagIds;
-            List<int> temp_2 = (List<int>)taskDTO_2.TagIds;
-            if (!temp_1.SequenceEqual(temp_2))
-                return false;
-            temp_1 = (List<int>)taskDTO_1.ChildIds;
-            temp_2 = (List<int>)taskDTO_2.ChildIds;
-            if (!temp_1.SequenceEqual(temp_2))
-                return false;
-            temp_1 = (List<int>)taskDTO_1.ParentIds;
-            temp_2 = (List<int>)taskDTO_2.ParentIds;
-            if (!temp_1.SequenceEqual(temp_2))
-                return false;
-            if (taskDTO_1.IsRepeated != taskDTO_2.IsRepeated)
-                return false;
-            if (Math.Abs((taskDTO_1.RepeatPeriod - taskDTO_2.RepeatPeriod).TotalSeconds) > 1)
-                return false;
-            return true;
         }
 
         protected TaskDTO ReadIntoDTO(BinaryReader reader)
@@ -147,7 +115,7 @@ namespace Planum.Models.DataModels
                     {
                         TaskDTO temp = ReadIntoDTO(reader);
 
-                        if (CompareDTOs(id, taskDTO, temp.Id, temp) && !temp.Archived)
+                        if (_taskDTOComparator.CompareDTOs(id, taskDTO, temp.Id, temp) && !temp.Archived)
                         {
                             alreadyExists = true;
                             return id;
@@ -171,42 +139,6 @@ namespace Planum.Models.DataModels
                 }
             }
             return -1;
-        }
-
-        public void ArchiveTask(int id)
-        {
-            try
-            {
-                List<TaskDTO> tasks = new List<TaskDTO>();
-
-                using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
-                {
-                    using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                    {
-                        while (reader.BaseStream.Position != reader.BaseStream.Length)
-                        {
-                            TaskDTO temp = ReadIntoDTO(reader);
-
-                            if (temp.Id == id)
-                                temp.Archived = true;
-
-                            tasks.Add(temp);
-                        }
-                    }
-                }
-
-                using (var stream = File.Open(_taskRepoPath, FileMode.Create))
-                {
-                    using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
-                    {
-                        foreach (var taskDTO in tasks)
-                        {
-                            WriteFromDTO(taskDTO, taskDTO.Id, writer);
-                        }
-                    }
-                }
-            }
-            catch (TaskDoesNotExistException) { }
         }
 
         public void DeleteTask(int id)
@@ -260,27 +192,6 @@ namespace Planum.Models.DataModels
             throw new TaskDoesNotExistException("Task with id = " + id + " does not exist.");
         }
 
-        public TaskDTO GetTask(int id, int userId)
-        {
-            using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
-            {
-                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                {
-                    while (reader.BaseStream.Position != reader.BaseStream.Length)
-                    {
-                        TaskDTO temp = ReadIntoDTO(reader);
-
-                        if (temp.Id == id && temp.UserId == userId && temp.Archived != true)
-                        {
-                            return temp;
-                        }
-                    }
-                }
-            }
-
-            throw new TaskDoesNotExistException("Task with id = " + id + " does not exist.");
-        }
-
         public List<TaskDTO> GetAllTasks()
         {
             List<TaskDTO> tasks = new List<TaskDTO>();
@@ -300,64 +211,9 @@ namespace Planum.Models.DataModels
             return tasks;
         }
 
-        public List<TaskDTO> GetAllTasks(int userId)
-        {
-            List<TaskDTO> tasks = new List<TaskDTO>();
-
-            using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
-            {
-                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                {
-                    while (reader.BaseStream.Position != reader.BaseStream.Length)
-                    {
-                        TaskDTO temp = ReadIntoDTO(reader);
-                        if (temp.UserId == userId && !temp.Archived)
-                            tasks.Add(temp);
-                    }
-                }
-            }
-            return tasks;
-        }
-
         public void Reset()
         {
             File.Create(_taskRepoPath).Close();
-        }
-
-        public void UnarchiveTask(int id)
-        {
-            try
-            {
-                List<TaskDTO> tasks = new List<TaskDTO>();
-
-                using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
-                {
-                    using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                    {
-                        while (reader.BaseStream.Position != reader.BaseStream.Length)
-                        {
-                            TaskDTO temp = ReadIntoDTO(reader);
-
-                            if (temp.Id == id)
-                                temp.Archived = false;
-
-                            tasks.Add(temp);
-                        }
-                    }
-                }
-
-                using (var stream = File.Open(_taskRepoPath, FileMode.Create))
-                {
-                    using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
-                    {
-                        foreach (var taskDTO in tasks)
-                        {
-                            WriteFromDTO(taskDTO, taskDTO.Id, writer);
-                        }
-                    }
-                }
-            }
-            catch (TaskDoesNotExistException) { }
         }
 
         public void UpdateTask(TaskDTO taskDTO)
@@ -392,68 +248,6 @@ namespace Planum.Models.DataModels
             }
         }
 
-        public List<TaskDTO> GetAllArchivedTasks()
-        {
-            List<TaskDTO> tasks = new List<TaskDTO>();
-
-            using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
-            {
-                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                {
-                    while (reader.BaseStream.Position != reader.BaseStream.Length)
-                    {
-                        TaskDTO temp = ReadIntoDTO(reader);
-
-                        if (temp.Archived)
-                            tasks.Add(temp);
-                    }
-                }
-            }
-            return tasks;
-        }
-
-        public TaskDTO GetArchivedTask(int id)
-        {
-            using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
-            {
-                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                {
-                    while (reader.BaseStream.Position != reader.BaseStream.Length)
-                    {
-                        TaskDTO temp = ReadIntoDTO(reader);
-
-                        if (temp.Id == id && temp.Archived)
-                        {
-                            return temp;
-                        }
-                    }
-                }
-            }
-
-            throw new ArchivedTaskDoesNotExistException("Task with id = " + id + " does not exist.");
-        }
-
-        public TaskDTO GetArchivedTask(int id, int userId)
-        {
-            using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
-            {
-                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-                {
-                    while (reader.BaseStream.Position != reader.BaseStream.Length)
-                    {
-                        TaskDTO temp = ReadIntoDTO(reader);
-
-                        if (temp.Id == id && temp.UserId == userId && temp.Archived)
-                        {
-                            return temp;
-                        }
-                    }
-                }
-            }
-
-            throw new ArchivedTaskDoesNotExistException("Task with id = " + id + " does not exist.");
-        }
-
         public TaskDTO? FindTask(int id)
         {
             try
@@ -461,42 +255,6 @@ namespace Planum.Models.DataModels
                 return GetTask(id);
             }
             catch(TaskDoesNotExistException)
-            {
-                return null;
-            }
-        }
-
-        public TaskDTO? FindTask(int id, int userId)
-        {
-            try
-            {
-                return GetTask(id, userId);
-            }
-            catch (TaskDoesNotExistException)
-            {
-                return null;
-            }
-        }
-
-        public TaskDTO? FindArchivedTask(int id)
-        {
-            try
-            {
-                return GetArchivedTask(id);
-            }
-            catch (ArchivedTaskDoesNotExistException)
-            {
-                return null;
-            }
-        }
-
-        public TaskDTO? FindArchivedTask(int id, int userId)
-        {
-            try
-            {
-                return GetArchivedTask(id, userId);
-            }
-            catch (ArchivedTaskDoesNotExistException)
             {
                 return null;
             }

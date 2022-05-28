@@ -25,7 +25,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_tagManager.FindTag(id, _userManager.CurrentUser.Id) == null)
+            if (_tagManager.FindTag(id) == null)
             {
                 Console.WriteLine("User with specified id does not exist");
                 return;

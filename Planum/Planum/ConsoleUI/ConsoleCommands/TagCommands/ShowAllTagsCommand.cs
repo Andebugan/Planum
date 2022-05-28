@@ -18,7 +18,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
-            List<Tag> tags = _tagManager.GetAllTags(_userManager.CurrentUser.Id);
+            List<Tag> tags = _tagManager.GetAllTags();
             foreach (Tag tag in tags)
             {
                 Console.WriteLine("Tag id: " + tag.Id);

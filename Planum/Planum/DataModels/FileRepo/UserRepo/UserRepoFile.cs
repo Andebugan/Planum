@@ -6,15 +6,19 @@ using Planum.Models.DTO;
 using System.IO;
 using System.Diagnostics;
 using Planum.Models.BuisnessLogic.IRepo;
+using Planum.DataModels;
+
 namespace Planum.Models.DataModels
 {
     public class UserRepoFile : IUserRepo
     {
         public const string USER_FILE_NAME = "Planum\\Data\\user_data.dat";
         protected string _userRepoPath;
+        protected IUserDTOComparator _userDTOComparator;
 
-        public UserRepoFile()
+        public UserRepoFile(IUserDTOComparator userDTOComparator)
         {
+            _userDTOComparator = userDTOComparator;
             _userRepoPath = GetSavePath();
             Debug.WriteLine(Path.GetDirectoryName(_userRepoPath));
             if (!Directory.Exists(Path.GetDirectoryName(_userRepoPath)))
@@ -52,17 +56,6 @@ namespace Planum.Models.DataModels
             writer.Write(userDTO.Password);
         }
 
-        protected bool CompareDTOs(int id_1, UserDTO userDTO_1, int id_2, UserDTO userDTO_2)
-        {
-            if (id_1 != id_2)
-                return false;
-            if (userDTO_1.Login != userDTO_2.Login)
-                return false;
-            if (userDTO_1.Password != userDTO_2.Password)
-                return false;
-            return true;
-        }
-
         public int AddUser(UserDTO userDTO)
         {
             bool alreadyExists = false;
@@ -75,7 +68,7 @@ namespace Planum.Models.DataModels
                     {
                         UserDTO temp = ReadIntoDTO(reader);
                              
-                        if (CompareDTOs(id, userDTO, temp.Id, temp))
+                        if (_userDTOComparator.CompareDTOs(id, userDTO, temp.Id, temp))
                         {
                             alreadyExists = true;
                             return id;
@@ -149,7 +142,7 @@ namespace Planum.Models.DataModels
                 }
             }
 
-            throw new UserDoesNotExist("User with id = " + id + " does not exist.");
+            throw new UserDoesNotExist($"User with id = {id} does not exist.");
         }
 
         public List<UserDTO> GetAllUsers()

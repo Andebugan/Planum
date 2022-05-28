@@ -24,7 +24,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_taskManager.FindArchivedTask(id, _userManager.CurrentUser.Id) == null)
+            if (_taskManager.FindTask(id, true) == null)
             {
                 Console.WriteLine("Archived task with specified id does not exist");
                 return;

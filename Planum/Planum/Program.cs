@@ -3,11 +3,13 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using Planum.ConsoleUI;
 using Planum.ConsoleUI.ConsoleCommands;
+using Planum.DataModels;
 using Planum.Models.BuisnessLogic.IRepo;
 using Planum.Models.BuisnessLogic.Managers;
 using Planum.Models.DataModels;
 using System;
 using System.Collections.Generic;
+
 
 namespace Planum
 {
@@ -15,9 +17,9 @@ namespace Planum
     {
         public static void Main(string[] args)
         {
-            ITaskRepo taskRepo = new TaskRepoFile();
-            ITagRepo tagRepo = new TagRepoFile();
-            IUserRepo userRepo = new UserRepoFile();
+            IUserRepo userRepo = new UserRepoFile(new UserDTOComparator());
+            ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
+            ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
 
             /*
             ((TaskRepoFile)taskRepo).Reset();
@@ -29,13 +31,13 @@ namespace Planum
             ITagConverter tagConverter = new TagConverter();
             IUserConverter userConverter = new UserConverter();
 
-            ITaskManager taskManager = new TaskManager(taskRepo, taskConverter);
-            ITagManager tagManager = new TagManager(tagRepo, taskManager, tagConverter);
-            IUserManager userManager = new UserManager(userRepo, tagManager, taskManager, userConverter);
+            IUserManager userManager = new UserManager(userRepo, userConverter);
+            ITaskManager taskManager = new TaskManager(taskRepo, taskConverter, userManager);
+            ITagManager tagManager = new TagManager(tagRepo, taskManager, tagConverter, userManager);
 
             List<ICommand> commands = new List<ICommand>() {
                 new ExitCommand(),
-                new DeleteUserCommand(userManager),
+                new DeleteUserCommand(userManager, taskManager, tagManager),
                 new LogInCommand(userManager),
                 new LogOutCommand(userManager),
                 new ShowCurrentUserCommand(userManager),
@@ -43,7 +45,6 @@ namespace Planum
                 new ShowUserCommand(userManager),
                 new SignUpCommand(userManager),
                 new UpdateUserCommand(userManager),
-                new DeleteAllUsersCommand(userManager),
 
                 new CreateTagCommand(tagManager, userManager),
                 new DeleteTagCommand(tagManager, userManager),

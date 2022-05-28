@@ -18,7 +18,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
-            List<Task> tasks = _taskManager.GetAllTasks(_userManager.CurrentUser.Id);
+            List<Task> tasks = _taskManager.GetAllTasks();
             foreach (Task task in tasks)
             {
                 Console.WriteLine("Task id: " + task.Id);

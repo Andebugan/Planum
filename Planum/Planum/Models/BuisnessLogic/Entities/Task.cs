@@ -24,11 +24,12 @@ namespace Planum.Models.BuisnessLogic.Entities
         public DateTime Deadline { get; }
         public bool IsRepeated { get; }
         public TimeSpan RepeatPeriod { get; }
+        public bool Archived { get; set; } = false;
 
         public Task(int id, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false, int userId = -1,
-            string description = "", bool isRepeated = false)
+            string description = "", bool isRepeated = false, bool archived = false)
         {
 
             if (string.IsNullOrWhiteSpace(name))
@@ -46,6 +47,7 @@ namespace Planum.Models.BuisnessLogic.Entities
             Deadline = deadline;
             IsRepeated = isRepeated;
             RepeatPeriod = repeatPeriod;
+            Archived = archived;
         }
 
         public void AddTag(int tagId)

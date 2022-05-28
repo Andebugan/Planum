@@ -16,7 +16,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
-            _taskManager.GetAllExistingTasks(_userManager.CurrentUser.Id).ForEach(task => _taskManager.DeleteTask(task.Id));
+            _taskManager.GetAllTasks(null).ForEach(task => _taskManager.DeleteTask(task.Id));
         }
 
         public string GetDescription()

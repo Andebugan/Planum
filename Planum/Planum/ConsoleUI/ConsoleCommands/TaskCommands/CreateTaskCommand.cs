@@ -61,7 +61,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (input == "n")
             {
                 _taskManager.CreateTask(DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name,
-                    _userManager.CurrentUser.Id, description: description);
+                    description: description);
                 return;
             }
 
@@ -98,7 +98,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (input == "n")
             {
                 _taskManager.CreateTask(startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
-                    _userManager.CurrentUser.Id, description: description, timed: true);
+                    description: description, timed: true);
                 return;
             }
 
@@ -114,7 +114,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
-                    _userManager.CurrentUser.Id, description: description, timed: true, isRepeated : true);
+                description: description, timed: true, isRepeated : true);
         }
 
         public string GetDescription()

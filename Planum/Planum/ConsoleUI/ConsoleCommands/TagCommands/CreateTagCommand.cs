@@ -29,6 +29,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.Write("Enter tag description: ");
             input = Console.ReadLine();
             string? description = input;
+            if (description == null)
+                description = "";
 
             Console.Write("Enter tag category: ");
             input = Console.ReadLine();
@@ -38,7 +40,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("Tag category must be signed integer");
                 return;
             }
-            _tagManager.CreateTag(_userManager.CurrentUser.Id, category, name, description);
+            _tagManager.CreateTag(category, name, description);
         }
 
         public string GetDescription()
