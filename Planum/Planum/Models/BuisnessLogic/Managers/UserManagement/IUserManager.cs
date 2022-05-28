@@ -7,7 +7,7 @@ namespace Planum.Models.BuisnessLogic.Managers
     {
         User? CurrentUser { get; set; }
         int CreateUser(string login, string password);
-        void DeleteUser(int id, ITaskManager taskManager, ITagManager tagManager);
+        void DeleteUser(ITaskManager taskManager, ITagManager tagManager);
         User? FindUser(int id);
         User? FindUser(string login);
         List<User> GetAllUsers();

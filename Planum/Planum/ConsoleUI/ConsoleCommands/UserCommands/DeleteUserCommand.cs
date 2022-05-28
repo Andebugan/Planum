@@ -17,15 +17,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
         }
         public void Execute()
         {
-            Console.Write("Enter id: ");
-            string? input = Console.ReadLine();
-            int id = 0;
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
-            {
-                Console.WriteLine("id must be signed integer number");
-                return;
-            }
-            _userManager.DeleteUser(id, _taskManager, _tagManager);
+            _userManager.DeleteUser(_taskManager, _tagManager);
             Console.WriteLine();
         }
 

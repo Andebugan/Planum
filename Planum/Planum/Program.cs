@@ -45,7 +45,6 @@ namespace Planum
                 new ShowUserCommand(userManager),
                 new SignUpCommand(userManager),
                 new UpdateUserCommand(userManager),
-                new DeleteAllUsersCommand(userManager, taskManager, tagManager),
 
                 new CreateTagCommand(tagManager, userManager),
                 new DeleteTagCommand(tagManager, userManager),
