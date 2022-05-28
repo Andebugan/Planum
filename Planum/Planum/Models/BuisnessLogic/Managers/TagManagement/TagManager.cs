@@ -10,27 +10,31 @@ namespace Planum.Models.BuisnessLogic.Managers
     {
         protected ITagRepo _tagRepo;
         protected ITaskManager _taskManager;
+        protected IUserManager _userManager;
         protected ITagConverter _tagConverter;
 
-        public TagManager(ITagRepo tagRepo, ITaskManager taskManager, ITagConverter tagConverter)
+        public TagManager(ITagRepo tagRepo, ITaskManager taskManager, ITagConverter tagConverter, IUserManager userManager)
         {
             _tagRepo = tagRepo;
             _taskManager = taskManager;
             _tagConverter = tagConverter;
+            _userManager = userManager;
+        }
+
+        public int CreateTag(int category, string name, string description)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't create tag while current user is null");
+            Tag newTag = new Tag(-1, _userManager.CurrentUser.Id, category, name, description);
+            TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
+            return _tagRepo.AddTag(tagDTO);
         }
 
         public void UpdateTag(int id, string name, int category, string description)
         {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't update tag while current user is null");
             Tag? tag = FindTag(id);
-            if (tag == null) return;
-            Tag newTag = new Tag(tag.Id, tag.UserId, category, name, description);
-            TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
-            _tagRepo.UpdateTag(tagDTO);
-        }
-
-        public void UpdateTag(int id, int userId, string name, int category, string description)
-        {
-            Tag? tag = FindTag(id, userId);
             if (tag == null) return;
             Tag newTag = new Tag(tag.Id, tag.UserId, category, name, description);
             TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
@@ -39,16 +43,9 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void DeleteTag(int tagId)
         {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't delete tag while current user is null");
             if (FindTag(tagId) != null)
-            {
-                _taskManager.RemoveTagFromAll(tagId);
-                _tagRepo.DeleteTag(tagId);
-            }
-        }
-
-        public void DeleteTag(int tagId, int userId)
-        {
-            if (FindTag(tagId, userId) != null)
             {
                 _taskManager.RemoveTagFromAll(tagId);
                 _tagRepo.DeleteTag(tagId);
@@ -65,40 +62,25 @@ namespace Planum.Models.BuisnessLogic.Managers
             }
         }
 
-        public int CreateTag(int user_id, int category, string? name, string? description)
-        {
-            Tag new_tag = new Tag(0, user_id, category, name, description);
-            TagDTO tagDTO = _tagConverter.ConvertToDTO(new_tag);
-            return _tagRepo.AddTag(tagDTO);
-        }
-
         public Tag GetTag(int tagId)
         {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't get tag while current user is null");
             TagDTO tagDTO = _tagRepo.GetTag(tagId);
-            Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
-            return tag;
-        }
-
-        public Tag GetTag(int tagId, int userId)
-        {
-            TagDTO tagDTO = _tagRepo.GetTag(tagId, userId);
+            if (tagDTO.UserId != _userManager.CurrentUser.Id)
+                throw new TagDoesNotExistException("Tag with such id and current user id does not exist");
             Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
             return tag;
         }
 
         public Tag? FindTag(int tagId)
         {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't find tag while current user is null");
             TagDTO? tagDTO = _tagRepo.FindTag(tagId);
             if (tagDTO == null)
                 return null;
-            Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
-            return tag;
-        }
-
-        public Tag? FindTag(int tagId, int userId)
-        {
-            TagDTO? tagDTO = _tagRepo.FindTag(tagId, userId);
-            if (tagDTO == null)
+            if (tagDTO.UserId != _userManager.CurrentUser.Id)
                 return null;
             Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
             return tag;
@@ -106,22 +88,13 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public List<Tag> GetAllTags()
         {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't get all tags while current user is null");
             List<TagDTO> tagDTOs = _tagRepo.GetAllTags();
             List<Tag> tagList = new List<Tag>();
             foreach (var tagDTO in tagDTOs)
             {
-                tagList.Add(_tagConverter.ConvertFromDTO(tagDTO));
-            }
-            return tagList;
-        }
-
-        public List<Tag> GetAllTags(int userId)
-        {
-            List<TagDTO> tagDTOs = _tagRepo.GetAllTags(userId);
-            List<Tag> tagList = new List<Tag>();
-            foreach (var tagDTO in tagDTOs)
-            {
-                if (tagDTO.UserId == userId)
+                if (tagDTO.UserId == _userManager.CurrentUser.Id)
                     tagList.Add(_tagConverter.ConvertFromDTO(tagDTO));
             }
             return tagList;

@@ -11,15 +11,11 @@ namespace Planum.Models.BuisnessLogic.Managers
     {
         public User? CurrentUser { get; set; } = null;
         protected IUserRepo _userRepo;
-        protected ITagManager _tagManager;
-        protected ITaskManager _taskManager;
         protected IUserConverter _userConverter;
 
-        public UserManager(IUserRepo userRepo, ITagManager tagManager, ITaskManager taskManager, IUserConverter userConverter)
+        public UserManager(IUserRepo userRepo, IUserConverter userConverter)
         {
             _userRepo = userRepo;
-            _tagManager = tagManager;
-            _taskManager = taskManager;
             _userConverter = userConverter;
         }
 
@@ -43,12 +39,12 @@ namespace Planum.Models.BuisnessLogic.Managers
             _userRepo.UpdateUser(new_user);
         }
 
-        public void DeleteUser(int id)
+        public void DeleteUser(int id, ITaskManager taskManager, ITagManager tagManager)
         {
             if (FindUser(id) == null)
                 return;
-            _tagManager.DeleteConnectedToUser(id);
-            _taskManager.DeleteConnectedToUser(id);
+            tagManager.DeleteConnectedToUser(id);
+            taskManager.DeleteConnectedToUser(id);
             _userRepo.DeleteUser(id);
         }
 

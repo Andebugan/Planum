@@ -6,73 +6,74 @@ using NUnit.Framework;
 using Planum.Models.DTO;
 using Planum.Models.DataModels;
 using Planum.Models.BuisnessLogic.IRepo;
+using Planum.DataModels;
 
 namespace Planum.Testing.UnitTesting
 {
     [TestFixture]
     public class RepoUnitTesting
     {
-        IUserRepo userRepo = new UserRepoFile();
-        ITaskRepo taskRepo = new TaskRepoFile();
-        ITagRepo tagRepo = new TagRepoFile();
+        IUserRepo userRepo = new UserRepoFile(new UserDTOComparator());
+        ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
+        ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
 
-        protected bool CompareTagDTOs(int id_1, TagDTO tagDTO_1, int id_2, TagDTO tagDTO_2)
+        protected bool CompareTagDTOs(int firstId, TagDTO firstDTO, int secondId, TagDTO secondDTO)
         {
-            if (id_1 != id_2)
+            if (firstId != secondId)
                 return false;
-            if (tagDTO_1.UserId != tagDTO_2.UserId)
+            if (firstDTO.UserId != secondDTO.UserId)
                 return false;
-            if (tagDTO_1.Category != tagDTO_2.Category)
+            if (firstDTO.Category != secondDTO.Category)
                 return false;
-            if (tagDTO_1.Description != tagDTO_2.Description)
+            if (firstDTO.Description != secondDTO.Description)
                 return false;
-            if (tagDTO_1.Name != tagDTO_2.Name)
+            if (firstDTO.Name != secondDTO.Name)
                 return false;
             return true;
         }
 
-        protected bool CompareUserDTOs(int id_1, UserDTO userDTO_1, int id_2, UserDTO userDTO_2)
+        protected bool CompareUserDTOs(int firstId, UserDTO firstDTO, int secondId, UserDTO secondDTO)
         {
-            if (id_1 != id_2)
+            if (firstId != secondId)
                 return false;
-            if (userDTO_1.Login != userDTO_2.Login)
+            if (firstDTO.Login != secondDTO.Login)
                 return false;
-            if (userDTO_1.Password != userDTO_2.Password)
+            if (firstDTO.Password != secondDTO.Password)
                 return false;
             return true;
         }
 
-        protected bool CompareTaskDTOs(int id_1, TaskDTO taskDTO_1, int id_2, TaskDTO taskDTO_2)
+        protected bool CompareTaskDTOs(int firstId, TaskDTO firstDTO, int secondId, TaskDTO secondDTO)
         {
-            if (id_1 != id_2)
+            if (firstId != secondId)
                 return false;
-            if (taskDTO_1.UserId != taskDTO_2.UserId)
+            if (firstDTO.UserId != secondDTO.UserId)
                 return false;
-            if (taskDTO_1.Name != taskDTO_2.Name)
+            if (firstDTO.Name != secondDTO.Name)
                 return false;
-            if (taskDTO_1.Description != taskDTO_2.Description)
+            if (firstDTO.Description != secondDTO.Description)
                 return false;
-            if (taskDTO_1.Timed != taskDTO_2.Timed)
+            if (firstDTO.Timed != secondDTO.Timed)
                 return false;
-            if (Math.Abs((taskDTO_1.StartTime - taskDTO_2.StartTime).TotalSeconds) > 1)
+            if (Math.Abs((firstDTO.StartTime - secondDTO.StartTime).TotalSeconds) > 1)
                 return false;
-            if (Math.Abs((taskDTO_1.Deadline - taskDTO_2.Deadline).TotalSeconds) > 1)
+            if (Math.Abs((firstDTO.Deadline - secondDTO.Deadline).TotalSeconds) > 1)
                 return false;
-            List<int> temp_1 = (List<int>)taskDTO_1.TagIds;
-            List<int> temp_2 = (List<int>)taskDTO_2.TagIds;
+            List<int> temp_1 = (List<int>)firstDTO.TagIds;
+            List<int> temp_2 = (List<int>)secondDTO.TagIds;
             if (!temp_1.SequenceEqual(temp_2))
                 return false;
-            temp_1 = (List<int>)taskDTO_1.ChildIds;
-            temp_2 = (List<int>)taskDTO_2.ChildIds;
+            temp_1 = (List<int>)firstDTO.ChildIds;
+            temp_2 = (List<int>)secondDTO.ChildIds;
             if (!temp_1.SequenceEqual(temp_2))
                 return false;
-            temp_1 = (List<int>)taskDTO_1.ParentIds;
-            temp_2 = (List<int>)taskDTO_2.ParentIds;
+            temp_1 = (List<int>)firstDTO.ParentIds;
+            temp_2 = (List<int>)secondDTO.ParentIds;
             if (!temp_1.SequenceEqual(temp_2))
                 return false;
-            if (taskDTO_1.IsRepeated != taskDTO_2.IsRepeated)
+            if (firstDTO.IsRepeated != secondDTO.IsRepeated)
                 return false;
-            if (Math.Abs((taskDTO_1.RepeatPeriod - taskDTO_2.RepeatPeriod).TotalSeconds) > 1)
+            if (Math.Abs((firstDTO.RepeatPeriod - secondDTO.RepeatPeriod).TotalSeconds) > 1)
                 return false;
             return true;
         }
@@ -350,6 +351,7 @@ namespace Planum.Testing.UnitTesting
 
             testDTO3 = new TaskDTO(id_3, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
                 "task_3 new", false, 1, "task_3 new description", false);
+            taskRepo.UpdateTask(testDTO3);
             TaskDTO temp = taskRepo.GetTask(id_3);
             Assert.IsTrue(CompareTaskDTOs(temp.Id, temp, id_3, testDTO3));
             ((TaskRepoFile)taskRepo).Reset();
@@ -395,64 +397,6 @@ namespace Planum.Testing.UnitTesting
 
             ((TaskRepoFile)taskRepo).Reset();
             Assert.Throws<TaskDoesNotExistException>(delegate { taskRepo.GetTask(id_1); });
-            ((TaskRepoFile)taskRepo).Reset();
-        }
-
-        [Test]
-        public void TestTaskArchive()
-        {
-            ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
-                "task_1", false, 1, "task_1 description", false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
-                "task_2", false, 1, "task_2 description", false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
-                "task_3", false, 1, "task_3 description", false);
-
-            int id_1 = taskRepo.AddTask(testDTO1);
-            int id_3 = taskRepo.AddTask(testDTO3);
-            int id_2 = taskRepo.AddTask(testDTO2);
-
-            taskRepo.ArchiveTask(id_1);
-            taskRepo.ArchiveTask(id_2);
-
-            List<TaskDTO> tasks = taskRepo.GetAllTasks();
-            List<TaskDTO> archived = taskRepo.GetAllArchivedTasks();
-
-            Assert.IsTrue(CompareTaskDTOs(archived[0].Id, archived[0], id_1, testDTO1));
-            Assert.IsTrue(CompareTaskDTOs(archived[1].Id, archived[1], id_2, testDTO2));
-            Assert.IsTrue(CompareTaskDTOs(tasks[0].Id, tasks[0], id_3, testDTO3));
-
-            ((TaskRepoFile)taskRepo).Reset();
-        }
-
-        [Test]
-        public void TestTaskUnarchive()
-        {
-            ((TaskRepoFile)taskRepo).Reset();
-            TaskDTO testDTO1 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
-                "task_1", false, 1, "task_1 description", false);
-            TaskDTO testDTO2 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
-                "task_2", false, 1, "task_2 description", false);
-            TaskDTO testDTO3 = new TaskDTO(1, DateTime.Now, DateTime.Now, TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
-                "task_3", false, 1, "task_3 description", false);
-
-            int id_1 = taskRepo.AddTask(testDTO1);
-            int id_3 = taskRepo.AddTask(testDTO3);
-            int id_2 = taskRepo.AddTask(testDTO2);
-
-            taskRepo.ArchiveTask(id_1);
-            taskRepo.ArchiveTask(id_2);
-
-            taskRepo.UnarchiveTask(id_1);
-
-            List<TaskDTO> tasks = taskRepo.GetAllTasks();
-            List<TaskDTO> archived = taskRepo.GetAllArchivedTasks();
-
-            Assert.IsTrue(CompareTaskDTOs(archived[0].Id, archived[0], id_2, testDTO2));
-            Assert.IsTrue(CompareTaskDTOs(tasks[1].Id, tasks[1], id_1, testDTO1));
-            Assert.IsTrue(CompareTaskDTOs(tasks[0].Id, tasks[0], id_3, testDTO3));
-
             ((TaskRepoFile)taskRepo).Reset();
         }
     }
