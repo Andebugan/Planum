@@ -34,7 +34,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            Console.WriteLine("Enter tag id: ");
+            Console.Write("Enter tag id: ");
             input = Console.ReadLine();
             int tagId;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out tagId))
@@ -48,7 +48,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
-
+            Console.WriteLine();
             _taskManager.AddTagToTask(taskId, tagId);
         }
 

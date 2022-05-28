@@ -22,7 +22,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? input = Console.ReadLine();
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
             {
-                Console.WriteLine("Id must be signed integer");
+                Console.WriteLine("Id must be signed integer\n");
                 return;
             }
             Tag? tag = _tagManager.FindTag(id);

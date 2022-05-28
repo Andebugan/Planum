@@ -20,15 +20,16 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int id;
             if (!int.TryParse(Console.ReadLine(), out id))
             {
-                Console.WriteLine("Task id must be signed integer");
+                Console.WriteLine("Task id must be signed integer\n");
                 return;
             }
 
             if (_taskManager.FindTask(id) == null)
             {
-                Console.WriteLine("Task with specified id does not exist");
+                Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
+            Console.WriteLine();
             _taskManager.ClearChildren(id);
         }
 

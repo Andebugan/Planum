@@ -21,7 +21,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int id;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
             {
-                Console.WriteLine("Id must be signed integer");
+                Console.WriteLine("Id must be signed integer\n");
                 return;
             }
             _tagManager.DeleteTag(id);

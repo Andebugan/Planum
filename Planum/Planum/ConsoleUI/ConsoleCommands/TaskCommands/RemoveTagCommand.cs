@@ -40,7 +40,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("Tag id must be signed integer\n");
                 return;
             }
-
+            Console.WriteLine();
             _taskManager.RemoveTagFromTask(taskId, tagId);
         }
 
