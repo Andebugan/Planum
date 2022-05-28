@@ -181,7 +181,7 @@ namespace Planum.Models.DataModels
                     {
                         TaskDTO temp = ReadIntoDTO(reader);
 
-                        if (temp.Id == id && temp.Archived != true)
+                        if (temp.Id == id)
                         {
                             return temp;
                         }
@@ -203,8 +203,7 @@ namespace Planum.Models.DataModels
                     while (reader.BaseStream.Position != reader.BaseStream.Length)
                     {
                         TaskDTO task = ReadIntoDTO(reader);
-                        if (!task.Archived)
-                            tasks.Add(task);
+                        tasks.Add(task);
                     }
                 }
             }

@@ -21,13 +21,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? input = Console.ReadLine();
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
             {
-                Console.WriteLine("Id must be signed integer");
+                Console.WriteLine("Id must be signed integer\n");
                 return;
             }
 
             if (_tagManager.FindTag(id) == null)
             {
-                Console.WriteLine("User with specified id does not exist");
+                Console.WriteLine("User with specified id does not exist\n");
                 return;
             }
 
@@ -35,7 +35,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? name = Console.ReadLine();
             if (string.IsNullOrEmpty(name))
             {
-                Console.WriteLine("Name can't be null or zero");
+                Console.WriteLine("Name can't be null or zero\n");
                 return;
             }
 
@@ -47,7 +47,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int category;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out category))
             {
-                Console.WriteLine("Category must be signed integer");
+                Console.WriteLine("Category must be signed integer\n");
                 return;
             }
             Console.WriteLine();

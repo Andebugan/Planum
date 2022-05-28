@@ -24,7 +24,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string name;
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Task name can't be null or empty");
+                Console.WriteLine("Task name can't be null or empty\n");
                 return;
             }
             name = input;
@@ -54,7 +54,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Must be y of n");
+                Console.WriteLine("Must be y of n\n");
                 return;
             }
 
@@ -72,26 +72,26 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 startTime = DateTime.MinValue;
             else if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime))
             {
-                Console.WriteLine("Incorrect input");
+                Console.WriteLine("Incorrect input\n");
                 return;
             }
 
-            Console.Write("Enter task deadline as \"yyyy-mm-dd hh:mm\": ");
+            Console.Write("Enter task deadline as \"yyyy-MM-dd HH:mms\": ");
             input = Console.ReadLine();
             DateTime deadline;
             if (string.IsNullOrEmpty(input))
                 deadline = DateTime.MinValue;
-            else if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out deadline))
+            else if (!DateTime.TryParseExact(input, "", CultureInfo.InvariantCulture, DateTimeStyles.None, out deadline))
             {
-                Console.WriteLine("Incorrect input");
+                Console.WriteLine("Incorrect input\n");
                 return;
             }
 
-            Console.Write("Is task timed (y/n): ");
+            Console.Write("Is task repeated (y/n): ");
             input = Console.ReadLine();
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Must be y of n");
+                Console.WriteLine("Must be y of n\n");
                 return;
             }
 
@@ -102,17 +102,17 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            Console.Write("Enter task repeat period as \"yyyy-mm-dd hh:mm\": ");
+            Console.Write("Enter task repeat period as \"d:hh:mm\": ");
             input = Console.ReadLine();
             TimeSpan repeatPeriod;
             if (string.IsNullOrEmpty(input))
                 repeatPeriod = TimeSpan.Zero;
-            else if (!TimeSpan.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
+            else if (!TimeSpan.TryParseExact(input, @"d\:hh\:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
             {
-                Console.WriteLine("Incorrect input");
+                Console.WriteLine("Incorrect input\n");
                 return;
             }
-
+            Console.WriteLine();
             _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
                 description: description, timed: true, isRepeated : true);
         }

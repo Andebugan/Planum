@@ -32,7 +32,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            Console.WriteLine("Enter parent id: ");
+            Console.Write("Enter parent id: ");
             input = Console.ReadLine();
             int parentId;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out parentId))
@@ -46,7 +46,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
-
+            Console.WriteLine();
             _taskManager.AddParentToTask(taskId, parentId);
         }
 

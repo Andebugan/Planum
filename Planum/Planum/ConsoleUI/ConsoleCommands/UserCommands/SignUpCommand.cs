@@ -22,13 +22,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))
             {
-                Console.WriteLine("login can't be null or empty");
+                Console.WriteLine("login can't be null or empty\n");
                 return;
             }
 
             if (_userManager.FindUser(login) != null)
             {
-                Console.WriteLine("user with this login already exist");
+                Console.WriteLine("user with this login already exist\n");
                 return;
             }
 
@@ -36,7 +36,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? password = Console.ReadLine();
             if (string.IsNullOrEmpty(password))
             {
-                Console.WriteLine("password can't be null");
+                Console.WriteLine("password can't be null\n");
                 return;
             }
 

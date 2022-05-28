@@ -19,19 +19,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))
             {
-                Console.WriteLine("login can't be null or empty");
+                Console.WriteLine("login can't be null or empty\n");
                 return;
             }
             Console.Write("Enter password: ");
             string? password = Console.ReadLine();
             if (string.IsNullOrEmpty(password))
             {
-                Console.WriteLine("password can't be null");
+                Console.WriteLine("password can't be null\n");
                 return;
             }
             User? user = _userManager.SignIn(login, password);
             if (user == null)
-                Console.WriteLine("didn't sign in, login or password incorrect");
+                Console.WriteLine("didn't sign in, login or password incorrect\n");
             Console.WriteLine();
         }
 

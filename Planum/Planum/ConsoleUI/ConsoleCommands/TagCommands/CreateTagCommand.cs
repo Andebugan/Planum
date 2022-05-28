@@ -21,7 +21,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Tag name can't be empty");
+                Console.WriteLine("Tag name can't be empty\n");
                 return;
             }    
             string name = input;
@@ -37,9 +37,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int category;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out category))
             {
-                Console.WriteLine("Tag category must be signed integer");
+                Console.WriteLine("Tag category must be signed integer\n");
                 return;
             }
+            Console.WriteLine();
             _tagManager.CreateTag(category, name, description);
         }
 

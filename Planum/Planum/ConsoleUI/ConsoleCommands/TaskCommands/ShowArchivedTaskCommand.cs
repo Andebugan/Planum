@@ -21,7 +21,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int taskId;
             if (!int.TryParse(Console.ReadLine(), out taskId))
             {
-                Console.WriteLine("Task id must be signed integer");
+                Console.WriteLine("Task id must be signed integer\n");
                 return;
             }
 
@@ -29,7 +29,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (archivedTask == null)
             {
-                Console.WriteLine("Task with specified id does not exist");
+                Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
 

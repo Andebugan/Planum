@@ -19,13 +19,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int id;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
             {
-                Console.WriteLine("id must be signed integer");
+                Console.WriteLine("id must be signed integer\n");
                 return;
             }
 
             if (_userManager.FindUser(id) == null)
             {
-                Console.WriteLine("User with entered id does not exist");
+                Console.WriteLine("User with entered id does not exist\n");
                 return;
             }
 
@@ -33,14 +33,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))
             {
-                Console.WriteLine("login can't be null or empty");
+                Console.WriteLine("login can't be null or empty\n");
                 return;
             }
             Console.Write("Enter new password: ");
             string? password = Console.ReadLine();
             if (string.IsNullOrEmpty(password))
             {
-                Console.WriteLine("password can't be null");
+                Console.WriteLine("password can't be null\n");
                 return;
             }
             _userManager.UpdateUser(id, login, password);

@@ -20,13 +20,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int id;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
             {
-                Console.WriteLine("id must be signed integer");
+                Console.WriteLine("id must be signed integer\n");
                 return;
             }
             User? user = _userManager.FindUser(id);
             if (user == null)
             {
-                Console.WriteLine("user with this id does not exist");
+                Console.WriteLine("user with this id does not exist\n");
                 return;
             }
             Console.WriteLine("id: " + user.Id);
