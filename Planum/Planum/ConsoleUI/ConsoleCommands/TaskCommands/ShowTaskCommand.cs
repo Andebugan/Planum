@@ -25,7 +25,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            Task? task = _taskManager.FindArchivedTask(taskId, _userManager.CurrentUser.Id);
+            Task? task = _taskManager.FindTask(taskId);
 
             if (task == null)
             {

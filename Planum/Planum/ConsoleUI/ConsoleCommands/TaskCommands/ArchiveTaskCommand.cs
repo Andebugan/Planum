@@ -24,7 +24,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
             
-            if (_taskManager.FindTask(id, _userManager.CurrentUser.Id) == null)
+            if (_taskManager.FindTask(id) == null)
             {
                 Console.WriteLine("Task with specified id does not exist");
                 return;

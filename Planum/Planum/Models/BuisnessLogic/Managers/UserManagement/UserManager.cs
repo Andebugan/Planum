@@ -46,6 +46,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             tagManager.DeleteConnectedToUser(id);
             taskManager.DeleteConnectedToUser(id);
             _userRepo.DeleteUser(id);
+            CurrentUser = null;
         }
 
         public User GetUser(int id) => _userConverter.ConvertFromDTO(_userRepo.GetUser(id));

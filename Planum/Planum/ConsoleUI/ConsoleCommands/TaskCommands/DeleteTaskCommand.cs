@@ -30,7 +30,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            _taskManager.DeleteTask(id, _userManager.CurrentUser.Id);
+            _taskManager.DeleteTask(id);
         }
 
         public string GetDescription()

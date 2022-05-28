@@ -19,7 +19,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
-            List<Task> archivedTasks = _taskManager.GetAllArchivedTasks(_userManager.CurrentUser.Id);
+            List<Task> archivedTasks = _taskManager.GetAllTasks(true);
             foreach (Task archivedTask in archivedTasks)
             {
                 Console.WriteLine("Task id: " + archivedTask.Id);

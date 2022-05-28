@@ -26,7 +26,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_taskManager.FindTask(taskId, _userManager.CurrentUser.Id) == null)
+            if (_taskManager.FindTask(taskId) == null)
             {
                 Console.WriteLine("Task with specified id does not exist\n");
                 return;
@@ -41,13 +41,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_taskManager.FindTask(childId, _userManager.CurrentUser.Id) == null)
+            if (_taskManager.FindTask(childId) == null)
             {
                 Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
 
-            _taskManager.RemoveChildFromTask(taskId, childId, _userManager.CurrentUser.Id);
+            _taskManager.RemoveChildFromTask(taskId, childId);
         }
 
         public string GetDescription()

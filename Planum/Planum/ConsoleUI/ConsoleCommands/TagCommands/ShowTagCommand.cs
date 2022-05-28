@@ -25,7 +25,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("Id must be signed integer");
                 return;
             }
-            Tag? tag = _tagManager.FindTag(id, _userManager.CurrentUser.Id);
+            Tag? tag = _tagManager.FindTag(id);
 
             Console.WriteLine("Tag id: " + tag.Id);
             Console.WriteLine("Tag name: " + tag.Name);
