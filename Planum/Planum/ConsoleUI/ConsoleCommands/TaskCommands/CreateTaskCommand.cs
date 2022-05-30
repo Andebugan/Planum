@@ -76,12 +76,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            Console.Write("Enter task deadline as \"yyyy-MM-dd HH:mms\": ");
+            Console.Write("Enter task deadline as \"yyyy-MM-dd HH:mm\": ");
             input = Console.ReadLine();
             DateTime deadline;
             if (string.IsNullOrEmpty(input))
                 deadline = DateTime.MinValue;
-            else if (!DateTime.TryParseExact(input, "", CultureInfo.InvariantCulture, DateTimeStyles.None, out deadline))
+            else if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out deadline))
             {
                 Console.WriteLine("Incorrect input\n");
                 return;

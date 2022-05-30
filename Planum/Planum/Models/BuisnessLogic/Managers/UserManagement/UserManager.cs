@@ -82,7 +82,7 @@ namespace Planum.Models.BuisnessLogic.Managers
         public User? SignIn(string login, string password)
         {
             List<UserDTO> userDTOs = _userRepo.GetAllUsers();
-            User user = null;
+            User user;
 
             foreach (var userDTO in userDTOs)
             {
@@ -93,7 +93,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                     return user;
                 }
             }
-            return user;
+            return null;
         }
     }
 }
