@@ -1,0 +1,103 @@
+﻿using System.Collections.Generic;
+
+using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.IRepo;
+using Planum.Models.DTO;
+
+namespace Planum.Models.BuisnessLogic.Managers
+{
+    public class TagManager : ITagManager
+    {
+        protected ITagRepo _tagRepo;
+        protected ITaskManager _taskManager;
+        protected IUserManager _userManager;
+        protected ITagConverter _tagConverter;
+
+        public TagManager(ITagRepo tagRepo, ITaskManager taskManager, ITagConverter tagConverter, IUserManager userManager)
+        {
+            _tagRepo = tagRepo;
+            _taskManager = taskManager;
+            _tagConverter = tagConverter;
+            _userManager = userManager;
+        }
+
+        public int CreateTag(int category, string name, string description)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't create tag while current user is null");
+            Tag newTag = new Tag(-1, _userManager.CurrentUser.Id, category, name, description);
+            TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
+            return _tagRepo.AddTag(tagDTO);
+        }
+
+        public void UpdateTag(int id, string name, int category, string description)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't update tag while current user is null");
+            Tag? tag = FindTag(id);
+            if (tag == null) return;
+            Tag newTag = new Tag(tag.Id, tag.UserId, category, name, description);
+            TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
+            _tagRepo.UpdateTag(tagDTO);
+        }
+
+        public void DeleteTag(int tagId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't delete tag while current user is null");
+            if (FindTag(tagId) != null)
+            {
+                _taskManager.RemoveTagFromAll(tagId);
+                _tagRepo.DeleteTag(tagId);
+            }
+        }
+
+        public void DeleteConnectedToUser(int userId)
+        {
+            List<Tag> tags = GetAllTags();
+            foreach (Tag tag in tags)
+            {
+                if (tag.UserId == userId)
+                    DeleteTag(tag.Id);
+            }
+        }
+
+        public Tag GetTag(int tagId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't get tag while current user is null");
+            TagDTO tagDTO = _tagRepo.GetTag(tagId);
+            if (tagDTO.UserId != _userManager.CurrentUser.Id)
+                throw new TagDoesNotExistException("Tag with such id and current user id does not exist");
+            Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
+            return tag;
+        }
+
+        public Tag? FindTag(int tagId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't find tag while current user is null");
+            TagDTO? tagDTO = _tagRepo.FindTag(tagId);
+            if (tagDTO == null)
+                return null;
+            if (tagDTO.UserId != _userManager.CurrentUser.Id)
+                return null;
+            Tag tag = _tagConverter.ConvertFromDTO(tagDTO);
+            return tag;
+        }
+
+        public List<Tag> GetAllTags()
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't get all tags while current user is null");
+            List<TagDTO> tagDTOs = _tagRepo.GetAllTags();
+            List<Tag> tagList = new List<Tag>();
+            foreach (var tagDTO in tagDTOs)
+            {
+                if (tagDTO.UserId == _userManager.CurrentUser.Id)
+                    tagList.Add(_tagConverter.ConvertFromDTO(tagDTO));
+            }
+            return tagList;
+        }
+    }
+}

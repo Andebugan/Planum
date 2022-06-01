@@ -1,104 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Planum.Models.BuisnessLayer.Entities;
-using Planum.Models.BuisnessLayer.Interfaces;
-using Planum.Models.BuisnessLayer.Managers;
-using Planum.Models.DataLayer;
-using Planum.Models.DTO.ModelData;
-using System.Diagnostics;
-
+﻿using Moq;
 using NUnit.Framework;
+using Planum.Models.BuisnessLogic.IRepo;
+using Planum.Models.BuisnessLogic.Managers;
+using System;
+using System.Collections.Generic;
 
 namespace Planum.Testing.UnitTesting
 {
     [TestFixture]
     public class ModelUnitTesting
     {
-        private TagManager? _tagManager;
-        private TaskManager? _taskManager;
-        private UserManager? _userManager;
-
-        private ITagRepo? _tagRepoFile;
-        private ITaskRepo? _taskRepoFile;
-        private IUserRepo? _userRepoFile;
+        IUserManager userManager;
+        ITaskManager taskManager;
+        ITagManager tagManager;
 
         [SetUp]
         public void SetUp()
         {
-            _tagRepoFile = new TagRepoFile();
-            _taskRepoFile = new TaskRepoFile();
-            _userRepoFile = new UserRepoFile();
+            var userRepo = new Mock<IUserRepo>();
+            var tagRepo = new Mock<ITagRepo>();
+            var taskRepo = new Mock<ITaskRepo>();
 
-            _taskManager = new TaskManager(ref _taskRepoFile);
-            _tagManager = new TagManager(ref _tagRepoFile, ref _taskManager);
-            _userManager = new UserManager(ref _userRepoFile, ref _tagManager, ref _taskManager);
+            userManager = new UserManager(userRepo.Object, new UserConverter());
+            taskManager = new TaskManager(taskRepo.Object, new TaskConverter(), userManager);
+            tagManager = new TagManager(tagRepo.Object, taskManager, new TagConverter(), userManager);
         }
 
         [Test]
-        public void TestTaskConstructor()
+        public void TestTagUserCheckups()
         {
-            ITaskRepo? taskRepo = null;
-            Assert.Throws<ArgumentNullException>(delegate { new TaskManager(ref taskRepo); });
-            taskRepo = _taskRepoFile;
-            Assert.IsInstanceOf<TaskManager>(new TaskManager(ref taskRepo));
+            userManager.CurrentUser = null;
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.CreateTag(1, "test", "test"); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.FindTag(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.DeleteTag(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.UpdateTag(1, "test", 1, "test"); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.GetAllTags(); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.GetTag(1); });
         }
 
         [Test]
-        public void TestTagConstructor()
+        public void TestTaskUserCheckups()
         {
-            ITagRepo tagRepo = null;
-            TaskManager taskManager = null;
-            Assert.Throws<ArgumentNullException>(delegate { new TagManager(ref tagRepo, ref taskManager); });
-
-            tagRepo = _tagRepoFile;
-            taskManager = null;
-            Assert.Throws<ArgumentNullException>(delegate { new TagManager(ref tagRepo, ref taskManager); });
-
-            tagRepo = null;
-            taskManager = _taskManager;
-            Assert.Throws<ArgumentNullException>(delegate { new TagManager(ref tagRepo, ref taskManager); });
-
-            tagRepo = _tagRepoFile;
-            taskManager = _taskManager;
-            Assert.IsInstanceOf<TagManager>(new TagManager(ref tagRepo, ref taskManager));
-        }
-
-        [Test]
-        public void TestUserConstructor()
-        {
-            IUserRepo userRepo =  null;
-            TaskManager taskManager = null;
-            TagManager tagManager = null;
-
-            Assert.Throws<ArgumentNullException>(delegate { new UserManager(ref userRepo, ref tagManager, ref taskManager); });
-
-            userRepo = null;
-            taskManager = _taskManager;
-            tagManager = _tagManager;
-
-            Assert.Throws<ArgumentNullException>(delegate { new UserManager(ref userRepo, ref tagManager, ref taskManager); });
-
-            userRepo = _userRepoFile;
-            taskManager = null;
-            tagManager = _tagManager;
-
-            Assert.Throws<ArgumentNullException>(delegate { new UserManager(ref userRepo, ref tagManager, ref taskManager); });
-
-            userRepo = _userRepoFile;
-            taskManager = _taskManager;
-            tagManager = null;
-
-            Assert.Throws<ArgumentNullException>(delegate { new UserManager(ref userRepo, ref tagManager, ref taskManager); });
-
-            userRepo = _userRepoFile;
-            taskManager = _taskManager;
-            tagManager = _tagManager;
-
-            Assert.IsInstanceOf<UserManager>(new UserManager(ref userRepo, ref tagManager, ref taskManager));
+            userManager.CurrentUser = null;
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.ArchiveTask(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.UnarchiveTask(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.GetAllTasks(); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.FindTask(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.GetTask(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.DeleteTask(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.ClearParents(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.ClearChildren(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.AddChildToTask(1, 2); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.AddParentToTask(1, 2); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.AddTagToTask(1, 1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.ClearTags(1); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.CreateTask(DateTime.Now, DateTime.Now,
+                TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, "task_1 description", false); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.UpdateTask(1, DateTime.Now, DateTime.Now,
+                TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
+                "task_1", false, "task_1 description", false);
+            });
         }
     }
 }

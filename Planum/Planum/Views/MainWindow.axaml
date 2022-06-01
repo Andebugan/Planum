@@ -11,7 +11,9 @@
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
-
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    
+	
+    <StackPanel>
+	    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+	    <Button Width="200" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Background="Green" Command="{Binding OnClickCommand}">White text, red background</Button>
+	</StackPanel>
 </Window>

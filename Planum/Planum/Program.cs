@@ -1,7 +1,11 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
+using Planum.Models.BuisnessLogic.IRepo;
+using Planum.Models.BuisnessLogic.Managers;
+using Planum.Models.DataModels;
 using System;
+using System.Collections.Generic;
 
 namespace Planum
 {
@@ -9,7 +13,7 @@ namespace Planum
     {
         public static void Main(string[] args)
         {
-
+            
         }
         /*
         // Initialization code. Don't use any Avalonia, third-party APIs or any

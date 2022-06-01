@@ -1,0 +1,351 @@
+﻿using System;
+using System.Collections.Generic;
+using Planum.Models.BuisnessLogic.IRepo;
+using Planum.Models.DTO;
+using Task = Planum.Models.BuisnessLogic.Entities.Task;
+
+namespace Planum.Models.BuisnessLogic.Managers
+{
+    public class TaskManager : ITaskManager
+    {
+        protected ITaskRepo _taskRepo;
+        protected ITaskConverter _taskConverter;
+        protected IUserManager _userManager;
+
+        public TaskManager(ITaskRepo taskRepo, ITaskConverter taskConverter, IUserManager userManager)
+        {
+            _taskRepo = taskRepo;
+            _taskConverter = taskConverter;
+            _userManager = userManager;
+        }
+
+        public int CreateTask(DateTime startTime, DateTime deadline,
+            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
+            string name, bool timed = false,
+            string description = "", bool isRepeated = false)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't create task while current user is null");
+            Task new_task = new Task(-1, startTime, deadline, repeatPeriod, TagIds, ParentIds, ChildIds,
+                name, timed, _userManager.CurrentUser.Id, description, isRepeated);
+            TaskDTO taskDTO = _taskConverter.ConvertToDTO(new_task);
+            return _taskRepo.AddTask(taskDTO);
+        }
+
+        public void UpdateTask(int id, DateTime startTime, DateTime deadline,
+            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
+            string name, bool timed = false, string description = "", bool isRepeated = false)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't update task while current user is null");
+
+            Task? task = FindTask(id, null);
+            if (task == null) return;
+
+            TaskDTO taskDTO = new TaskDTO(id, startTime,
+                deadline, repeatPeriod, TagIds, ParentIds, ChildIds, name, timed, task.UserId, description, isRepeated);
+            _taskRepo.UpdateTask(taskDTO);
+        }
+
+        public void DeleteTask(int taskId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't delete task while current user is null");
+
+            Task? deletedTask = FindTask(taskId, null);
+
+            if (deletedTask == null) return;
+            List<int> addedParents = (List<int>)deletedTask.ParentIds;
+            foreach(int id in deletedTask.ChildIds)
+            {
+                Task task = GetTask(id, null);
+                List<int> newParentList = (List<int>)task.ParentIds;
+                newParentList.AddRange(addedParents);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, newParentList, task.ChildIds,
+                    task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+
+            List<int> addedChildren = (List<int>)deletedTask.ChildIds;
+            foreach (int id in deletedTask.ParentIds)
+            {
+                Task task = GetTask(id, null);
+                List<int> newChildList = (List<int>)task.ChildIds;
+                newChildList.AddRange(addedChildren);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, task.ParentIds, newChildList,
+                    task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+
+            _taskRepo.DeleteTask(taskId);
+        }
+
+        public void ArchiveTask(int taskId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't archive task while current user is null");
+            Task? deletedTask = FindTask(taskId);
+            if (deletedTask == null) return;
+            List<int> addedParents = (List<int>)deletedTask.ParentIds;
+            foreach (int id in deletedTask.ChildIds)
+            {
+                Task task = GetTask(id);
+                List<int> newParentList = (List<int>)task.ParentIds;
+                newParentList.AddRange(addedParents);
+                newParentList.Remove(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, newParentList, task.ChildIds,
+                    task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+
+            List<int> addedChildren = (List<int>)deletedTask.ChildIds;
+            foreach (int id in deletedTask.ParentIds)
+            {
+                Task task = GetTask(id);
+                List<int> newChildList = (List<int>)task.ChildIds;
+                newChildList.AddRange(addedChildren);
+                newChildList.Remove(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, task.ParentIds, newChildList,
+                    task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+            deletedTask.Archived = true;
+            _taskRepo.UpdateTask(_taskConverter.ConvertToDTO(deletedTask));
+        }
+
+        public void UnarchiveTask(int taskId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't unarchive task while current user is null");
+            Task? archivedTask = FindTask(taskId, true);
+            if (archivedTask == null) return;
+            foreach (int id in archivedTask.ChildIds)
+            {
+                Task task = GetTask(id);
+                List<int> newParentList = (List<int>)task.ParentIds;
+                newParentList.Add(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, newParentList, task.ChildIds,
+                    task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+
+            foreach (int id in archivedTask.ParentIds)
+            {
+                Task task = GetTask(id);
+                List<int> newChildList = (List<int>)task.ChildIds;
+                newChildList.Add(archivedTask.Id);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, task.ParentIds, newChildList,
+                    task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+
+            archivedTask.Archived = false;
+            _taskRepo.UpdateTask(_taskConverter.ConvertToDTO(archivedTask));
+        }
+
+        public Task GetTask(int taskId, bool? archived = false)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't get task while current user is null");
+            TaskDTO task = _taskRepo.GetTask(taskId);
+            if (task.UserId != _userManager.CurrentUser.Id)
+                throw new IncorrectUserException("Task has incorrect user id");
+            if (archived == null)
+                return _taskConverter.ConvertFromDTO(_taskRepo.GetTask(taskId));
+            else if (task.Archived == archived)
+                return _taskConverter.ConvertFromDTO(_taskRepo.GetTask(taskId));
+            throw new TaskDoesNotExistException();
+        }
+
+        public Task? FindTask(int taskId, bool? archived = false)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't find task while current user is null");
+            TaskDTO? task = _taskRepo.FindTask(taskId);
+            if (task == null)
+                return null;
+            if (task.UserId != _userManager.CurrentUser.Id)
+                throw new IncorrectUserException("Task has incorrect user id");
+            if (archived == null)
+                return _taskConverter.ConvertFromDTO(_taskRepo.GetTask(taskId));
+            else if (task.Archived == archived)
+                return _taskConverter.ConvertFromDTO(_taskRepo.GetTask(taskId));
+            return null;
+        }
+
+        public void DeleteConnectedToUser(int userId)
+        {
+            List<Task> tasks = GetAllTasks(null);
+            foreach (Task task in tasks)
+            {
+                DeleteTask(task.Id);
+            }
+        }
+
+        public List<Task> GetAllTasks(bool? archived = false)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't get all tasks while current user is null");
+            List<Task> tasks = new List<Task>();
+            List<TaskDTO> taskDTOs = _taskRepo.GetAllTasks();
+
+            if (archived == null)
+            {
+                foreach (var taskDTO in taskDTOs)
+                {
+                    if (taskDTO.UserId == _userManager.CurrentUser.Id)
+                        tasks.Add(_taskConverter.ConvertFromDTO(taskDTO));
+                }
+            }
+            else
+            {
+                foreach (var taskDTO in taskDTOs)
+                {
+                    if (taskDTO.Archived == archived && taskDTO.UserId == _userManager.CurrentUser.Id)
+                        tasks.Add(_taskConverter.ConvertFromDTO(taskDTO));
+                }
+            }
+            return tasks;
+        }
+
+        public void AddTagToTask(int taskId, int tagId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't add tag to task while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            task.AddTag(tagId);
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void RemoveTagFromAll(int tagId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't remove tag from all tasks while current user is null");
+            List<Task> tasks = GetAllTasks(null);
+            foreach (Task task in tasks)
+            {
+                task.RemoveTag(tagId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+        }
+
+        public void RemoveTagFromTask(int taskId, int tagId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't remove tag from task while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            task.RemoveTag(tagId);
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void AddChildToTask(int taskId, int childId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't add child to task while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            Task? child = FindTask(childId, null);
+            if (child == null) return;
+            task.AddChild(childId);
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            child.AddParent(taskId);
+            UpdateTask(child.Id, child.StartTime, child.Deadline, child.RepeatPeriod, child.TagIds,
+                child.ParentIds, child.ChildIds, child.Name, child.Timed, child.Description, child.IsRepeated);
+        }
+
+        public void RemoveChildFromTask(int taskId, int childId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't remove child from task while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            Task? child = FindTask(childId, null);
+            if (child == null) return;
+            task.RemoveChild(childId);
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            child.RemoveParent(taskId);
+            UpdateTask(child.Id, child.StartTime, child.Deadline, child.RepeatPeriod, child.TagIds,
+                child.ParentIds, child.ChildIds, child.Name, child.Timed, child.Description, child.IsRepeated);
+        }
+
+        public void AddParentToTask(int taskId, int parentId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't add parent to task while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            Task? parent = FindTask(parentId, null);
+            if (parent == null) return;
+            task.AddParent(parentId);
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            parent.AddChild(taskId);
+            UpdateTask(parent.Id, parent.StartTime, parent.Deadline, parent.RepeatPeriod, parent.TagIds,
+                    parent.ParentIds, parent.ChildIds, parent.Name, parent.Timed, parent.Description, parent.IsRepeated);
+        }
+
+        public void RemoveParentFromTask(int taskId, int parentId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't remove parent from task while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            Task? parent = FindTask(parentId, null);
+            if (parent == null) return;
+            task.RemoveParent(parentId);
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            parent.RemoveChild(taskId);
+            UpdateTask(parent.Id, parent.StartTime, parent.Deadline, parent.RepeatPeriod, parent.TagIds,
+                    parent.ParentIds, parent.ChildIds, parent.Name, parent.Timed, parent.Description, parent.IsRepeated);
+        }
+
+        public void ClearTags(int taskId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't clear tags while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            task.ClearTags();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void ClearChildren(int taskId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't clear children while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            foreach (int childId in task.ChildIds)
+            {
+                Task temp = GetTask(childId, null);
+                temp.RemoveParent(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+            task.ClearChildIds();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+
+        public void ClearParents(int taskId)
+        {
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't clear parents while current user is null");
+            Task? task = FindTask(taskId, null);
+            if (task == null) return;
+            foreach (int parentId in task.ParentIds)
+            {
+                Task temp = GetTask(parentId, null);
+                temp.RemoveChild(taskId);
+                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            }
+            task.ClearParents();
+            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
+                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+        }
+    }
+}
