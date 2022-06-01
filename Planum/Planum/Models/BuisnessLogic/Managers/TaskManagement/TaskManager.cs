@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Planum.Models.BuisnessLogic.IRepo;
 using Planum.Models.DTO;
 using Task = Planum.Models.BuisnessLogic.Entities.Task;
@@ -29,7 +30,17 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task new_task = new Task(-1, startTime, deadline, repeatPeriod, TagIds, ParentIds, ChildIds,
                 name, timed, _userManager.CurrentUser.Id, description, isRepeated);
             TaskDTO taskDTO = _taskConverter.ConvertToDTO(new_task);
-            return _taskRepo.AddTask(taskDTO);
+            int newTaskId = _taskRepo.AddTask(taskDTO);
+            foreach (int taskId in new_task.ParentIds)
+            {
+                AddChildToTask(taskId, newTaskId);
+            }
+
+            foreach (int taskId in new_task.ChildIds)
+            {
+                AddParentToTask(taskId, newTaskId);
+            }
+            return newTaskId;
         }
 
         public void UpdateTask(int id, DateTime startTime, DateTime deadline,
@@ -41,6 +52,26 @@ namespace Planum.Models.BuisnessLogic.Managers
 
             Task? task = FindTask(id, null);
             if (task == null) return;
+
+            foreach (int taskId in task.ParentIds)
+            {
+                RemoveChildFromTask(taskId, task.Id);
+            }
+
+            foreach (int taskId in task.ChildIds)
+            {
+                RemoveParentFromTask(taskId, task.Id);
+            }
+
+            foreach(int taskId in ParentIds)
+            {
+                AddChildToTask(taskId, task.Id);
+            }
+
+            foreach(int taskId in ChildIds)
+            {
+                AddParentToTask(taskId, task.Id);
+            }
 
             TaskDTO taskDTO = new TaskDTO(id, startTime,
                 deadline, repeatPeriod, TagIds, ParentIds, ChildIds, name, timed, task.UserId, description, isRepeated);
@@ -246,11 +277,11 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task? child = FindTask(childId, null);
             if (child == null) return;
             task.AddChild(childId);
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            TaskDTO temp = _taskConverter.ConvertToDTO(task);
+            _taskRepo.UpdateTask(temp);
             child.AddParent(taskId);
-            UpdateTask(child.Id, child.StartTime, child.Deadline, child.RepeatPeriod, child.TagIds,
-                child.ParentIds, child.ChildIds, child.Name, child.Timed, child.Description, child.IsRepeated);
+            temp = _taskConverter.ConvertToDTO(child);
+            _taskRepo.UpdateTask(temp);
         }
 
         public void RemoveChildFromTask(int taskId, int childId)
@@ -262,11 +293,11 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task? child = FindTask(childId, null);
             if (child == null) return;
             task.RemoveChild(childId);
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            TaskDTO temp = _taskConverter.ConvertToDTO(task);
+            _taskRepo.UpdateTask(temp);
             child.RemoveParent(taskId);
-            UpdateTask(child.Id, child.StartTime, child.Deadline, child.RepeatPeriod, child.TagIds,
-                child.ParentIds, child.ChildIds, child.Name, child.Timed, child.Description, child.IsRepeated);
+            temp = _taskConverter.ConvertToDTO(child);
+            _taskRepo.UpdateTask(temp);
         }
 
         public void AddParentToTask(int taskId, int parentId)
@@ -278,11 +309,11 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task? parent = FindTask(parentId, null);
             if (parent == null) return;
             task.AddParent(parentId);
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            TaskDTO temp = _taskConverter.ConvertToDTO(task);
+            _taskRepo.UpdateTask(temp);
             parent.AddChild(taskId);
-            UpdateTask(parent.Id, parent.StartTime, parent.Deadline, parent.RepeatPeriod, parent.TagIds,
-                    parent.ParentIds, parent.ChildIds, parent.Name, parent.Timed, parent.Description, parent.IsRepeated);
+            temp = _taskConverter.ConvertToDTO(parent);
+            _taskRepo.UpdateTask(temp);
         }
 
         public void RemoveParentFromTask(int taskId, int parentId)
@@ -294,11 +325,11 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task? parent = FindTask(parentId, null);
             if (parent == null) return;
             task.RemoveParent(parentId);
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            TaskDTO temp = _taskConverter.ConvertToDTO(task);
+            _taskRepo.UpdateTask(temp);
             parent.RemoveChild(taskId);
-            UpdateTask(parent.Id, parent.StartTime, parent.Deadline, parent.RepeatPeriod, parent.TagIds,
-                    parent.ParentIds, parent.ChildIds, parent.Name, parent.Timed, parent.Description, parent.IsRepeated);
+            temp = _taskConverter.ConvertToDTO(parent);
+            _taskRepo.UpdateTask(temp);
         }
 
         public void ClearTags(int taskId)

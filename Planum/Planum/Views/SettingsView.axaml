@@ -1,0 +1,144 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Planum.Views.SettingsView">
+	<StackPanel
+				  HorizontalAlignment="Center"
+				  VerticalAlignment="Center">
+		<TextBlock
+			Text="Settings"
+			HorizontalAlignment="Center"
+			FontSize="30"
+			FontFamily="system-ui">
+		</TextBlock>
+		<Button
+			x:Name="ChangeProfileSettingsBtn"
+			Width="300"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding OnChangeProfileSettingsBtnClick}">
+			<TextBlock
+			Text="Change profile settings"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+		<Button
+			x:Name="DeleteProfileBtn"
+			Width="300"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding $parent[Window].DataContext.OnDeleteProfileBtnClick}">
+			<TextBlock
+			Text="Delete profile"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+		<Button
+			x:Name="ReturnFromSettingsBtn"
+			Width="300"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding $parent[Window].DataContext.OnReturnFromSettingsBtnClick}">
+			<TextBlock
+			Text="Return"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+		<Popup
+			x:Name="ChangeUserPopup"
+			IsOpen="{Binding ChangeUserMenuVisible}"
+			StaysOpen="True"
+			HorizontalOffset="-40"
+			VerticalOffset="-150">
+			<Border BorderBrush="White" BorderThickness="12">
+				<Grid
+				Background="White"
+				Width="400"
+				Height="120">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="150"/>
+						<ColumnDefinition Width="250"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<TextBlock
+						Text="New login:"
+						FontSize="20"
+						Background="White"
+						Foreground="Black"
+						FontFamily="system-ui"
+						Grid.Column="0"
+						Grid.Row="0"
+						HorizontalAlignment="Center"/>
+					<TextBox
+						Text="{Binding ChangeUserLogin, Mode=TwoWay}"
+						FontSize="20"
+						Background="Black"
+						Foreground="White"
+						FontFamily="system-ui"
+						Grid.Column="1"
+						Grid.Row="0"/>
+					<TextBlock
+						Text="New password:"
+						FontSize="20"
+						Background="White"
+						Foreground="Black"
+						FontFamily="system-ui"
+						Grid.Column="0"
+						Grid.Row="1"
+						HorizontalAlignment="Center"/>
+					<TextBox
+						Text="{Binding ChangeUserPassword, Mode=TwoWay}"
+						FontSize="20"
+						Background="Black"
+						Foreground="White"
+						PasswordChar="*"
+						FontFamily="system-ui"
+						Grid.Column="1"
+						Grid.Row="1"/>
+					<Button
+						x:Name="ChangeUserBtn"
+						HorizontalAlignment="Center"
+						Command="{Binding OnChangeUserClickCommand}"
+						Grid.Column="0"
+						Grid.Row="2">
+						<TextBlock
+						Text="Update"
+						FontSize="20"
+						Foreground="Black"
+						FontFamily="system-ui"
+						HorizontalAlignment="Center"/>
+					</Button>
+					<Button
+						x:Name="ReturnFromChangeUserBtn"
+						Command="{Binding OnReturnFromChangeUserBtnClickCommand}"
+						Grid.Column="1"
+						Grid.Row="2"
+						HorizontalAlignment="Center">
+						<TextBlock
+						Text="Return"
+						FontSize="20"
+						Foreground="Black"
+						FontFamily="system-ui"
+						HorizontalAlignment="Center"/>
+					</Button>
+				</Grid>
+			</Border>
+		</Popup>
+	</StackPanel>
+</UserControl>

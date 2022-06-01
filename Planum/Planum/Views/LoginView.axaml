@@ -1,0 +1,214 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Planum.Views.LoginView">
+	<StackPanel
+			  HorizontalAlignment="Center"
+			  VerticalAlignment="Center">
+		<TextBlock
+			Text="Planum"
+			HorizontalAlignment="Center"
+			FontSize="40"
+			FontFamily="system-ui"/>
+		<Button
+			x:Name="ShowSignInMenuBtn"
+			Width="100"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding OnShowSignInMenuBtnClickCommand}">
+			<TextBlock
+			Text="Sign In"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+		<Button
+			x:Name="ShowSignUpMenuBtn"
+			Width="100"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding OnShowSignUpMenuBtnClickCommand}">
+			<TextBlock
+			Text="Sign Up"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+		<Popup
+			x:Name="SignInPopup"
+			IsOpen="{Binding SignInMenuVisible}"
+			StaysOpen="True"
+			HorizontalOffset="-80"
+			VerticalOffset="-125">
+			<Border BorderBrush="White" BorderThickness="12">
+				<Grid
+				Background="White"
+				Width="300"
+				Height="120">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="200"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<TextBlock
+						Text="Login:"
+						FontSize="20"
+						Background="White"
+						Foreground="Black"
+						FontFamily="system-ui"
+						Grid.Column="0"
+						Grid.Row="0"
+						HorizontalAlignment="Center"/>
+					<TextBox
+						Text="{Binding SignInLogin, Mode=TwoWay}"
+						FontSize="20"
+						Background="Black"
+						Foreground="White"
+						FontFamily="system-ui"
+						Grid.Column="1"
+						Grid.Row="0"/>
+					<TextBlock
+						Text="Password:"
+						FontSize="20"
+						Background="White"
+						Foreground="Black"
+						FontFamily="system-ui"
+						Grid.Column="0"
+						Grid.Row="1"
+						HorizontalAlignment="Center"/>
+					<TextBox
+						Text="{Binding SignInPassword, Mode=TwoWay}"
+						FontSize="20"
+						Background="Black"
+						Foreground="White"
+						PasswordChar="*"
+						FontFamily="system-ui"
+						Grid.Column="1"
+						Grid.Row="1"/>
+					<Button
+						x:Name="SignInBtn"
+						HorizontalAlignment="Center"
+						Command="{Binding $parent[Window].DataContext.OnSignInBtnClick}"
+						Grid.Column="0"
+						Grid.Row="2">
+						<TextBlock
+						Text="Sign In"
+						FontSize="20"
+						Foreground="Black"
+						FontFamily="system-ui"
+						HorizontalAlignment="Center"/>
+					</Button>
+					<Button
+						x:Name="ReturnFromSignInBtn"
+						Command="{Binding OnReturnFromSignInBtnClickCommand}"
+						Grid.Column="1"
+						Grid.Row="2"
+						HorizontalAlignment="Center">
+						<TextBlock
+						Text="Return"
+						FontSize="20"
+						Foreground="Black"
+						FontFamily="system-ui"
+						HorizontalAlignment="Center"/>
+					</Button>
+				</Grid>
+			</Border>
+		</Popup>
+		<Popup
+			x:Name="SignUpPopup"
+			IsOpen="{Binding SignUpMenuVisible}"
+			StaysOpen="True"
+			HorizontalOffset="-80"
+			VerticalOffset="-125">
+			<Border BorderBrush="White" BorderThickness="12">
+				<Grid
+				Background="White"
+				Width="300"
+				Height="120">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="200"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<TextBlock
+						Text="Login:"
+						FontSize="20"
+						Background="White"
+						Foreground="Black"
+						FontFamily="system-ui"
+						Grid.Column="0"
+						Grid.Row="0"
+						HorizontalAlignment="Center"/>
+					<TextBox
+						Text="{Binding SignUpLogin, Mode=TwoWay}"
+						FontSize="20"
+						Background="Black"
+						Foreground="White"
+						FontFamily="system-ui"
+						Grid.Column="1"
+						Grid.Row="0"/>
+					<TextBlock
+						Text="Password:"
+						FontSize="20"
+						Background="White"
+						Foreground="Black"
+						FontFamily="system-ui"
+						Grid.Column="0"
+						Grid.Row="1"
+						HorizontalAlignment="Center"/>
+					<TextBox
+						Text="{Binding SignUpPassword, Mode=TwoWay}"
+						FontSize="20"
+						Background="Black"
+						Foreground="White"
+						PasswordChar="*"
+						FontFamily="system-ui"
+						Grid.Column="1"
+						Grid.Row="1"/>
+					<Button
+						x:Name="SignUpBtn"
+						HorizontalAlignment="Center"
+						Command="{Binding OnSignUpClickCommand}"
+						Grid.Column="0"
+						Grid.Row="2">
+						<TextBlock
+						Text="Sign Up"
+						FontSize="20"
+						Foreground="Black"
+						FontFamily="system-ui"
+						HorizontalAlignment="Center"/>
+					</Button>
+					<Button
+						x:Name="ReturnFromSignUpBtn"
+						Command="{Binding OnReturnFromSignUpBtnClickCommand}"
+						Grid.Column="1"
+						Grid.Row="2"
+						HorizontalAlignment="Center">
+						<TextBlock
+						Text="Return"
+						FontSize="20"
+						Foreground="Black"
+						FontFamily="system-ui"
+						HorizontalAlignment="Center"/>
+					</Button>
+				</Grid>
+			</Border>
+		</Popup>
+	</StackPanel>	
+</UserControl>

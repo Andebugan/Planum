@@ -1,0 +1,210 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Planum.Views.TaskView">
+	<Border
+		BorderBrush="Black"
+		BorderThickness="10">
+		<StackPanel>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="200"/>
+					<ColumnDefinition Width="400"/>
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<TextBox
+					IsEnabled="False"
+					Text="Id:"
+					Grid.Column="0"
+					Grid.Row="0"/>
+				<TextBox
+					IsReadOnly="True"
+					Text="{Binding TaskViewDTO.Id, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="0"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Name:"
+					Grid.Column="0"
+					Grid.Row="1"/>
+				<TextBox
+					Text="{Binding TaskViewDTO.Name, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="1"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Description:"
+					Grid.Column="0"
+					Grid.Row="2"/>
+				<TextBox
+					Text="{Binding TaskViewDTO.Description, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="2"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Parents:"
+					Grid.Column="0"
+					Grid.Row="3"/>
+				<TextBox
+					Text="{Binding TaskViewDTO.ParentIds, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="3"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Children:"
+					Grid.Column="0"
+					Grid.Row="4"/>
+				<TextBox
+					Text="{Binding TaskViewDTO.ChildIds, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="4"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Tags:"
+					Grid.Column="0"
+					Grid.Row="5"/>
+				<TextBox
+					Text="{Binding TaskViewDTO.TagIds, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="5"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Timed:"
+					Grid.Column="0"
+					Grid.Row="6"/>
+				<CheckBox
+					x:Name="IsTimedCheckbox"
+					Margin="5"
+					IsChecked="{Binding TaskViewDTO.Timed, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="6"/>
+			</Grid>
+			<Grid
+				IsVisible="{Binding IsChecked, ElementName=IsTimedCheckbox, Mode=TwoWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="200"/>
+					<ColumnDefinition Width="400"/>
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<TextBox
+					IsEnabled="False"
+					Text="StartTime:"
+					Grid.Column="0"
+					Grid.Row="0"/>
+				<TextBox
+					Watermark="yyyy-mm-dd hh:mm"
+					Text="{Binding TaskViewDTO.StartTime, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="0"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Deadline:"
+					Grid.Column="0"
+					Grid.Row="1"/>
+				<TextBox
+					Watermark="yyyy-mm-dd hh:mm"
+					Text="{Binding TaskViewDTO.Deadline, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="1"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="IsRepeated:"
+					Grid.Column="0"
+					Grid.Row="2"/>
+				<CheckBox
+					x:Name="IsRepeatedCheckbox"
+					Margin="5"
+					IsChecked="{Binding TaskViewDTO.IsRepeated, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="2"/>
+
+				<TextBox
+					IsVisible="{Binding IsChecked, ElementName=IsRepeatedCheckbox, Mode=TwoWay}"
+					IsEnabled="False"
+					Text="IsRepeated:"
+					Grid.Column="0"
+					Grid.Row="3"/>
+				<TextBox
+					Watermark="d:hh:mm"
+					IsVisible="{Binding IsChecked, ElementName=IsRepeatedCheckbox, Mode=TwoWay}"
+					Text="{Binding TaskViewDTO.RepeatPeriod, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="3"/>
+			</Grid>
+			<Button
+				IsVisible="{Binding IsArchived}"
+				HorizontalAlignment="Stretch"
+				Command="{Binding OnEditTaskBtnClick}"
+				Grid.Column="0"
+				Grid.Row="2"
+				Background="White">
+				<TextBlock
+				Text="Edit task"
+				Foreground="Black"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+			<Button
+				HorizontalAlignment="Stretch"
+				IsVisible="{Binding IsArchived}"
+				Command="{Binding OnArchiveTaskBtnClick}"
+				Grid.Column="0"
+				Grid.Row="2"
+				Background="White">
+				<TextBlock
+				Text="Archive task"
+				Foreground="Black"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+			<Button
+				IsVisible="{Binding IsUnarchived}"
+				HorizontalAlignment="Stretch"
+				Command="{Binding OnUnarchiveTaskBtnClick}"
+				Grid.Column="0"
+				Grid.Row="2"
+				Background="White">
+				<TextBlock
+				Text="Unarchive task"
+				Foreground="Black"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+			<Button
+				HorizontalAlignment="Stretch"
+				Command="{Binding OnDeleteTaskBtnClick}"
+				Grid.Column="0"
+				Grid.Row="2"
+				Background="White">
+				<TextBlock
+				Text="Delete task"
+				Foreground="Black"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+		</StackPanel>
+	</Border>
+</UserControl>

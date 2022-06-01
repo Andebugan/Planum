@@ -10,11 +10,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
     {
         ITaskManager _taskManager;
         IUserManager _userManager;
+        ITagManager _tagManager;
 
-        public CreateTaskCommand(ITaskManager taskManager, IUserManager userManager)
+        public CreateTaskCommand(ITaskManager taskManager, IUserManager userManager, ITagManager tagManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
+            _tagManager = tagManager;
         }
 
         public void Execute()
@@ -37,18 +39,34 @@ namespace Planum.ConsoleUI.ConsoleCommands
             List<int> tagIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
                 tagIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+            foreach (int tagId in tagIds)
+            {
+                if (_tagManager.FindTag(tagId) == null)
+                    return;
+            }
 
             Console.Write("Enter parent ids: ");
             input = Console.ReadLine();
             List<int> parentIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
                 parentIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+            foreach (int parentId in parentIds)
+            {
+                if (_taskManager.FindTask(parentId) == null)
+                    return;
+            }
 
             Console.Write("Enter children ids: ");
             input = Console.ReadLine();
             List<int> childIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
                 childIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+
+            foreach (int childId in childIds)
+            {
+                if (_taskManager.FindTask(childId) == null)
+                    return;
+            }
 
             Console.Write("Is task timed (y/n): ");
             input = Console.ReadLine();
@@ -113,8 +131,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
             Console.WriteLine();
-            _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
+            int newTaskId = _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
                 description: description, timed: true, isRepeated : true);
+
+            foreach (int taskId in parentIds)
+            {
+                _taskManager.AddChildToTask(taskId, newTaskId);
+            }
+
+            foreach (int taskId in childIds)
+            {
+                _taskManager.AddParentToTask(taskId, newTaskId);
+            }
         }
 
         public string GetDescription()

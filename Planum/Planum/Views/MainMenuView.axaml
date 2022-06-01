@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Planum.Views.MainMenuView">
+	<StackPanel
+		HorizontalAlignment="Center"
+		VerticalAlignment="Center">
+		<Button
+			x:Name="ShowListTabBtn"
+			Width="300"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding $parent[Window].DataContext.OnShowListTabBtnClick}">
+			<TextBlock
+			Text="Task list"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+		<Button
+			x:Name="ShowSettingsTabBtn"
+			Width="300"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding $parent[Window].DataContext.OnShowSettingsTabBtnClick}">
+			<TextBlock
+			Text="Settings"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+		<Button
+			x:Name="LogOutBtn"
+			Width="300"
+			Foreground="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="Black"
+			Command="{Binding $parent[Window].DataContext.OnLogOutBtnClick}">
+			<TextBlock
+			Text="Log out"
+			HorizontalAlignment="Center"
+			FontSize="20"
+			FontFamily="system-ui"/>
+		</Button>
+	</StackPanel>
+</UserControl>

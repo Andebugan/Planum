@@ -25,9 +25,11 @@ namespace Planum
                 ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
                 ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
 
-                //((TaskRepoFile)taskRepo).Reset();
-                //((TagRepoFile)tagRepo).Reset();
-                //((UserRepoFile)userRepo).Reset();
+                /*
+                ((TaskRepoFile)taskRepo).Reset();
+                ((TagRepoFile)tagRepo).Reset();
+                ((UserRepoFile)userRepo).Reset();
+                */
 
                 ITaskConverter taskConverter = new TaskConverter();
                 ITagConverter tagConverter = new TagConverter();
@@ -36,6 +38,7 @@ namespace Planum
                 IUserManager userManager = new UserManager(userRepo, userConverter);
                 ITaskManager taskManager = new TaskManager(taskRepo, taskConverter, userManager);
                 ITagManager tagManager = new TagManager(tagRepo, taskManager, tagConverter, userManager);
+
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = new MainWindowViewModel(userManager, taskManager, tagManager),
