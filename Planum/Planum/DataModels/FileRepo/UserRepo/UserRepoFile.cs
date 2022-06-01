@@ -12,12 +12,13 @@ namespace Planum.Models.DataModels
 {
     public class UserRepoFile : IUserRepo
     {
-        public const string USER_FILE_NAME = "Planum\\Data\\user_data.dat";
+        public string USER_FILE_NAME;
         protected string _userRepoPath;
         protected IUserDTOComparator _userDTOComparator;
 
         public UserRepoFile(IUserDTOComparator userDTOComparator)
         {
+            USER_FILE_NAME = Config.ConfigData.LoadConfig().UserRepoFilePath;
             _userDTOComparator = userDTOComparator;
             _userRepoPath = GetSavePath();
             Debug.WriteLine(Path.GetDirectoryName(_userRepoPath));

@@ -12,13 +12,14 @@ namespace Planum.Models.DataModels
 {
     public class TaskRepoFile : ITaskRepo
     {
-        public const string TASK_FILE_NAME = "Planum\\Data\\task_data.dat";
+        public string TASK_FILE_NAME;
 
         string _taskRepoPath;
         protected ITaskDTOComparator _taskDTOComparator;
 
         public TaskRepoFile(ITaskDTOComparator taskDTOComparator)
         {
+            TASK_FILE_NAME = Config.ConfigData.LoadConfig().TaskRepoFilePath;
             _taskDTOComparator = taskDTOComparator;
             _taskRepoPath = GetSavePath(TASK_FILE_NAME);
             if (!Directory.Exists(Path.GetDirectoryName(_taskRepoPath)))

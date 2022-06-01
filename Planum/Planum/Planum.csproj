@@ -14,6 +14,12 @@
     <EmbeddedResource Remove="Testing\UnitTesting\ModelUnitTesting.cs\**" />
     <None Remove="Testing\UnitTesting\ModelUnitTesting.cs\**" />
     <None Remove=".gitignore" />
+    <None Remove="Config\config.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Config\config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <!--This helps with theme dll-s trimming.

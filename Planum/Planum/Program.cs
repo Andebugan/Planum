@@ -9,6 +9,7 @@ using Planum.Models.BuisnessLogic.Managers;
 using Planum.Models.DataModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 
 namespace Planum
@@ -18,7 +19,6 @@ namespace Planum
         /*
         public static void Main(string[] args)
         {
-            
             IUserRepo userRepo = new UserRepoFile(new UserDTOComparator());
             ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
             ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
@@ -59,7 +59,7 @@ namespace Planum
                 new ClearChildrenCommand(taskManager, userManager),
                 new ClearParentsCommand(taskManager, userManager),
                 new ClearTagsCommand(taskManager, userManager),
-                new CreateTaskCommand(taskManager, userManager),
+                new CreateTaskCommand(taskManager, userManager, tagManager),
                 new DeleteAllTasksCommand(taskManager, userManager),
                 new DeleteTaskCommand(taskManager, userManager),
                 new RemoveChildCommand(taskManager, userManager),

@@ -11,12 +11,13 @@ namespace Planum.Models.DataModels
 {
     public class TagRepoFile : ITagRepo
     {
-        public const string TAG_FILE_NAME = "Planum\\Data\\tag_data.dat";
+        public string TAG_FILE_NAME;
         protected string _tagRepoPath;
         protected ITagDTOComparator _tagDTOComparator;
 
         public TagRepoFile(ITagDTOComparator tagDTOComparator)
         {
+            TAG_FILE_NAME = Config.ConfigData.LoadConfig().TagRepoFilePath;
             _tagDTOComparator = tagDTOComparator;
             _tagRepoPath = GetSavePath();
             if (!Directory.Exists(Path.GetDirectoryName(_tagRepoPath)))
