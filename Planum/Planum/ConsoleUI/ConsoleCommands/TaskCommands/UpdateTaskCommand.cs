@@ -1,4 +1,5 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -28,7 +29,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_taskManager.FindTask(id) == null)
+            Task? task = _taskManager.FindTask(id);
+            if (task == null)
             {
                 Console.WriteLine("Task with specified id does not exists\n");
                 return;
@@ -65,6 +67,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (!string.IsNullOrEmpty(input))
                 childIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
 
+            Console.Write("Enter status ids: ");
+            input = Console.ReadLine();
+            List<int> statusQueueIds = new List<int>();
+            if (!string.IsNullOrEmpty(input))
+                childIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+
+            int currentStatusIndex = 0;
+
             Console.Write("Is task timed (y/n): ");
             input = Console.ReadLine();
             if (string.IsNullOrEmpty(input))
@@ -75,8 +85,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (input == "n")
             {
-                _taskManager.UpdateTask(id, DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds,
-                    name, description: description);
+                Task newTask = new Task(task.Id, DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name, task.Timed,
+                    task.UserId, description, StatusQueueIds: statusQueueIds);
+                newTask.SetStatusIndex(currentStatusIndex);
+                _taskManager.UpdateTask(newTask);
                 return;
             }
 
@@ -112,8 +124,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (input == "n")
             {
-                _taskManager.UpdateTask(id, startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
-                    description: description, timed: true);
+                Task newTask = new Task(task.Id, startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name, task.Timed,
+                    task.UserId, description, task.IsRepeated, task.Archived, statusQueueIds);
+                newTask.SetStatusIndex(currentStatusIndex);
+                _taskManager.UpdateTask(newTask);
                 return;
             }
 
@@ -128,8 +142,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
             Console.WriteLine();
-            _taskManager.UpdateTask(id, startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
-                description: description, timed: true, isRepeated: true);
+            Task newTask_ = new Task(task.Id, startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name, task.Timed,
+                    task.UserId, description, task.IsRepeated, task.Archived, statusQueueIds);
+            newTask_.SetStatusIndex(currentStatusIndex);
+            _taskManager.UpdateTask(newTask_);
         }
 
         public string GetDescription()

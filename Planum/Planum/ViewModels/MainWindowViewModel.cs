@@ -26,7 +26,8 @@ namespace Planum.ViewModels
             set => this.RaiseAndSetIfChanged(ref _currentWindow, value);
         }
 
-        public MainWindowViewModel(IUserManager userManager, ITaskManager taskManager, ITagManager tagManager)
+        public MainWindowViewModel(IUserManager userManager, ITaskManager taskManager, ITagManager tagManager,
+            ITagViewDTOConverter tagViewDTOConverter, ITaskViewDTOConverter taskViewDTOConverter)
         {
             _userManager = userManager;
             _taskManager = taskManager;
@@ -34,7 +35,7 @@ namespace Planum.ViewModels
             LoginViewModel = new LoginViewModel(userManager, taskManager, tagManager);
             MainMenuViewModel = new MainMenuViewModel();
             SettingsViewModel = new SettingsViewModel(userManager, taskManager, tagManager);
-            TaskListViewModel = new TaskListViewModel(userManager, taskManager, tagManager);
+            TaskListViewModel = new TaskListViewModel(userManager, taskManager, tagManager, tagViewDTOConverter, taskViewDTOConverter);
             CurrentWindow = LoginViewModel;
         }
 

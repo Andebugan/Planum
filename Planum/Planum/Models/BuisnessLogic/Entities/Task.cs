@@ -26,10 +26,28 @@ namespace Planum.Models.BuisnessLogic.Entities
         public TimeSpan RepeatPeriod { get; }
         public bool Archived { get; set; } = false;
 
+        private List<int> statusQueueIds = new List<int>();
+        public IReadOnlyList<int> StatusQueueIds => statusQueueIds;
+
+        private int currentStatusIndex = 0;
+        public int CurrentStatusIndex 
+        {
+            get
+            {
+                return currentStatusIndex;
+            }
+
+            set
+            {
+                if (value >= 0 && value < StatusQueueIds.Count)
+                    currentStatusIndex = value;
+            }
+        }
+
         public Task(int id, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false, int userId = -1,
-            string description = "", bool isRepeated = false, bool archived = false)
+            string description = "", bool isRepeated = false, bool archived = false, IReadOnlyList<int>? StatusQueueIds = null)
         {
 
             if (string.IsNullOrWhiteSpace(name))
@@ -48,6 +66,8 @@ namespace Planum.Models.BuisnessLogic.Entities
             IsRepeated = isRepeated;
             RepeatPeriod = repeatPeriod;
             Archived = archived;
+            if (StatusQueueIds != null)
+                statusQueueIds = (List<int>)StatusQueueIds;
         }
 
         public void AddTag(int tagId)
@@ -120,6 +140,42 @@ namespace Planum.Models.BuisnessLogic.Entities
         public void ClearChildIds()
         {
             childIds.Clear();
+        }
+
+
+        public void NextStatus()
+        {
+            if (CurrentStatusIndex < StatusQueueIds.Count - 1)
+                currentStatusIndex++;
+        }
+
+        public void PreviousStatus()
+        {
+            if (CurrentStatusIndex > 0)
+                currentStatusIndex--;
+        }
+
+        public void SetStatusIndex(int index)
+        {
+            CurrentStatusIndex = index;
+        }
+
+        public void AddStatus(int statusId, int position = -1)
+        {
+            if (position != -1)
+                statusQueueIds.Add(statusId);
+            else
+                statusQueueIds.Insert(position, statusId);
+        }
+
+        public void RemoveStatus(int statusId)
+        {
+            statusQueueIds.RemoveAll(x => x == statusId);
+        }
+
+        public void RemoveStatusAtPosition(int position)
+        {
+            statusQueueIds.RemoveAt(position);
         }
     }
 }

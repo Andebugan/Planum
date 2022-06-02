@@ -20,11 +20,17 @@ namespace Planum.ViewModels
         public string Deadline { get; set; }
         public bool IsRepeated { get; set; }
         public string RepeatPeriod { get; set; }
+        public string StatusQueueIds { get; set; }
+        public bool HasStatus { get; set; }
+        public int CurrentStatusIndex { get; set; }
+        public int CurrentStatus { get; set; }
+        public bool Archived { get; set; }
 
         public TaskViewDTO(int id, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false, int userId = -1,
-            string description = "", bool isRepeated = false)
+            string description = "", bool isRepeated = false, bool archived = false,
+            IReadOnlyList<int>? StatusQueueIds = null, int currentStatusIndex = 0)
         {
 
             Id = id;
@@ -39,6 +45,19 @@ namespace Planum.ViewModels
             Deadline = deadline.ToString();
             IsRepeated = isRepeated;
             RepeatPeriod = repeatPeriod.ToString();
+            CurrentStatusIndex = currentStatusIndex;
+            if (StatusQueueIds == null || StatusQueueIds.Count == 0)
+            {
+                this.StatusQueueIds = "";
+                HasStatus = false;
+            }
+            else
+            {
+                HasStatus = true;
+                CurrentStatus = StatusQueueIds[currentStatusIndex];
+                this.StatusQueueIds = string.Join(" ", StatusQueueIds);
+            }
+            Archived = archived;
         }
     }
 }

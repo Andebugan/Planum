@@ -32,15 +32,15 @@ namespace Planum.Models.BuisnessLogic.Managers
             return _tagRepo.AddTag(tagDTO);
         }
 
-        public void UpdateTag(int id, string name, int category, string description)
+        public void UpdateTag(Tag tag)
         {
-            Log.Debug($"Update tag with id={id}");
+            Log.Debug($"Update tag with id={tag.Id}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't update tag while current user is null");
-            Tag? tag = FindTag(id);
-            if (tag == null) return;
-            Tag newTag = new Tag(tag.Id, tag.UserId, category, name, description);
-            TagDTO tagDTO = _tagConverter.ConvertToDTO(newTag);
+            if (_userManager.CurrentUser.Id != tag.UserId)
+                throw new TagDoesNotHaveCorrectUser();
+            if (FindTag(tag.Id) == null) return;
+            TagDTO tagDTO = _tagConverter.ConvertToDTO(tag);
             _tagRepo.UpdateTag(tagDTO);
         }
 

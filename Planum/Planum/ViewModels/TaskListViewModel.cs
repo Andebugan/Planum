@@ -21,16 +21,23 @@ namespace Planum.ViewModels
         protected ITaskManager _taskManager;
         protected ITagManager _tagManager;
 
+        protected ITagViewDTOConverter _tagViewDTOConverter;
+        protected ITaskViewDTOConverter _taskViewDTOConverter;
+
         public event TaskClickHandler OnBtnClick;
         public event TagClickHandler OnTagClick;
 
-        public TaskListViewModel(IUserManager userManager, ITaskManager taskManager, ITagManager tagManager)
+        public TaskListViewModel(IUserManager userManager, ITaskManager taskManager, ITagManager tagManager,
+            ITagViewDTOConverter tagViewDTOConverter, ITaskViewDTOConverter taskViewDTOConverter)
         {
             _userManager = userManager;
             _taskManager = taskManager;
             _tagManager = tagManager;
             OnBtnClick += TaskClick;
             OnTagClick += TagClick;
+
+            _tagViewDTOConverter = tagViewDTOConverter;
+            _taskViewDTOConverter = taskViewDTOConverter;
         }
         // List view
 
@@ -54,9 +61,8 @@ namespace Planum.ViewModels
             TaskList = new ObservableCollection<TaskViewModel>();
             foreach (Task task in tasks)
             {
-                TaskViewDTO temp = new TaskViewDTO(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.UserId, task.Description, task.IsRepeated);
-                TaskList.Add(new TaskViewModel(temp, _taskManager, _tagManager, ref OnBtnClick, ShowArchived));
+                TaskViewDTO temp = _taskViewDTOConverter.ConvertToViewDTO(task);
+                TaskList.Add(new TaskViewModel(temp, _taskManager, _tagManager, _taskViewDTOConverter, ref OnBtnClick, ShowArchived));
             }
         }
 
@@ -88,7 +94,7 @@ namespace Planum.ViewModels
             List<int> parentIds = new List<int>();
             List<int> childIds = new List<int>();
 
-            _taskManager.CreateTask(DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name);
+            _taskManager.CreateTask(DateTime.Now, DateTime.Now, TimeSpan.Zero, tagIds, parentIds, childIds, name);
             LoadTasks();
         }
 
@@ -129,7 +135,7 @@ namespace Planum.ViewModels
             TagList = new ObservableCollection<TagViewModel>();
             foreach (Tag tag in tags)
             {
-                TagList.Add(new TagViewModel(_tagManager, new TagViewDTO(tag.Id, tag.UserId, tag.Category, tag.Name, tag.Description),
+                TagList.Add(new TagViewModel(_tagManager, _tagViewDTOConverter, _tagViewDTOConverter.ConvertToViewDTO(tag),
                     OnTagClick));
             }
         }

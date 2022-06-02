@@ -9,6 +9,7 @@ namespace Planum.ViewModels
     public class TagViewModel : ViewModelBase
     {
         protected ITagManager _tagManager;
+        protected ITagViewDTOConverter _tagConverter;
 
         protected TagViewDTO _tag;
         public TagViewDTO Tag
@@ -19,9 +20,10 @@ namespace Planum.ViewModels
 
         TagClickHandler _tagClickHandler;
 
-        public TagViewModel(ITagManager tagManager, TagViewDTO tag, TagClickHandler tagClickHandler)
+        public TagViewModel(ITagManager tagManager, ITagViewDTOConverter tagConverter, TagViewDTO tag, TagClickHandler tagClickHandler)
         {
             _tagManager = tagManager;
+            _tagConverter = tagConverter;
             Tag = tag;
             _tagClickHandler = tagClickHandler;
         }
@@ -44,8 +46,9 @@ namespace Planum.ViewModels
             string description = Tag.Description;
 
             int category = Tag.Category;
+            
 
-            _tagManager.UpdateTag(Tag.Id, name, category, description);
+            _tagManager.UpdateTag(_tagConverter.ConvertFromViewDTO(Tag));
             _tagClickHandler.Invoke(ErrorPopupOpen, ErrorText);
         }
 

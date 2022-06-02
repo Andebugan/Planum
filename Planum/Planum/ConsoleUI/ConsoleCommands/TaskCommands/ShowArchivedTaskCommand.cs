@@ -41,6 +41,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
             foreach (int id in archivedTask.TagIds)
                 Console.Write(id + " ");
             Console.WriteLine();
+            Console.WriteLine("Task current status: " + archivedTask.StatusQueueIds[archivedTask.CurrentStatusIndex]);
+            Console.Write("Task statuses: ");
+            foreach (int id in archivedTask.StatusQueueIds)
+                Console.Write(id + " ");
+            Console.WriteLine();
             Console.WriteLine("Task parents: ");
             foreach (int id in archivedTask.ParentIds)
                 Console.Write(id + " ");

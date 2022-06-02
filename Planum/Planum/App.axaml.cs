@@ -39,9 +39,12 @@ namespace Planum
                 ITaskManager taskManager = new TaskManager(taskRepo, taskConverter, userManager);
                 ITagManager tagManager = new TagManager(tagRepo, taskManager, tagConverter, userManager);
 
+                ITagViewDTOConverter tagViewDTOConverter = new TagViewDTOConverter();
+                ITaskViewDTOConverter taskViewDTOConverter = new TaskViewDTOConverter();
+
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(userManager, taskManager, tagManager),
+                    DataContext = new MainWindowViewModel(userManager, taskManager, tagManager, tagViewDTOConverter, taskViewDTOConverter),
                 };
             }
 

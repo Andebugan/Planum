@@ -60,9 +60,15 @@ namespace Planum.Models.DataModels
             TimeSpan repeatPeriod = TimeSpan.Parse(reader.ReadString()); // repeat period
             bool archived = reader.ReadBoolean(); // is archived
 
+            list_len = reader.ReadInt32(); // list len
+            List<int> statusQueueIds = new List<int>();
+            for (int i = 0; i < list_len; i++)
+                statusQueueIds.Add(reader.ReadInt32());
+
+            int currentIndex = reader.ReadInt32();
+
             TaskDTO temp = new TaskDTO(taskId, startTime, deadline, repeatPeriod, tagIds, parentIds, childIds,
-                name, timed, userId, description, isRepeated);
-            temp.Archived = archived;
+                name, timed, userId, description, isRepeated, archived, statusQueueIds, currentIndex);
             return temp;
         }
 
@@ -93,6 +99,12 @@ namespace Planum.Models.DataModels
             writer.Write(taskDTO.IsRepeated); // is repeated
             writer.Write(taskDTO.RepeatPeriod.ToString()); // repeat period
             writer.Write(taskDTO.Archived); // archived flag
+
+            list_len = taskDTO.StatusQueueIds.Count;
+            writer.Write(list_len);
+            for (int i = 0; i < list_len; i++)
+                writer.Write(taskDTO.StatusQueueIds[i]);
+            writer.Write(taskDTO.CurrentStatusIndex);
         }
 
         protected string GetSavePath(string filename)

@@ -1,5 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
+using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.IRepo;
 using Planum.Models.BuisnessLogic.Managers;
 using System;
@@ -33,7 +34,7 @@ namespace Planum.Testing.UnitTesting
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.CreateTag(1, "test", "test"); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.FindTag(1); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.DeleteTag(1); });
-            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.UpdateTag(1, "test", 1, "test"); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.UpdateTag(new Tag(1, 4, 1, "test", "test")); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.GetAllTags(); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.GetTag(1); });
         }
@@ -57,9 +58,8 @@ namespace Planum.Testing.UnitTesting
             Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.CreateTask(DateTime.Now, DateTime.Now,
                 TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
                 "task_1", false, "task_1 description", false); });
-            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.UpdateTask(1, DateTime.Now, DateTime.Now,
-                TimeSpan.Zero, new List<int>(), new List<int>(), new List<int>(),
-                "task_1", false, "task_1 description", false);
+            Assert.Throws<CurrentUserIsNullException>(delegate { taskManager.UpdateTask(new Task(0, DateTime.Now, DateTime.Now, TimeSpan.Zero,
+                new List<int>(), new List<int>(), new List<int>(), "test"));
             });
         }
     }

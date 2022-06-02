@@ -45,16 +45,15 @@ namespace Planum.Models.BuisnessLogic.Managers
             return newTaskId;
         }
 
-        public void UpdateTask(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
-            string name, bool timed = false, string description = "", bool isRepeated = false)
+        public void UpdateTask(Task task)
         {
-            Log.Debug($"Update task with id={id}");
+            Log.Debug($"Update task with id={task.Id}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't update task while current user is null");
+            if (task.UserId != _userManager.CurrentUser.Id)
+                throw new TaskDoesNotExistException();
 
-            Task? task = FindTask(id, null);
-            if (task == null) return;
+            if (FindTask(task.Id, null) == null) return;
 
             foreach (int taskId in task.ParentIds)
             {
@@ -66,18 +65,17 @@ namespace Planum.Models.BuisnessLogic.Managers
                 RemoveParentFromTask(taskId, task.Id);
             }
 
-            foreach(int taskId in ParentIds)
+            foreach(int taskId in task.ParentIds)
             {
                 AddChildToTask(taskId, task.Id);
             }
 
-            foreach(int taskId in ChildIds)
+            foreach(int taskId in task.ChildIds)
             {
                 AddParentToTask(taskId, task.Id);
             }
 
-            TaskDTO taskDTO = new TaskDTO(id, startTime,
-                deadline, repeatPeriod, TagIds, ParentIds, ChildIds, name, timed, task.UserId, description, isRepeated);
+            TaskDTO taskDTO = _taskConverter.ConvertToDTO(task);
             _taskRepo.UpdateTask(taskDTO);
         }
 
@@ -96,8 +94,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                 Task task = GetTask(id, null);
                 List<int> newParentList = (List<int>)task.ParentIds;
                 newParentList.AddRange(addedParents);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, newParentList, task.ChildIds,
-                    task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
 
             List<int> addedChildren = (List<int>)deletedTask.ChildIds;
@@ -106,8 +103,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                 Task task = GetTask(id, null);
                 List<int> newChildList = (List<int>)task.ChildIds;
                 newChildList.AddRange(addedChildren);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, task.ParentIds, newChildList,
-                    task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
 
             _taskRepo.DeleteTask(taskId);
@@ -127,8 +123,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                 List<int> newParentList = (List<int>)task.ParentIds;
                 newParentList.AddRange(addedParents);
                 newParentList.Remove(taskId);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, newParentList, task.ChildIds,
-                    task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
 
             List<int> addedChildren = (List<int>)deletedTask.ChildIds;
@@ -138,8 +133,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                 List<int> newChildList = (List<int>)task.ChildIds;
                 newChildList.AddRange(addedChildren);
                 newChildList.Remove(taskId);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, task.ParentIds, newChildList,
-                    task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
             deletedTask.Archived = true;
             _taskRepo.UpdateTask(_taskConverter.ConvertToDTO(deletedTask));
@@ -157,8 +151,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                 Task task = GetTask(id);
                 List<int> newParentList = (List<int>)task.ParentIds;
                 newParentList.Add(taskId);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, newParentList, task.ChildIds,
-                    task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
 
             foreach (int id in archivedTask.ParentIds)
@@ -166,8 +159,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                 Task task = GetTask(id);
                 List<int> newChildList = (List<int>)task.ChildIds;
                 newChildList.Add(archivedTask.Id);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds, task.ParentIds, newChildList,
-                    task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
 
             archivedTask.Archived = false;
@@ -251,8 +243,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task? task = FindTask(taskId, null);
             if (task == null) return;
             task.AddTag(tagId);
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            UpdateTask(task);
         }
 
         public void RemoveTagFromAll(int tagId)
@@ -264,8 +255,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             foreach (Task task in tasks)
             {
                 task.RemoveTag(tagId);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
         }
 
@@ -277,8 +267,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task? task = FindTask(taskId, null);
             if (task == null) return;
             task.RemoveTag(tagId);
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            UpdateTask(task);
         }
 
         public void AddChildToTask(int taskId, int childId)
@@ -357,8 +346,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             Task? task = FindTask(taskId, null);
             if (task == null) return;
             task.ClearTags();
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            UpdateTask(task);
         }
 
         public void ClearChildren(int taskId)
@@ -372,12 +360,10 @@ namespace Planum.Models.BuisnessLogic.Managers
             {
                 Task temp = GetTask(childId, null);
                 temp.RemoveParent(taskId);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
             task.ClearChildIds();
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            UpdateTask(task);
         }
 
         public void ClearParents(int taskId)
@@ -391,12 +377,80 @@ namespace Planum.Models.BuisnessLogic.Managers
             {
                 Task temp = GetTask(parentId, null);
                 temp.RemoveChild(taskId);
-                UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+                UpdateTask(task);
             }
             task.ClearParents();
-            UpdateTask(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod, task.TagIds,
-                    task.ParentIds, task.ChildIds, task.Name, task.Timed, task.Description, task.IsRepeated);
+            UpdateTask(task);
+        }
+
+        public bool TaskHasStatus(int taskId)
+        {
+            Log.Debug($"Check if task with id={taskId} has status");
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't check task status while current user is null");
+            Task? task = FindTask(taskId);
+            if (task == null)
+                throw new TaskDoesNotExistException();
+            if (task.StatusQueueIds.Count > 0)
+                return true;
+            else
+                return false;
+        }
+
+        public void AddStatusToTask(int statusId, int taskId, ITagManager tagManager)
+        {
+            Log.Debug($"Add status id={statusId} to task with id={taskId}");
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't add status to task while current user is null");
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            if (tagManager.FindTag(statusId) == null) return;
+            task.AddStatus(statusId);
+            UpdateTask(task);
+        }
+
+        public void RemoveStatus(int statusId, int taskId)
+        {
+            Log.Debug($"Remove status id={statusId} in task with id={taskId}");
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't remove status from task while current user is null");
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            task.RemoveStatus(statusId);
+            UpdateTask(task);
+        }
+
+        public void RemoveStatusAt(int position, int taskId)
+        {
+            Log.Debug($"Remove status at position={position} in task with id={taskId}");
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't remove status at position while current user is null");
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            task.RemoveStatusAtPosition(position);
+            UpdateTask(task);
+        }
+
+        public void NextStatus(int taskId)
+        {
+            Log.Debug($"Next status for task with id={taskId}");
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't change task status while current user is null");
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            task.NextStatus();
+            UpdateTask(task);
+        }
+
+        public void PreviousStatus(int taskId)
+        {
+            Log.Debug($"Next status for task with id={taskId}");
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't change task status while current user is null");
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            task.PreviousStatus();
+            UpdateTask(task);
         }
     }
 }

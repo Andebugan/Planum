@@ -17,9 +17,7 @@ namespace Planum.Models.BuisnessLogic.Managers
         Task? FindTask(int taskId, bool? archived = false);
         List<Task> GetAllTasks(bool? archived = false);
         void UnarchiveTask(int taskId);
-        void UpdateTask(int id, DateTime startTime, DateTime deadline,
-            TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
-            string name, bool timed = false, string description = "", bool isRepeated = false);
+        void UpdateTask(Task task);
         void AddTagToTask(int taskId, int tagId);
         void RemoveTagFromTask(int taskId, int tagId);
         void RemoveTagFromAll(int tagId);
@@ -30,5 +28,10 @@ namespace Planum.Models.BuisnessLogic.Managers
         void AddParentToTask(int taskId, int parentId);
         void RemoveParentFromTask(int taskId, int parentId);
         void ClearParents(int taskId);
+        bool TaskHasStatus(int taskId);
+        void AddStatusToTask(int statusId, int taskId, ITagManager tagManager);
+        void RemoveStatus(int statusId, int taskId);
+        void NextStatus(int taskId);
+        void PreviousStatus(int taskId);
     }
 }

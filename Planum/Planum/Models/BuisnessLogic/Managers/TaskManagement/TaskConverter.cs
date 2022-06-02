@@ -10,8 +10,8 @@ namespace Planum.Models.BuisnessLogic.Managers
         {
             Task temp = new Task(taskDTO.Id, taskDTO.StartTime, taskDTO.Deadline, taskDTO.RepeatPeriod,
                 taskDTO.TagIds.ToList<int>(), taskDTO.ParentIds.ToList<int>(), taskDTO.ChildIds.ToList<int>(),
-                taskDTO.Name, taskDTO.Timed, taskDTO.UserId, taskDTO.Description, taskDTO.IsRepeated);
-            temp.Archived = taskDTO.Archived;
+                taskDTO.Name, taskDTO.Timed, taskDTO.UserId, taskDTO.Description, taskDTO.IsRepeated, taskDTO.Archived, taskDTO.StatusQueueIds);
+            temp.CurrentStatusIndex = taskDTO.CurrentStatusIndex;
             return temp;
         }
 
@@ -19,8 +19,8 @@ namespace Planum.Models.BuisnessLogic.Managers
         {
             TaskDTO temp = new TaskDTO(task.Id, task.StartTime, task.Deadline, task.RepeatPeriod,
                 task.TagIds.ToList<int>(), task.ParentIds.ToList<int>(),
-                task.ChildIds.ToList<int>(), task.Name, task.Timed, task.UserId, task.Description, task.IsRepeated);
-            temp.Archived = task.Archived;
+                task.ChildIds.ToList<int>(), task.Name, task.Timed, task.UserId, task.Description, task.IsRepeated,
+                task.Archived, task.StatusQueueIds, task.CurrentStatusIndex);
             return temp;
         }
     }

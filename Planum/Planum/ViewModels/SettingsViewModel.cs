@@ -1,4 +1,5 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using ReactiveUI;
 using Serilog;
 
@@ -55,7 +56,8 @@ namespace Planum.ViewModels
                 ChangeUserPassword = "";
                 return;
             }
-            _userManager.UpdateUser(_userManager.CurrentUser.Id, ChangeUserLogin, ChangeUserPassword);
+            User user = new User(_userManager.CurrentUser.Id, ChangeUserLogin, ChangeUserPassword);
+            _userManager.UpdateUser(user);
             ChangeUserLogin = "";
             ChangeUserPassword = "";
             ChangeUserMenuVisible = false;
