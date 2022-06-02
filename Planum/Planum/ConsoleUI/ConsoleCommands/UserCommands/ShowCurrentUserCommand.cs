@@ -18,6 +18,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Show current user command was called");
             if (_userManager.CurrentUser == null)
                 return;
             Console.WriteLine("id: " + _userManager.CurrentUser.Id);

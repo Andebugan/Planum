@@ -19,6 +19,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Show all users command was called");
             List<User> users = _userManager.GetAllUsers();
             foreach (User user in users)
             {

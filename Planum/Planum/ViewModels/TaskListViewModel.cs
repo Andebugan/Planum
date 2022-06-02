@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using Avalonia.Interactivity;
+using Serilog;
 
 namespace Planum.ViewModels
 {
@@ -75,11 +76,13 @@ namespace Planum.ViewModels
 
         public void OnCloseErrorPopupBtnClick()
         {
+            Log.Information("Close error popup button clicked");
             ErrorPopupOpen = false;
         }
 
         public void OnAddTaskBtnClick()
         {
+            Log.Information("Add task button clicked");
             string name = "new task";
             List<int> tagIds = new List<int>();
             List<int> parentIds = new List<int>();
@@ -91,6 +94,7 @@ namespace Planum.ViewModels
 
         public void OnUnarchiveTaskBtnClick(TaskViewDTO taskViewDTO)
         {
+            Log.Information("Unarchive task button clicked");
             _taskManager.UnarchiveTask(taskViewDTO.Id);
             LoadTasks();
         }
@@ -107,11 +111,13 @@ namespace Planum.ViewModels
 
         public void OnShowArchivedBtnClick()
         {
+            Log.Information("Show archived tasks button clicked");
             LoadTasks();
         }
 
         public void OnAddTagBtnClick()
         {
+            Log.Information("Add tag button clicked");
             string name = "tag name";
             _tagManager.CreateTag(-1, name, "");
             LoadTags();

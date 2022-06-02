@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Diagnostics;
+using Serilog;
 
 namespace Planum.ViewModels
 {
@@ -48,6 +49,7 @@ namespace Planum.ViewModels
 
         public void OnEditTaskBtnClick()
         {
+            Log.Information("Edit task button clicked");
             bool ErrorPopupOpen = false;
             string ErrorText = "";
             
@@ -167,18 +169,21 @@ namespace Planum.ViewModels
 
         public void OnDeleteTaskBtnClick()
         {
+            Log.Information("Delete task button clicked");
             _taskManager.DeleteTask(TaskViewDTO.Id);
             _taskClickHandler.Invoke(false, "");
         }
 
         public void OnArchiveTaskBtnClick()
         {
+            Log.Information("Archive task button clicked");
             _taskManager.ArchiveTask(TaskViewDTO.Id);
             _taskClickHandler.Invoke(false, "");
         }
 
         public void OnUnarchiveTaskBtnClick()
         {
+            Log.Information("Unarchive task button clicked");
             _taskManager.UnarchiveTask(TaskViewDTO.Id);
             _taskClickHandler.Invoke(false, "");
         }

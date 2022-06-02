@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Serilog;
+using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
@@ -10,6 +7,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
     {
         public void Execute()
         {
+            Log.Information("Exit command was called");
             Environment.Exit(0);
         }
 

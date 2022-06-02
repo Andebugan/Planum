@@ -18,6 +18,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Show all tags command was called");
             List<Tag> tags = _tagManager.GetAllTags();
             foreach (Tag tag in tags)
             {

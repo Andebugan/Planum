@@ -21,6 +21,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Clear task command was called");
             Console.Write("Enter task name: ");
             string? input = Console.ReadLine();
             string name;

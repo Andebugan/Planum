@@ -16,6 +16,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Remove parent from task command was called");
             string? input;
             Console.Write("Enter task id: ");
             input = Console.ReadLine();

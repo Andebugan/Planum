@@ -19,6 +19,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Show all archived tasks command was called");
             List<Task> archivedTasks = _taskManager.GetAllTasks(true);
             foreach (Task archivedTask in archivedTasks)
             {

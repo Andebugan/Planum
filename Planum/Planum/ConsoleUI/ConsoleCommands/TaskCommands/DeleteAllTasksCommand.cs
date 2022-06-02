@@ -16,6 +16,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Delete all tasks command was called");
             _taskManager.GetAllTasks(null).ForEach(task => _taskManager.DeleteTask(task.Id));
         }
 

@@ -14,6 +14,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Update user command was called");
             Console.Write("Enter id: ");
             string? input = Console.ReadLine();
             int id;

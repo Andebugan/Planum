@@ -18,6 +18,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Show all tasks command was called");
             List<Task> tasks = _taskManager.GetAllTasks();
             foreach (Task task in tasks)
             {

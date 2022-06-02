@@ -16,6 +16,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Create tag command was called");
             Console.Write("Deleted task id: ");
             string? input = Console.ReadLine();
             int id;

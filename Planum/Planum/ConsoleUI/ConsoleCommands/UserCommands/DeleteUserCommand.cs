@@ -17,6 +17,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
         }
         public void Execute()
         {
+            Serilog.Log.Information("Delete user command was called");
             _userManager.DeleteUser(_taskManager, _tagManager);
             Console.WriteLine();
         }

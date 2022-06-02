@@ -16,6 +16,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Unarchive task command was called");
             Console.Write("Enter task id: ");
             int id;
             if (!int.TryParse(Console.ReadLine(), out id))

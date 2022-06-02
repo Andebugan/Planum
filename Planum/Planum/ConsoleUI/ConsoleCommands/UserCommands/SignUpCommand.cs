@@ -18,6 +18,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Serilog.Log.Information("Sign up command was called");
             Console.Write("Enter login: ");
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))

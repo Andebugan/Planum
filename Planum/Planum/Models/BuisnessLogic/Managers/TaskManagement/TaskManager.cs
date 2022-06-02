@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Planum.Models.BuisnessLogic.IRepo;
 using Planum.Models.DTO;
+using Serilog;
 using Task = Planum.Models.BuisnessLogic.Entities.Task;
 
 namespace Planum.Models.BuisnessLogic.Managers
@@ -25,6 +26,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             string name, bool timed = false,
             string description = "", bool isRepeated = false)
         {
+            Log.Debug("Create task");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't create task while current user is null");
             Task new_task = new Task(-1, startTime, deadline, repeatPeriod, TagIds, ParentIds, ChildIds,
@@ -47,6 +49,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false, string description = "", bool isRepeated = false)
         {
+            Log.Debug($"Update task with id={id}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't update task while current user is null");
 
@@ -80,6 +83,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void DeleteTask(int taskId)
         {
+            Log.Debug($"Delete task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't delete task while current user is null");
 
@@ -111,6 +115,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void ArchiveTask(int taskId)
         {
+            Log.Debug($"Archive task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't archive task while current user is null");
             Task? deletedTask = FindTask(taskId);
@@ -142,6 +147,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void UnarchiveTask(int taskId)
         {
+            Log.Debug($"Unarchive task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't unarchive task while current user is null");
             Task? archivedTask = FindTask(taskId, true);
@@ -170,6 +176,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public Task GetTask(int taskId, bool? archived = false)
         {
+            Log.Debug($"Get task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't get task while current user is null");
             TaskDTO task = _taskRepo.GetTask(taskId);
@@ -184,6 +191,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public Task? FindTask(int taskId, bool? archived = false)
         {
+            Log.Debug($"Find task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't find task while current user is null");
             TaskDTO? task = _taskRepo.FindTask(taskId);
@@ -200,6 +208,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void DeleteConnectedToUser(int userId)
         {
+            Log.Debug($"Delete tasks connected to user with id={userId}");
             List<Task> tasks = GetAllTasks(null);
             foreach (Task task in tasks)
             {
@@ -209,6 +218,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public List<Task> GetAllTasks(bool? archived = false)
         {
+            Log.Debug("Get all tasks");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't get all tasks while current user is null");
             List<Task> tasks = new List<Task>();
@@ -235,6 +245,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void AddTagToTask(int taskId, int tagId)
         {
+            Log.Debug($"Add tag id={tagId} to task id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't add tag to task while current user is null");
             Task? task = FindTask(taskId, null);
@@ -246,6 +257,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void RemoveTagFromAll(int tagId)
         {
+            Log.Debug($"Remove tag with id={tagId} from all tasks");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't remove tag from all tasks while current user is null");
             List<Task> tasks = GetAllTasks(null);
@@ -259,6 +271,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void RemoveTagFromTask(int taskId, int tagId)
         {
+            Log.Debug($"Remove tag with id={tagId} from all task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't remove tag from task while current user is null");
             Task? task = FindTask(taskId, null);
@@ -270,6 +283,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void AddChildToTask(int taskId, int childId)
         {
+            Log.Debug($"Add child with id={childId} to task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't add child to task while current user is null");
             Task? task = FindTask(taskId, null);
@@ -286,6 +300,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void RemoveChildFromTask(int taskId, int childId)
         {
+            Log.Debug($"Remove child with id={childId} to task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't remove child from task while current user is null");
             Task? task = FindTask(taskId, null);
@@ -302,6 +317,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void AddParentToTask(int taskId, int parentId)
         {
+            Log.Debug($"Add parent with id={parentId} to task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't add parent to task while current user is null");
             Task? task = FindTask(taskId, null);
@@ -318,6 +334,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void RemoveParentFromTask(int taskId, int parentId)
         {
+            Log.Debug($"Remove child with id={parentId} to task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't remove parent from task while current user is null");
             Task? task = FindTask(taskId, null);
@@ -334,6 +351,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void ClearTags(int taskId)
         {
+            Log.Debug($"Clear tags from task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't clear tags while current user is null");
             Task? task = FindTask(taskId, null);
@@ -345,6 +363,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void ClearChildren(int taskId)
         {
+            Log.Debug($"Clear children from task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't clear children while current user is null");
             Task? task = FindTask(taskId, null);
@@ -363,6 +382,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void ClearParents(int taskId)
         {
+            Log.Debug($"Clear parents from task with id={taskId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't clear parents while current user is null");
             Task? task = FindTask(taskId, null);

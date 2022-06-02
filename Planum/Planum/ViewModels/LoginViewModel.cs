@@ -1,5 +1,6 @@
 ﻿using Planum.Models.BuisnessLogic.Managers;
 using ReactiveUI;
+using Serilog;
 
 namespace Planum.ViewModels
 {
@@ -40,6 +41,7 @@ namespace Planum.ViewModels
 
         public void OnShowSignInMenuBtnClickCommand()
         {
+            Log.Information("Show sign in menu button clicked");
             SignInMenuVisible = true;
             SignInLogin = "";
             SignInPassword = "";
@@ -47,6 +49,7 @@ namespace Planum.ViewModels
 
         public void OnReturnFromSignInBtnClickCommand()
         {
+            Log.Information("Return from sign in menu button clicked");
             SignInMenuVisible = false;
             SignInLogin = "";
             SignInPassword = "";
@@ -54,6 +57,7 @@ namespace Planum.ViewModels
 
         public bool OnSignInClickCommand()
         {
+            // logging in main window view model
             if (_userManager.SignIn(SignInLogin, SignInPassword) == null)
             {
                 SignInLogin = "";
@@ -91,6 +95,7 @@ namespace Planum.ViewModels
 
         public void OnShowSignUpMenuBtnClickCommand()
         {
+            Log.Information("Show sign up menu button clicked");
             SignUpMenuVisible = true;
             SignUpLogin = "";
             SignUpPassword = "";
@@ -98,6 +103,7 @@ namespace Planum.ViewModels
 
         public void OnReturnFromSignUpBtnClickCommand()
         {
+            Log.Information("Return from sign up menu button clicked");
             SignUpMenuVisible = false;
             SignUpLogin = "";
             SignUpPassword = "";
@@ -105,6 +111,7 @@ namespace Planum.ViewModels
 
         public void OnSignUpClickCommand()
         {
+            Log.Information("Sign up button clicked");
             if (string.IsNullOrEmpty(SignUpLogin) || string.IsNullOrEmpty(SignUpPassword))
             {
                 SignUpLogin = "";

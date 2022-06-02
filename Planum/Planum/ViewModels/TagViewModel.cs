@@ -1,6 +1,7 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
 using ReactiveUI;
+using Serilog;
 
 namespace Planum.ViewModels
 {
@@ -27,6 +28,7 @@ namespace Planum.ViewModels
 
         public void EditTag()
         {
+            Log.Information("Edit tag button clicked");
             bool ErrorPopupOpen = false;
             string ErrorText = "";
 
@@ -49,6 +51,7 @@ namespace Planum.ViewModels
 
         public void DeleteTag()
         {
+            Log.Information("Delete tag button clicked");
             _tagManager.DeleteTag(Tag.Id);
             _tagClickHandler.Invoke(false, "");
         }

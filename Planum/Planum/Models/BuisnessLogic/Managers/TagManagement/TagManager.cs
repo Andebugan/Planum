@@ -3,6 +3,7 @@
 using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.IRepo;
 using Planum.Models.DTO;
+using Serilog;
 
 namespace Planum.Models.BuisnessLogic.Managers
 {
@@ -23,6 +24,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public int CreateTag(int category, string name, string description)
         {
+            Log.Debug("Create tag");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't create tag while current user is null");
             Tag newTag = new Tag(-1, _userManager.CurrentUser.Id, category, name, description);
@@ -32,6 +34,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void UpdateTag(int id, string name, int category, string description)
         {
+            Log.Debug($"Update tag with id={id}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't update tag while current user is null");
             Tag? tag = FindTag(id);
@@ -43,6 +46,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void DeleteTag(int tagId)
         {
+            Log.Debug($"Delete tag with id={tagId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't delete tag while current user is null");
             if (FindTag(tagId) != null)
@@ -54,6 +58,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void DeleteConnectedToUser(int userId)
         {
+            Log.Debug($"Delete tag with id={userId}");
             List<Tag> tags = GetAllTags();
             foreach (Tag tag in tags)
             {
@@ -64,6 +69,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public Tag GetTag(int tagId)
         {
+            Log.Debug($"Get tag with id={tagId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't get tag while current user is null");
             TagDTO tagDTO = _tagRepo.GetTag(tagId);
@@ -75,6 +81,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public Tag? FindTag(int tagId)
         {
+            Log.Debug($"Find tag with id={tagId}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't find tag while current user is null");
             TagDTO? tagDTO = _tagRepo.FindTag(tagId);
@@ -88,6 +95,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public List<Tag> GetAllTags()
         {
+            Log.Debug($"Get all tags");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't get all tags while current user is null");
             List<TagDTO> tagDTOs = _tagRepo.GetAllTags();

@@ -1,4 +1,5 @@
 ﻿using Planum.Models.BuisnessLogic.Managers;
+using Serilog;
 using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
@@ -16,6 +17,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Log.Information("Create tag command was called");
             string? input = null;
             Console.Write("Enter tag name: ");
             input = Console.ReadLine();

@@ -1,5 +1,6 @@
 ﻿using Planum.Models.BuisnessLogic.Managers;
 using ReactiveUI;
+using Serilog;
 
 namespace Planum.ViewModels
 {
@@ -39,6 +40,7 @@ namespace Planum.ViewModels
 
         public void OnChangeProfileSettingsBtnClick()
         {
+            Log.Information("Change user menu button clicked");
             ChangeUserMenuVisible = true;
             ChangeUserLogin = "";
             ChangeUserPassword = "";
@@ -46,6 +48,7 @@ namespace Planum.ViewModels
 
         public void OnChangeUserClickCommand()
         {
+            Log.Information("Change user button clicked");
             if (string.IsNullOrEmpty(ChangeUserLogin) || string.IsNullOrEmpty(ChangeUserPassword))
             {
                 ChangeUserLogin = "";
@@ -60,6 +63,7 @@ namespace Planum.ViewModels
 
         public void OnReturnFromChangeUserBtnClickCommand()
         {
+            Log.Information("Return from change user menu button clicked");
             ChangeUserMenuVisible = false;
             ChangeUserLogin = "";
             ChangeUserPassword = "";

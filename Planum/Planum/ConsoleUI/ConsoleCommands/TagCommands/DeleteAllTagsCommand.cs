@@ -1,5 +1,6 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
+using Serilog;
 using System;
 using System.Collections.Generic;
 
@@ -18,6 +19,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute()
         {
+            Log.Information("Delete all tags command was called");
             List<Tag> tags = _tagManager.GetAllTags();
             foreach (Tag tag in tags)
                 _tagManager.DeleteTag(tag.Id);
