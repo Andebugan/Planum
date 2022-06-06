@@ -32,7 +32,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            Console.WriteLine("Enter tag id: ");
+            Console.Write("Enter tag id: ");
             input = Console.ReadLine();
             int tagId;
             if (string.IsNullOrEmpty(input) || !int.TryParse(input, out tagId))
@@ -46,12 +46,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "removes parent from task";
+            return "removes tag from task";
         }
 
         public string GetName()
         {
-            return "remove parent";
+            return "remove tag";
         }
 
         public bool IsAvaliable()

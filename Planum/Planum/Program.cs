@@ -53,6 +53,7 @@ namespace Planum
                 new ShowTagCommand(tagManager, userManager),
                 new UpdateTagCommand(tagManager, userManager),
 
+                new AddTagCommand(taskManager, tagManager, userManager),
                 new AddChildCommand(taskManager, tagManager, userManager),
                 new AddParentCommand(taskManager, userManager),
                 new ArchiveTaskCommand(taskManager, userManager),
