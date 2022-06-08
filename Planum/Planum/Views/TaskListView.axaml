@@ -1,0 +1,148 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+			 xmlns:views="clr-namespace:Planum.Views"
+             x:Class="Planum.Views.TaskListView">
+	<StackPanel>
+		<Popup
+		x:Name="ErrorPopup"
+		IsOpen="{Binding ErrorPopupOpen}"
+		StaysOpen="True"
+		HorizontalOffset="630"
+		VerticalOffset="400">
+			<Border BorderBrush="White" BorderThickness="6">
+				<Border BorderBrush="Black" BorderThickness="6">
+					<Panel
+						Background="White">
+						<StackPanel
+						Background="White"
+						Width="250">
+							<TextBlock
+								Text="Error!"
+								FontSize="16"
+								Background="White"
+								Foreground="Black"
+								FontFamily="system-ui"
+								Grid.Column="0"
+								Grid.Row="0"
+								HorizontalAlignment="Center"/>
+							<TextBlock
+								Text="{Binding ErrorText}"
+								FontSize="16"
+								Background="White"
+								Foreground="Black"
+								FontFamily="system-ui"
+								Grid.Column="0"
+								Grid.Row="0"
+								HorizontalAlignment="Center"/>
+							<Button
+								HorizontalAlignment="Center"
+								Command="{Binding OnCloseErrorPopupBtnClick}"
+								Grid.Column="0"
+								Grid.Row="2"
+								Background="White">
+								<TextBlock
+								Text="Ok"
+								FontSize="16"
+								Foreground="Black"
+								FontFamily="system-ui"
+								HorizontalAlignment="Center"/>
+							</Button>
+						</StackPanel>
+					</Panel>
+				</Border>
+			</Border>
+		</Popup>
+		<StackPanel
+			Orientation="Horizontal">
+			<Button
+				Margin="2"
+				Command="{Binding $parent[Window].DataContext.OnReturnFromListTabBtnClick}"
+				HorizontalAlignment="Center"
+				Foreground="White"
+				Background="Black">
+				<TextBlock
+				Text="Return"
+				FontSize="12"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+			<Button
+				Margin="2"
+				Command="{Binding OnAddTaskBtnClick}"
+				HorizontalAlignment="Center"
+				Foreground="White"
+				Background="Black">
+				<TextBlock
+				Text="Add task"
+				FontSize="12"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+			<CheckBox
+				Margin="2"
+				IsChecked="{Binding ShowArchived, Mode=TwoWay}"
+				Command="{Binding OnShowArchivedBtnClick}"
+				HorizontalAlignment="Center"
+				Foreground="White"
+				Background="Black">
+				<TextBlock
+				Text="Show arhcived"
+				FontSize="12"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</CheckBox>
+			<Button
+				Margin="2"
+				Command="{Binding OnAddTagBtnClick}"
+				HorizontalAlignment="Center"
+				Foreground="White"
+				Background="Black">
+				<TextBlock
+				Text="Add tag"
+				FontSize="12"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+		</StackPanel>
+		<Grid
+			HorizontalAlignment="Center"
+			Margin="20">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="700"/>
+				<ColumnDefinition Width="700"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<ScrollViewer
+				HorizontalAlignment="Center"
+				Height="720"
+				Grid.Column="0"
+				Grid.Row="0">
+				<ItemsControl Items="{Binding TaskList}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<views:TaskView/>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+			<ScrollViewer
+				HorizontalAlignment="Center"
+				Height="720"
+				Grid.Column="1"
+				Grid.Row="0">
+				<ItemsControl Items="{Binding TagList}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<views:TagView/>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+		</Grid>
+	</StackPanel>
+</UserControl>

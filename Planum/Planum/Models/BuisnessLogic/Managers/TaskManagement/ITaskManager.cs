@@ -13,9 +13,9 @@ namespace Planum.Models.BuisnessLogic.Managers
             string description = "", bool isRepeated = false);
         void DeleteConnectedToUser(int userId);
         void DeleteTask(int taskId);
-        Task GetTask(int taskId, bool? archived = null);
-        Task? FindTask(int taskId, bool? archived = null);
-        List<Task> GetAllTasks(bool? archived = null);
+        Task GetTask(int taskId, bool? archived = false);
+        Task? FindTask(int taskId, bool? archived = false);
+        List<Task> GetAllTasks(bool? archived = false);
         void UnarchiveTask(int taskId);
         void UpdateTask(int id, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,

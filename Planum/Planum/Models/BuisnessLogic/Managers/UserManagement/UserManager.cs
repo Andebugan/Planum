@@ -4,6 +4,7 @@ using System.Linq;
 using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.IRepo;
 using Planum.Models.DTO;
+using Serilog;
 
 namespace Planum.Models.BuisnessLogic.Managers
 {
@@ -21,6 +22,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public int CreateUser(string login, string password)
         {
+            Log.Debug("Create new user");
             List<User> users = GetAllUsers();
 
             if (users.Any(x => x.Login == login))
@@ -33,25 +35,36 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void UpdateUser(int id, string login, string password)
         {
+            Log.Debug($"Update user with id={id}");
             if (FindUser(id) == null)
                 return;
             UserDTO new_user = new UserDTO(id, login, password);
             _userRepo.UpdateUser(new_user);
         }
 
-        public void DeleteUser(int id, ITaskManager taskManager, ITagManager tagManager)
+        public void DeleteUser(ITaskManager taskManager, ITagManager tagManager)
         {
-            if (FindUser(id) == null)
+            Log.Debug("Delete current user");
+            if (CurrentUser == null)
                 return;
-            tagManager.DeleteConnectedToUser(id);
-            taskManager.DeleteConnectedToUser(id);
-            _userRepo.DeleteUser(id);
+            if (FindUser(CurrentUser.Id) == null)
+                return;
+            Log.Information($"Delete user with id={CurrentUser.Id}");
+            tagManager.DeleteConnectedToUser(CurrentUser.Id);
+            taskManager.DeleteConnectedToUser(CurrentUser.Id);
+            _userRepo.DeleteUser(CurrentUser.Id);
+            CurrentUser = null;
         }
 
-        public User GetUser(int id) => _userConverter.ConvertFromDTO(_userRepo.GetUser(id));
+        public User GetUser(int id)
+        {
+            Log.Debug($"Get user with id={id}");
+            return _userConverter.ConvertFromDTO(_userRepo.GetUser(id));
+        }
 
         public User? FindUser(int id)
         {
+            Log.Debug($"Find user with id={id}");
             UserDTO? user = _userRepo.FindUser(id);
             if (user == null)
                 return null;
@@ -60,6 +73,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public User? FindUser(string login)
         {
+            Log.Debug($"Find user with login={login}");
             List<UserDTO> users = _userRepo.GetAllUsers();
             foreach (UserDTO user in users)
             {
@@ -71,6 +85,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public List<User> GetAllUsers()
         {
+            Log.Debug("Get all users");
             List<UserDTO> userDTOs = _userRepo.GetAllUsers();
 
             return userDTOs.Select(x => _userConverter.ConvertFromDTO(x)).ToList();
@@ -78,8 +93,9 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public User? SignIn(string login, string password)
         {
+            Log.Debug("Sign in");
             List<UserDTO> userDTOs = _userRepo.GetAllUsers();
-            User user = null;
+            User user;
 
             foreach (var userDTO in userDTOs)
             {
@@ -90,7 +106,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                     return user;
                 }
             }
-            return user;
+            return null;
         }
     }
 }

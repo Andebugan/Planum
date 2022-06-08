@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Serilog;
+using System;
 
 namespace Planum.Models.BuisnessLogic.Managers
 {
     [Serializable]
     public class TaskDoesNotExistException : Exception
     {
-        public TaskDoesNotExistException() { }
-        public TaskDoesNotExistException(string message) : base(message) { }
-        public TaskDoesNotExistException(string message, Exception innerException) : base(message, innerException) { }
+        public TaskDoesNotExistException() { Log.Error("Task does not exist exception thrown"); }
+        public TaskDoesNotExistException(string message) : base(message) { Log.Error("Task does not exist exception thrown"); }
+        public TaskDoesNotExistException(string message, Exception innerException) : base(message, innerException) { Log.Error("Task does not exist exception thrown"); }
     }
 }

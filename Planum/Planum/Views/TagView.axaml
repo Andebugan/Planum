@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Planum.Views.TagView">
+	<Border
+		BorderBrush="Black"
+		BorderThickness="10">
+		<StackPanel>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="200"/>
+					<ColumnDefinition Width="400"/>
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<TextBox
+					IsEnabled="False"
+					Text="Id:"
+					Grid.Column="0"
+					Grid.Row="0"/>
+				<TextBox
+					IsReadOnly="True"
+					Text="{Binding Tag.Id, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="0"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Name:"
+					Grid.Column="0"
+					Grid.Row="1"/>
+				<TextBox
+					Text="{Binding Tag.Name, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="1"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Description:"
+					Grid.Column="0"
+					Grid.Row="2"/>
+				<TextBox
+					Text="{Binding Tag.Description, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="2"/>
+
+				<TextBox
+					IsEnabled="False"
+					Text="Category:"
+					Grid.Column="0"
+					Grid.Row="3"/>
+				<NumericUpDown
+					Minimum="-1"
+					Value="{Binding Tag.Category, Mode=TwoWay}"
+					Grid.Column="1"
+					Grid.Row="3"/>
+			</Grid>
+			<Button
+			HorizontalAlignment="Stretch"
+			Command="{Binding EditTag}"
+			Grid.Column="0"
+			Grid.Row="2"
+			Background="White">
+				<TextBlock
+				Text="Edit tag"
+				Foreground="Black"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+			<Button
+				HorizontalAlignment="Stretch"
+				Command="{Binding DeleteTag}"
+				Grid.Column="0"
+				Grid.Row="2"
+				Background="White">
+				<TextBlock
+				Text="Delete tag"
+				Foreground="Black"
+				FontFamily="system-ui"
+				HorizontalAlignment="Center"/>
+			</Button>
+		</StackPanel>
+	</Border>
+</UserControl>
