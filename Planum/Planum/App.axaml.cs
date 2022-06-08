@@ -25,12 +25,6 @@ namespace Planum
                 ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
                 ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
 
-                /*
-                ((TaskRepoFile)taskRepo).Reset();
-                ((TagRepoFile)tagRepo).Reset();
-                ((UserRepoFile)userRepo).Reset();
-                */
-
                 ITaskConverter taskConverter = new TaskConverter();
                 ITagConverter tagConverter = new TagConverter();
                 IUserConverter userConverter = new UserConverter();
