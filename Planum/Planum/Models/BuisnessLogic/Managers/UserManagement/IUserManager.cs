@@ -13,6 +13,6 @@ namespace Planum.Models.BuisnessLogic.Managers
         List<User> GetAllUsers();
         User GetUser(int id);
         User? SignIn(string login, string password);
-        void UpdateUser(int id, string login, string password);
+        void UpdateUser(User user);
     }
 }

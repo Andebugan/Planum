@@ -33,13 +33,12 @@ namespace Planum.Models.BuisnessLogic.Managers
             return _userRepo.AddUser(userDTO);
         }
 
-        public void UpdateUser(int id, string login, string password)
+        public void UpdateUser(User user)
         {
-            Log.Debug($"Update user with id={id}");
-            if (FindUser(id) == null)
+            Log.Debug($"Update user with id={user.Id}");
+            if (FindUser(user.Id) == null)
                 return;
-            UserDTO new_user = new UserDTO(id, login, password);
-            _userRepo.UpdateUser(new_user);
+            _userRepo.UpdateUser(_userConverter.ConvertToDTO(user));
         }
 
         public void DeleteUser(ITaskManager taskManager, ITagManager tagManager)

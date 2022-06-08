@@ -26,26 +26,50 @@ namespace Planum.Models.DTO
         public TimeSpan RepeatPeriod { get; }
         public bool Archived { get; set; } = false;
 
+        private List<int> statusQueueIds = new List<int>();
+        public IReadOnlyList<int> StatusQueueIds => statusQueueIds;
+
+        private int currentStatusIndex;
+        public int CurrentStatusIndex
+        {
+            get
+            {
+                return currentStatusIndex;
+            }
+
+            set
+            {
+                if (value >= 0 && value < StatusQueueIds.Count)
+                    currentStatusIndex = value;
+            }
+        }
+
         public TaskDTO(int id, DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false, int userId = -1,
-            string description = "", bool isRepeated = false)
+            string description = "", bool isRepeated = false, bool archived = false,
+            IReadOnlyList<int>? StatusQueueIds = null, int currentStatusIndex = 0)
         {
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Task name can not be null or empty", nameof(name));
 
             Id = id;
             UserId = userId;
-            parentIds = (List<int>)ParentIds;
-            childIds = (List<int>)ChildIds;
-            tagIds = (List<int>)TagIds;
             Name = name;
             Description = description;
             Timed = timed;
-
+            parentIds = (List<int>)ParentIds;
+            childIds = (List<int>)ChildIds;
             tagIds = (List<int>)TagIds;
             StartTime = startTime;
             Deadline = deadline;
             IsRepeated = isRepeated;
             RepeatPeriod = repeatPeriod;
+            Archived = archived;
+            if (StatusQueueIds != null)
+                statusQueueIds = (List<int>)StatusQueueIds;
+            CurrentStatusIndex = currentStatusIndex;
         }
     }
 }

@@ -11,6 +11,6 @@ namespace Planum.Models.BuisnessLogic.Managers
         Tag? FindTag(int tagId);
         List<Tag> GetAllTags();
         Tag GetTag(int tagId);
-        void UpdateTag(int id, string name, int category, string description);
+        void UpdateTag(Tag tag);
     }
 }

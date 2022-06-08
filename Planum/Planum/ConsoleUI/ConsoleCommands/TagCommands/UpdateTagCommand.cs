@@ -1,4 +1,5 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
@@ -26,7 +27,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_tagManager.FindTag(id) == null)
+            Tag? tag = _tagManager.FindTag(id);
+            if (tag == null)
             {
                 Console.WriteLine("User with specified id does not exist\n");
                 return;
@@ -42,6 +44,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             Console.Write("Enter descriptions: ");
             string? description = Console.ReadLine();
+            if (description == null)
+                description = "";
 
             Console.Write("Enter category: ");
             input = Console.ReadLine();
@@ -53,7 +57,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
             Console.WriteLine();
 
-            _tagManager.UpdateTag(id, name, category, description);
+            _tagManager.UpdateTag(new Tag(tag.Id, tag.UserId, category, name, description));
         }
 
         public string GetDescription()

@@ -1,4 +1,5 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
@@ -24,7 +25,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            if (_userManager.FindUser(id) == null)
+            User? user = _userManager.FindUser(id);
+            if (user == null)
             {
                 Console.WriteLine("User with entered id does not exist\n");
                 return;
@@ -44,7 +46,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("password can't be null\n");
                 return;
             }
-            _userManager.UpdateUser(id, login, password);
+            _userManager.UpdateUser(new User(user.Id, login, password));
             Console.WriteLine();
         }
 

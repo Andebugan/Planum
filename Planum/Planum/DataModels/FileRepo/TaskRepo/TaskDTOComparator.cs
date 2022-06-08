@@ -39,6 +39,12 @@ namespace Planum.DataModels
                 return false;
             if (Math.Abs((firstDTO.RepeatPeriod - secondDTO.RepeatPeriod).TotalSeconds) > 1)
                 return false;
+            temp_1 = (List<int>)firstDTO.StatusQueueIds;
+            temp_2 = (List<int>)secondDTO.StatusQueueIds;
+            if (!temp_1.SequenceEqual(temp_2))
+                return false;
+            if (firstDTO.CurrentStatusIndex != secondDTO.CurrentStatusIndex)
+                return false;
             return true;
         }
 
@@ -73,6 +79,12 @@ namespace Planum.DataModels
             if (firstDTO.IsRepeated != secondDTO.IsRepeated)
                 return false;
             if (Math.Abs((firstDTO.RepeatPeriod - secondDTO.RepeatPeriod).TotalSeconds) > 1)
+                return false;
+            temp_1 = (List<int>)firstDTO.StatusQueueIds;
+            temp_2 = (List<int>)secondDTO.StatusQueueIds;
+            if (!temp_1.SequenceEqual(temp_2))
+                return false;
+            if (firstDTO.CurrentStatusIndex != secondDTO.CurrentStatusIndex)
                 return false;
             return true;
         }
