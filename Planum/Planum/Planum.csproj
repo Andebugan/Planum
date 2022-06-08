@@ -48,4 +48,10 @@
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ConsoleUI\ConsoleViews\CalendarView\" />
+    <Folder Include="ConsoleUI\ConsoleViews\ListView\" />
+    <Folder Include="ConsoleUI\ConsoleViews\MindMapView\" />
+    <Folder Include="ConsoleUI\ConsoleViews\" />
+  </ItemGroup>
 </Project>

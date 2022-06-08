@@ -51,13 +51,28 @@ namespace Planum.ConsoleUI
             Commands = commands;
         }
 
+        protected void WriteGreeting()
+        {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            string text = "╭────╮                                      \n" +
+                          "│ ╭╮ │ ╭─╮    ╭────╮ ╭────╮ ╭─╮╭─╮ ╭───────╮\n" +
+                          "│ ╰╯ │ │ │    │ ╭╮ │ │ ╭╮ │ │ ││ │ │ ╭╮ ╭╮ │\n" +
+                          "│ ╭──╯ │ │    │ ╰╯ │ │ ││ │ │ ││ │ │ ││ ││ │\n" +
+                          "│ │    │ ╰──╮ │ ╭╮ │ │ ││ │ │ ╰╯ │ │ ││ ││ │\n" +
+                          "╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯\n";
+            Console.WriteLine(text);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+        }
+
         public void MainLoop()
         {
-            Console.WriteLine("Welcome to Planum!");
-
+            WriteGreeting();
             while (true)
             {
-                Console.Write(">");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write("> ");
+                Console.ForegroundColor = ConsoleColor.White;
                 string? input = Console.ReadLine();
                 if (string.IsNullOrEmpty(input))
                 {
@@ -75,6 +90,7 @@ namespace Planum.ConsoleUI
                 if (input == "help")
                 {
                     Console.WriteLine("Avalible commands:");
+
                     foreach (ICommand command in avaliableCommands)
                     {
                         Console.WriteLine("Name: " + command.GetName());
@@ -94,8 +110,13 @@ namespace Planum.ConsoleUI
                         break;
                     }
                 }
+                
                 if (!executed)
-                    Console.WriteLine("Error: command unavaliable or incorrect");
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Incorrect command!");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
             }
         }
     }

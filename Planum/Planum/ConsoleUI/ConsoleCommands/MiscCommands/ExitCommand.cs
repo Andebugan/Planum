@@ -13,7 +13,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "Closes app";
+            return "Closes application";
         }
 
         public string GetName()
