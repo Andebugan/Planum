@@ -1,1 +1,1 @@
-Planum - simple app for personal organization
+Simple app for personal organization
