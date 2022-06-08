@@ -3,7 +3,7 @@ using System;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
-    internal class AddParentCommand : ICommand
+    public class AddParentCommand : ICommand
     {
         ITaskManager _taskManager;
         IUserManager _userManager;

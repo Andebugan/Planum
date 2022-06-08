@@ -1,6 +1,7 @@
 ﻿using Planum.Models.DTO;
 using System.Linq;
 using Planum.Models.BuisnessLogic.Entities;
+using Task = Planum.Models.BuisnessLogic.Entities.Task;
 
 namespace Planum.Models.BuisnessLogic.Managers
 {

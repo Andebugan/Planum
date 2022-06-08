@@ -2,6 +2,7 @@
 using Planum.Models.BuisnessLogic.Managers;
 using System;
 using System.Collections.Generic;
+using Task = Planum.Models.BuisnessLogic.Entities.Task;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {

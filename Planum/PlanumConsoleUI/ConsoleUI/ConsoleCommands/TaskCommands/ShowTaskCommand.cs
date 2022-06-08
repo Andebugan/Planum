@@ -1,15 +1,16 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
 using System;
+using Task = Planum.Models.BuisnessLogic.Entities.Task;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
-    public class ShowArchivedTaskCommand : ICommand
+    public class ShowTaskCommand : ICommand
     {
         ITaskManager _taskManager;
         IUserManager _userManager;
 
-        public ShowArchivedTaskCommand(ITaskManager taskManager, IUserManager userManager)
+        public ShowTaskCommand(ITaskManager taskManager, IUserManager userManager)
         {
             _taskManager = taskManager;
             _userManager = userManager;
@@ -25,45 +26,45 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            Task? archivedTask = _taskManager.FindTask(taskId, true);
+            Task? task = _taskManager.FindTask(taskId);
 
-            if (archivedTask == null)
+            if (task == null)
             {
                 Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
 
-            Console.WriteLine("Task id: " + archivedTask.Id);
-            Console.WriteLine("Task name: " + archivedTask.Name);
-            Console.WriteLine("Task description: " + archivedTask.Description);
+            Console.WriteLine("Task id: " + task.Id);
+            Console.WriteLine("Task name: " + task.Name);
+            Console.WriteLine("Task description: " + task.Description);
             Console.Write("Task tags: ");
-            foreach (int id in archivedTask.TagIds)
+            foreach (int id in task.TagIds)
                 Console.Write(id + " ");
             Console.WriteLine();
             Console.WriteLine("Task parents: ");
-            foreach (int id in archivedTask.ParentIds)
+            foreach (int id in task.ParentIds)
                 Console.Write(id + " ");
             Console.WriteLine();
             Console.WriteLine("Task children: ");
-            foreach (int id in archivedTask.ChildIds)
+            foreach (int id in task.ChildIds)
                 Console.Write(id + " ");
             Console.WriteLine();
-            Console.WriteLine("Task is timed: " + archivedTask.Timed);
-            Console.WriteLine("Task start time: " + archivedTask.StartTime.ToString());
-            Console.WriteLine("Task deadline: " + archivedTask.Deadline.ToString());
-            Console.WriteLine("Task is repeated: " + archivedTask.IsRepeated);
-            Console.WriteLine("Task repeat period: " + archivedTask.RepeatPeriod.ToString());
+            Console.WriteLine("Task is timed: " + task.Timed);
+            Console.WriteLine("Task start time: " + task.StartTime.ToString());
+            Console.WriteLine("Task deadline: " + task.Deadline.ToString());
+            Console.WriteLine("Task is repeated: " + task.IsRepeated);
+            Console.WriteLine("Task repeat period: " + task.RepeatPeriod.ToString());
             Console.WriteLine();
         }
 
         public string GetDescription()
         {
-            return "shows archived task";
+            return "shows task";
         }
 
         public string GetName()
         {
-            return "show archived task";
+            return "show task";
         }
 
         public bool IsAvaliable()

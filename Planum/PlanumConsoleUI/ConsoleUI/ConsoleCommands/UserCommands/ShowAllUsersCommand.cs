@@ -1,11 +1,5 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class ShowAllUsersCommand : ICommand

@@ -9,10 +9,6 @@
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
-    <AvaloniaXaml Remove="Testing\UnitTesting\ModelUnitTesting.cs\**" />
-    <Compile Remove="Testing\UnitTesting\ModelUnitTesting.cs\**" />
-    <EmbeddedResource Remove="Testing\UnitTesting\ModelUnitTesting.cs\**" />
-    <None Remove="Testing\UnitTesting\ModelUnitTesting.cs\**" />
     <None Remove=".gitignore" />
   </ItemGroup>
   <ItemGroup>
@@ -33,5 +29,10 @@
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PlanumConsoleUI\PlanumConsoleUI.csproj" />
+    <ProjectReference Include="..\PlanumFileRepo\PlanumFileRepo.csproj" />
+    <ProjectReference Include="..\PlanumModel\PlanumModel.csproj" />
   </ItemGroup>
 </Project>
