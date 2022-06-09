@@ -1,19 +1,27 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
-    public class UpdateUserCommand : ICommand
+    public class UpdateCommand
     {
         protected IUserManager _userManager;
+        protected ITaskManager _taskManager;
+        protected ITagManager _tagManager;
 
-        public UpdateUserCommand(IUserManager userManager)
+        public UpdateCommand(IUserManager userManager, ITaskManager taskManager, ITagManager tagManager)
         {
             _userManager = userManager;
+            _taskManager = taskManager;
+            _tagManager = tagManager;
         }
 
-        public void Execute()
+        public void UpdateUser()
         {
             Serilog.Log.Information("Update user command was called");
             Console.Write("Enter id: ");
@@ -50,19 +58,34 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine();
         }
 
+        public void Execute(string[] args)
+        {
+            return;
+        }
+
         public string GetDescription()
         {
-            return "updates user";
+            return "updates specified object|objects";
         }
 
         public string GetName()
         {
-            return "update user";
+            return "update user|task|tag";
+        }
+
+        public bool IsCommand(string command)
+        {
+            if (command.Split()[0] == "update")
+                return true;
+            return false;
         }
 
         public bool IsAvaliable()
         {
-            return true;    
+            if (_userManager.CurrentUser != null)
+                return true;
+            else
+                return false;
         }
     }
 }

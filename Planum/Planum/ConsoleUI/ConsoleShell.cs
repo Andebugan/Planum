@@ -20,32 +20,6 @@ namespace Planum.ConsoleUI
                 new ShowUserCommand(userManager),
                 new SignUpCommand(userManager),
                 new UpdateUserCommand(userManager),
-
-                new CreateTagCommand(tagManager, userManager),
-                new DeleteTagCommand(tagManager, userManager),
-                new DeleteAllTagsCommand(tagManager, userManager),
-                new ShowAllTagsCommand(tagManager, userManager),
-                new ShowTagCommand(tagManager, userManager),
-                new UpdateTagCommand(tagManager, userManager),
-
-                new AddChildCommand(taskManager, tagManager, userManager),
-                new AddParentCommand(taskManager, userManager),
-                new ArchiveTaskCommand(taskManager, userManager),
-                new ClearChildrenCommand(taskManager, userManager),
-                new ClearParentsCommand(taskManager, userManager),
-                new ClearTagsCommand(taskManager, userManager),
-                new CreateTaskCommand(taskManager, userManager, tagManager),
-                new DeleteAllTasksCommand(taskManager, userManager),
-                new DeleteTaskCommand(taskManager, userManager),
-                new RemoveChildCommand(taskManager, userManager),
-                new RemoveParentCommand(taskManager, userManager),
-                new RemoveTagCommand(taskManager, userManager),
-                new ShowAllArchivedTasksCommand(taskManager, userManager),
-                new ShowAllTasksCommand(taskManager, userManager),
-                new ShowArchivedTaskCommand(taskManager, userManager),
-                new ShowTaskCommand(taskManager, userManager),
-                new UnarchiveTaskCommand(taskManager, userManager),
-                new UpdateTaskCommand(taskManager, userManager),
             };
 
             Commands = commands;
@@ -93,8 +67,8 @@ namespace Planum.ConsoleUI
 
                     foreach (ICommand command in avaliableCommands)
                     {
-                        Console.WriteLine("Name: " + command.GetName());
-                        Console.WriteLine("Description: " + command.GetDescription());
+                        Console.WriteLine("Name:\n" + command.GetName());
+                        Console.WriteLine("Description:\n" + command.GetDescription());
                         Console.WriteLine();
                     }
                     continue;

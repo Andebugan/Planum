@@ -5,7 +5,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class ExitCommand : ICommand
     {
-        public void Execute()
+        public void Execute(string[] args)
         {
             Log.Information("Exit command was called");
             Environment.Exit(0);
@@ -13,7 +13,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "Closes application";
+            return "closes application";
         }
 
         public string GetName()
@@ -24,6 +24,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
         public bool IsAvaliable()
         {
             return true;
+        }
+
+        public bool IsCommand(string command)
+        {
+            if (command == "exit")
+                return true;
+            return false;
         }
     }
 }

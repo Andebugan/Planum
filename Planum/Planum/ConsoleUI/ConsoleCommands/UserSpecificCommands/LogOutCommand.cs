@@ -12,7 +12,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _userManager = userManager;
         }
 
-        public void Execute()
+        public void Execute(string[] args)
         {
             Serilog.Log.Information("Logout command was called");
             _userManager.CurrentUser = null;
@@ -26,12 +26,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetName()
         {
-            return "log out";
+            return "logout";
         }
 
         public bool IsAvaliable()
         {
             if (_userManager.CurrentUser != null)
+                return true;
+            return false;
+        }
+
+        public bool IsCommand(string command)
+        {
+            if (command.Split()[0] == "logout")
                 return true;
             return false;
         }

@@ -1,24 +1,21 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
-    public class SignUpCommand: ICommand
+    public class LogInCommand : ICommand
     {
         protected IUserManager _userManager;
 
-        public SignUpCommand(IUserManager userManager)
+        public LogInCommand(IUserManager userManager)
         {
             _userManager = userManager;
         }
 
-        public void Execute()
+        public void Execute(string[] args)
         {
-            Serilog.Log.Information("Sign up command was called");
+            Serilog.Log.Information("Login command was called");
             Console.Write("Enter login: ");
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))
@@ -26,13 +23,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("login can't be null or empty\n");
                 return;
             }
-
-            if (_userManager.FindUser(login) != null)
-            {
-                Console.WriteLine("user with this login already exist\n");
-                return;
-            }
-
             Console.Write("Enter password: ");
             string? password = Console.ReadLine();
             if (string.IsNullOrEmpty(password))
@@ -40,28 +30,32 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("password can't be null\n");
                 return;
             }
-
-            int id = _userManager.CreateUser(login, password);
-            Console.WriteLine("Created new user with:");
-            Console.WriteLine("id: " + id);
-            Console.WriteLine("login: " + login);
-            Console.WriteLine("password: " + password);
+            User? user = _userManager.SignIn(login, password);
+            if (user == null)
+                Console.WriteLine("didn't sign in, login or password incorrect\n");
             Console.WriteLine();
         }
 
         public string GetDescription()
         {
-            return "creates new user";
+            return "logs into system";
         }
 
         public string GetName()
         {
-            return "sign up";
+            return "login";
         }
 
         public bool IsAvaliable()
         {
             if (_userManager.CurrentUser == null)
+                return true;
+            return false;
+        }
+
+        public bool IsCommand(string command)
+        {
+            if (command.Split()[0] == "login")
                 return true;
             return false;
         }

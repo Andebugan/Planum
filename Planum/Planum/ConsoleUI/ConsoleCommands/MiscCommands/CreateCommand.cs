@@ -1,27 +1,74 @@
 ﻿using Planum.Models.BuisnessLogic.Managers;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Planum.ConsoleUI.ConsoleCommands
+namespace Planum.ConsoleUI.ConsoleCommands.MiscCommands
 {
-    public class CreateTaskCommand : ICommand
+    public class CreateCommand: ICommand
     {
-        ITaskManager _taskManager;
-        IUserManager _userManager;
         ITagManager _tagManager;
+        IUserManager _userManager;
+        ITaskManager _taskManager;
 
-        public CreateTaskCommand(ITaskManager taskManager, IUserManager userManager, ITagManager tagManager)
+        public CreateCommand(ITagManager tagManager, IUserManager userManager, ITaskManager taskManager)
         {
-            _taskManager = taskManager;
-            _userManager = userManager;
             _tagManager = tagManager;
+            _userManager = userManager;
+            _taskManager = taskManager;
         }
 
-        public void Execute()
+        public void Execute(string[] args)
         {
-            Serilog.Log.Information("Clear task command was called");
+            Log.Information("Create command was called");
+            if (args.Length == 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("object unspecified");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+
+        public void CreateTag(string[] args)
+        {
+            Log.Information("Create tag command was called");
+            string? input = null;
+            Console.Write("Enter tag name: ");
+            input = Console.ReadLine();
+            if (string.IsNullOrEmpty(input))
+            {
+                Console.WriteLine("Tag name can't be empty\n");
+                return;
+            }
+            string name = input;
+
+            Console.Write("Enter tag description: ");
+            input = Console.ReadLine();
+            string? description = input;
+            if (description == null)
+                description = "";
+
+            Console.Write("Enter tag category: ");
+            input = Console.ReadLine();
+            int category;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out category))
+            {
+                Console.WriteLine("Tag category must be signed integer\n");
+                return;
+            }
+            Console.WriteLine();
+            _tagManager.CreateTag(category, name, description);
+        }
+
+        public void CreateTask(string[] args)
+        {
+            Log.Information("Clear task command was called");
             Console.Write("Enter task name: ");
             string? input = Console.ReadLine();
             string name;
@@ -133,7 +180,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
             Console.WriteLine();
             int newTaskId = _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
-                description: description, timed: true, isRepeated : true);
+                description: description, timed: true, isRepeated: true);
 
             foreach (int taskId in parentIds)
             {
@@ -148,17 +195,26 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "creates task with specified params";
+            return "Creates specified object\n" +
+                "flags:\n" +
+                "-d - create with default values";
         }
 
         public string GetName()
         {
-            return "create task";
+            return "create [flags] task|tag";
         }
 
         public bool IsAvaliable()
         {
             if (_userManager.CurrentUser != null)
+                return true;
+            return false;
+        }
+
+        public bool IsCommand(string command)
+        {
+            if (command.Split()[0] == "create")
                 return true;
             return false;
         }
