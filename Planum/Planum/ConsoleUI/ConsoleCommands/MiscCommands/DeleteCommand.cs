@@ -1,4 +1,6 @@
-﻿using Planum.Models.BuisnessLogic.Managers;
+﻿using Planum.Models.BuisnessLogic.Entities;
+using Planum.Models.BuisnessLogic.Managers;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +28,30 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("User was successfully deleted\n");
             Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public void DeleteTag()
+        {
+            Serilog.Log.Information("Delete tag command was called");
+            Console.Write("Deleted task id: ");
+            string? input = Console.ReadLine();
+            int id;
+            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
+            {
+                Console.WriteLine("Id must be signed integer\n");
+                return;
+            }
+            _tagManager.DeleteTag(id);
+            Console.WriteLine();
+        }
+
+        public void DeleteAllTags()
+        {
+            Log.Information("Delete all tags command was called");
+            List<Tag> tags = _tagManager.GetAllTags();
+            foreach (Tag tag in tags)
+                _tagManager.DeleteTag(tag.Id);
+            Console.WriteLine();
         }
 
         public void Execute(string[] args)
