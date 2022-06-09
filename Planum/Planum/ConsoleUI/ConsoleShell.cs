@@ -12,14 +12,13 @@ namespace Planum.ConsoleUI
         {
             List<ICommand> commands = new List<ICommand>() {
                 new ExitCommand(),
-                new DeleteUserCommand(userManager, taskManager, tagManager),
                 new LogInCommand(userManager),
                 new LogOutCommand(userManager),
-                new ShowCurrentUserCommand(userManager),
-                new ShowAllUsersCommand(userManager),
-                new ShowUserCommand(userManager),
                 new SignUpCommand(userManager),
-                new UpdateUserCommand(userManager),
+                new CreateCommand(tagManager, userManager, taskManager),
+                new DeleteCommand(userManager, taskManager, tagManager),
+                new ShowCommand(userManager, taskManager, tagManager),
+                new UpdateCommand(userManager, taskManager, tagManager)
             };
 
             Commands = commands;
@@ -28,7 +27,7 @@ namespace Planum.ConsoleUI
         protected void WriteGreeting()
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.Blue;
             string text = "╭────╮                                      \n" +
                           "│ ╭╮ │ ╭─╮    ╭────╮ ╭────╮ ╭─╮╭─╮ ╭───────╮\n" +
                           "│ ╰╯ │ │ │    │ ╭╮ │ │ ╭╮ │ │ ││ │ │ ╭╮ ╭╮ │\n" +
@@ -36,7 +35,7 @@ namespace Planum.ConsoleUI
                           "│ │    │ ╰──╮ │ ╭╮ │ │ ││ │ │ ╰╯ │ │ ││ ││ │\n" +
                           "╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯\n";
             Console.WriteLine(text);
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public void MainLoop()
@@ -44,9 +43,7 @@ namespace Planum.ConsoleUI
             WriteGreeting();
             while (true)
             {
-                Console.ForegroundColor = ConsoleColor.Gray;
                 Console.Write("> ");
-                Console.ForegroundColor = ConsoleColor.White;
                 string? input = Console.ReadLine();
                 if (string.IsNullOrEmpty(input))
                 {
@@ -63,12 +60,20 @@ namespace Planum.ConsoleUI
 
                 if (input == "help")
                 {
-                    Console.WriteLine("Avalible commands:");
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("avalible commands:");
+                    Console.ForegroundColor = ConsoleColor.White;
 
                     foreach (ICommand command in avaliableCommands)
                     {
-                        Console.WriteLine("Name:\n" + command.GetName());
-                        Console.WriteLine("Description:\n" + command.GetDescription());
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("name: ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine(command.GetName());
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("description:");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine(command.GetDescription());
                         Console.WriteLine();
                     }
                     continue;
@@ -77,9 +82,9 @@ namespace Planum.ConsoleUI
                 bool executed = false;
                 foreach (ICommand command in avaliableCommands)
                 {
-                    if (command.GetName() == input)
+                    if (command.IsCommand(input))
                     {
-                        command.Execute();
+                        command.Execute(input.Split());
                         executed = true;
                         break;
                     }
@@ -88,7 +93,7 @@ namespace Planum.ConsoleUI
                 if (!executed)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Incorrect command!");
+                    Console.WriteLine("incorrect command\n");
                     Console.ForegroundColor = ConsoleColor.White;
                 }
             }

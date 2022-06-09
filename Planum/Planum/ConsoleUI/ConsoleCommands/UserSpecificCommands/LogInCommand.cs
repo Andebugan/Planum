@@ -15,25 +15,60 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute(string[] args)
         {
-            Serilog.Log.Information("Login command was called");
-            Console.Write("Enter login: ");
+            Serilog.Log.Information("login command was called");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter login: ");
+            Console.ForegroundColor = ConsoleColor.White;
+
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))
             {
-                Console.WriteLine("login can't be null or empty\n");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\nlogin can't be empty!\n");
+                Console.ForegroundColor= ConsoleColor.White;
                 return;
             }
-            Console.Write("Enter password: ");
-            string? password = Console.ReadLine();
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter password: ");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            string? password = null;
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                    break;
+                if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (password != null)
+                        password = password.Remove(0, password.Length - 1);
+                }
+                password += key.KeyChar;
+            }
+            Console.WriteLine();
+
             if (string.IsNullOrEmpty(password))
             {
-                Console.WriteLine("password can't be null\n");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\npassword can't be empty!\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
+
             User? user = _userManager.SignIn(login, password);
             if (user == null)
-                Console.WriteLine("didn't sign in, login or password incorrect\n");
-            Console.WriteLine();
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nlogin failed, login or password incorrect\n");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\nlogin successfull\n");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
         }
 
         public string GetDescription()

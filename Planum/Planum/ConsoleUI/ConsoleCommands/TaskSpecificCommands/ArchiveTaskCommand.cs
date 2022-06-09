@@ -14,7 +14,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _userManager = userManager;
         }
 
-        public void Execute()
+        public void Execute(string[] args)
         {
             Serilog.Log.Information("Archive task command was called");
             Console.Write("Enter task id: ");
@@ -36,17 +36,27 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "archives task";
+            return "archives task\n" +
+                "flags:\n" +
+                "-all - archive all tasks\n" +
+                "-id=[value] - specify id of archived task";
         }
 
         public string GetName()
         {
-            return "archive task";
+            return "archive [flags]";
         }
 
         public bool IsAvaliable()
         {
             if (_userManager.CurrentUser != null)
+                return true;
+            return false;
+        }
+
+        public bool IsCommand(string command)
+        {
+            if (command == "archive")
                 return true;
             return false;
         }

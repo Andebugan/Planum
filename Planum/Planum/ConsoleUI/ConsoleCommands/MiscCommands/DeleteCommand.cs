@@ -54,6 +54,32 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine();
         }
 
+        public void DeleteAllTasks()
+        {
+            Serilog.Log.Information("Delete all tasks command was called");
+            _taskManager.GetAllTasks(null).ForEach(task => _taskManager.DeleteTask(task.Id));
+        }
+
+        public void DeleteTask()
+        {
+            Serilog.Log.Information("Delete task command was called");
+            Console.Write("Enter task id: ");
+            int id;
+            if (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.WriteLine("Task id must be signed integer\n");
+                return;
+            }
+
+            if (_taskManager.FindTask(id) == null)
+            {
+                Console.WriteLine("Task with specified id does not exist\n");
+                return;
+            }
+            Console.WriteLine();
+            _taskManager.DeleteTask(id);
+        }
+
         public void Execute(string[] args)
         {
             return;

@@ -14,7 +14,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _userManager = userManager;
         }
 
-        public void Execute()
+        public void Execute(string[] args)
         {
             Serilog.Log.Information("Unarchive task command was called");
             Console.Write("Enter task id: ");
@@ -36,17 +36,27 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "unarchives task";
+            return "unarchives task\n" +
+                "flags:\n" +
+                "-all - unarchive all archived tasks\n" +
+                "-id=[value] - specify id of unarchived task";
         }
 
         public string GetName()
         {
-            return "unarchive task";
+            return "unarchive [flags]";
         }
 
         public bool IsAvaliable()
         {
             if (_userManager.CurrentUser != null)
+                return true;
+            return false;
+        }
+
+        public bool IsCommand(string command)
+        {
+            if (command.Split()[0] == "unarchive")
                 return true;
             return false;
         }

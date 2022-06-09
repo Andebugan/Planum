@@ -17,6 +17,7 @@
     <None Remove="C:\Users\diffu\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config" />
     <None Remove="C:\Users\diffu\.nuget\packages\nlog.schema\5.0.0\contentFiles\any\any\NLog.xsd" />
     <None Remove="Config\config.json" />
+    <None Remove="ConsoleUI\ConsoleCommands\MiscCommands\DeleteCommand.cs~RF1a48997c.TMP" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Config\config.json">
