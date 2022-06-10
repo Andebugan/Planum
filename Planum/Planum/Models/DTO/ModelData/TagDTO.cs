@@ -6,11 +6,11 @@ namespace Planum.Models.DTO
     {
         public int Id { get; }
         public int UserId { get; }
-        public int Category { get; }
+        public string Category { get; }
         public string Name { get; }
         public string Description { get; }
 
-        public TagDTO(int id, int userId, int category = -1, string name = "", string description = "")
+        public TagDTO(int id, int userId, string category = "", string name = "", string description = "")
         {
             Id = id;
             UserId = userId;

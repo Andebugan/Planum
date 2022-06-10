@@ -6,11 +6,11 @@ namespace Planum.Models.BuisnessLogic.Entities
     {
         public int Id { get; }
         public int UserId { get; }
-        public int Category { get; }
+        public string Category { get; }
         public string Name { get; }
         public string Description { get; }
 
-        public Tag(int id, int user_id, int category, string name, string description)
+        public Tag(int id, int user_id, string category, string name, string description)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Tag name can not be null or empty", nameof(name));

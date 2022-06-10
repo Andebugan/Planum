@@ -188,9 +188,9 @@ namespace Planum.Testing.UnitTesting
         public void TestTagAddGet()
         {
             ((TagRepoFile)tagRepo).Reset();
-            TagDTO testDTO1 = new TagDTO(1, 1, 1, "tag_1", "some tag 1");
-            TagDTO testDTO2 = new TagDTO(2, 2, 2, "tag_2", "some tag 2");
-            TagDTO testDTO3 = new TagDTO(3, 3, 3, "tag_3", "some tag 3");
+            TagDTO testDTO1 = new TagDTO(1, 1, "category_1", "tag_1", "some tag 1");
+            TagDTO testDTO2 = new TagDTO(2, 2, "category_2", "tag_2", "some tag 2");
+            TagDTO testDTO3 = new TagDTO(3, 3, "category_3", "tag_3", "some tag 3");
 
             int id_1 = tagRepo.AddTag(testDTO1);
             int id_3 = tagRepo.AddTag(testDTO3);
@@ -211,9 +211,9 @@ namespace Planum.Testing.UnitTesting
         public void TestTagGetAll()
         {
             ((TagRepoFile)tagRepo).Reset();
-            TagDTO testDTO1 = new TagDTO(1, 1, 1, "tag_1", "some tag 1");
-            TagDTO testDTO2 = new TagDTO(2, 2, 2, "tag_2", "some tag 2");
-            TagDTO testDTO3 = new TagDTO(3, 3, 3, "tag_3", "some tag 3");
+            TagDTO testDTO1 = new TagDTO(1, 1, "category_1", "tag_1", "some tag 1");
+            TagDTO testDTO2 = new TagDTO(2, 2, "category_2", "tag_2", "some tag 2");
+            TagDTO testDTO3 = new TagDTO(3, 3, "category_3", "tag_3", "some tag 3");
 
             int id_1 = tagRepo.AddTag(testDTO1);
             int id_3 = tagRepo.AddTag(testDTO3);
@@ -231,15 +231,15 @@ namespace Planum.Testing.UnitTesting
         public void TestTagUpdate()
         {
             ((TagRepoFile)tagRepo).Reset();
-            TagDTO testDTO1 = new TagDTO(1, 1, 1, "tag_1", "some tag 1");
-            TagDTO testDTO2 = new TagDTO(2, 2, 2, "tag_2", "some tag 2");
-            TagDTO testDTO3 = new TagDTO(3, 3, 3, "tag_3", "some tag 3");
+            TagDTO testDTO1 = new TagDTO(1, 1, "category_1", "tag_1", "some tag 1");
+            TagDTO testDTO2 = new TagDTO(2, 2, "category_2", "tag_2", "some tag 2");
+            TagDTO testDTO3 = new TagDTO(3, 3, "category_3", "tag_3", "some tag 3");
 
             int id_1 = tagRepo.AddTag(testDTO1);
             int id_3 = tagRepo.AddTag(testDTO3);
             int id_2 = tagRepo.AddTag(testDTO2);
 
-            testDTO3 = new TagDTO(2, 3, 2, "tag_2", "new description");
+            testDTO3 = new TagDTO(2, 3, "category_2", "tag_2", "new description");
             tagRepo.UpdateTag(testDTO3);
             TagDTO temp = tagRepo.GetTag(id_2);
             Assert.IsTrue(CompareTagDTOs(temp.Id, temp, testDTO3.Id, testDTO3));
@@ -250,9 +250,9 @@ namespace Planum.Testing.UnitTesting
         public void TestTagDelete()
         {
             ((TagRepoFile)tagRepo).Reset();
-            TagDTO testDTO1 = new TagDTO(1, 1, 1, "tag_1", "some tag 1");
-            TagDTO testDTO2 = new TagDTO(2, 2, 2, "tag_2", "some tag 2");
-            TagDTO testDTO3 = new TagDTO(3, 3, 3, "tag_3", "some tag 3");
+            TagDTO testDTO1 = new TagDTO(1, 1, "category_1", "tag_1", "some tag 1");
+            TagDTO testDTO2 = new TagDTO(2, 2, "category_2", "tag_2", "some tag 2");
+            TagDTO testDTO3 = new TagDTO(3, 3, "category_3", "tag_3", "some tag 3");
 
             int id_1 = tagRepo.AddTag(testDTO1);
             int id_3 = tagRepo.AddTag(testDTO3);
@@ -271,9 +271,9 @@ namespace Planum.Testing.UnitTesting
         public void TestTagReset()
         {
             ((TagRepoFile)tagRepo).Reset();
-            TagDTO testDTO1 = new TagDTO(1, 1, 1, "tag_1", "some tag 1");
-            TagDTO testDTO2 = new TagDTO(2, 2, 2, "tag_2", "some tag 2");
-            TagDTO testDTO3 = new TagDTO(3, 3, 3, "tag_3", "some tag 3");
+            TagDTO testDTO1 = new TagDTO(1, 1, "category_1", "tag_1", "some tag 1");
+            TagDTO testDTO2 = new TagDTO(2, 2, "category_2", "tag_2", "some tag 2");
+            TagDTO testDTO3 = new TagDTO(3, 3, "category_3", "tag_3", "some tag 3");
 
             int id_1 = tagRepo.AddTag(testDTO1);
             int id_3 = tagRepo.AddTag(testDTO3);

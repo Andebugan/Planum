@@ -202,7 +202,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
             Console.WriteLine();
 
-            _tagManager.UpdateTag(new Tag(tag.Id, tag.UserId, category, name, description));
+            _tagManager.UpdateTag(new Tag(tag.Id, tag.UserId, "", name, description));
         }
 
         public void UpdateTask()

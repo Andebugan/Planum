@@ -125,7 +125,7 @@ namespace Planum.ViewModels
         {
             Log.Information("Add tag button clicked");
             string name = "tag name";
-            _tagManager.CreateTag(-1, name, "");
+            _tagManager.CreateTag("", name, "");
             LoadTags();
         }
 

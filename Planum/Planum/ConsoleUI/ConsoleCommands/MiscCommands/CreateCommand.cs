@@ -62,7 +62,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
             Console.WriteLine();
-            _tagManager.CreateTag(category, name, description);
+            _tagManager.CreateTag("", name, description);
         }
 
         public void CreateTask(string[] args)

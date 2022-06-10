@@ -43,7 +43,7 @@ namespace Planum.Models.DataModels
         {
             int tagId = reader.ReadInt32();
             int userId = reader.ReadInt32();
-            int category = reader.ReadInt32();
+            string category = reader.ReadString();
             string name = reader.ReadString();
             string description = reader.ReadString();
 

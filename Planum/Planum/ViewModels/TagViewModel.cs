@@ -45,7 +45,7 @@ namespace Planum.ViewModels
 
             string description = Tag.Description;
 
-            int category = Tag.Category;
+            string category = Tag.Category;
             
 
             _tagManager.UpdateTag(_tagConverter.ConvertFromViewDTO(Tag));

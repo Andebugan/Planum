@@ -31,10 +31,10 @@ namespace Planum.Testing.UnitTesting
         public void TestTagUserCheckups()
         {
             userManager.CurrentUser = null;
-            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.CreateTag(1, "test", "test"); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.CreateTag("test", "test", "test"); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.FindTag(1); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.DeleteTag(1); });
-            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.UpdateTag(new Tag(1, 4, 1, "test", "test")); });
+            Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.UpdateTag(new Tag(1, 4, "test", "test", "test")); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.GetAllTags(); });
             Assert.Throws<CurrentUserIsNullException>(delegate { tagManager.GetTag(1); });
         }

@@ -22,7 +22,7 @@ namespace Planum.Models.BuisnessLogic.Managers
             _userManager = userManager;
         }
 
-        public int CreateTag(int category, string name, string description)
+        public int CreateTag(string category, string name, string description)
         {
             Log.Debug("Create tag");
             if (_userManager.CurrentUser == null)

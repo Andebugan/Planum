@@ -5,7 +5,7 @@ namespace Planum.Models.BuisnessLogic.Managers
 {
     public interface ITagManager
     {
-        int CreateTag(int category, string name, string description);
+        int CreateTag(string category, string name, string description);
         void DeleteConnectedToUser(int userId);
         void DeleteTag(int tagId);
         Tag? FindTag(int tagId);
