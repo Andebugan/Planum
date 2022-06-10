@@ -21,40 +21,142 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _tagManager = tagManager;
         }
 
-        public void UpdateUser()
+        public void UpdateUser(int id)
         {
-            Serilog.Log.Information("Update user command was called");
-            Console.Write("Enter id: ");
-            string? input = Console.ReadLine();
-            int id;
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
-            {
-                Console.WriteLine("id must be signed integer\n");
-                return;
-            }
+            Serilog.Log.Information("update user command was called");
 
             User? user = _userManager.FindUser(id);
             if (user == null)
             {
-                Console.WriteLine("User with entered id does not exist\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("user with entered id does not exist\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
-            Console.Write("Enter new login: ");
-            string? login = Console.ReadLine();
-            if (string.IsNullOrEmpty(login))
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("login: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(_userManager.CurrentUser.Login);
+            string? login = _userManager.CurrentUser.Login;
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("change login (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+            string? input = null;
+            input = Console.ReadLine();
+            if (input != "y" && input != "n")
             {
-                Console.WriteLine("login can't be null or empty\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            Console.Write("Enter new password: ");
-            string? password = Console.ReadLine();
-            if (string.IsNullOrEmpty(password))
+
+            if (input == "y")
             {
-                Console.WriteLine("password can't be null\n");
+                login = "";
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("new login: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                login = Console.ReadLine();
+                if (string.IsNullOrEmpty(login))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("login can't be empty\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+            }
+
+            if (_userManager.FindUser(login) != null && login != _userManager.CurrentUser.Login)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("user with this login already exist\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("password: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(_userManager.CurrentUser.Password);
+
+            string? password = _userManager.CurrentUser.Password;
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("change login (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+            input = null;
+            input = Console.ReadLine();
+            if (input != "y" && input != "n")
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            if (input == "y")
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("new password: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                password = "";
+                while (true)
+                {
+                    var key = Console.ReadKey(true);
+                    if (key.Key == ConsoleKey.Enter)
+                        break;
+                    if (key.Key == ConsoleKey.Backspace)
+                    {
+                        if (password != null)
+                            password = password.Remove(0, password.Length - 1);
+                    }
+                    password += key.KeyChar;
+                }
+
+                if (string.IsNullOrEmpty(password))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("password can't be null\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("repeat password: ");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                string? checkPassword = null;
+                while (true)
+                {
+                    var key = Console.ReadKey(true);
+                    if (key.Key == ConsoleKey.Enter)
+                        break;
+                    if (key.Key == ConsoleKey.Backspace)
+                    {
+                        if (password != null)
+                            password = password.Remove(0, password.Length - 1);
+                    }
+                    checkPassword += key.KeyChar;
+                }
+                Console.WriteLine();
+
+                if (password != checkPassword)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("passwords do not match\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+            }
+
             _userManager.UpdateUser(new User(user.Id, login, password));
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("user updated successfully\n");
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine();
         }
 
@@ -235,6 +337,52 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute(string[] args)
         {
+            if (args.Length == 2 && args[1] == "user")
+            {
+                if (args[1] == "user")
+                {
+                    UpdateUser(_userManager.CurrentUser.Id);
+                    return;
+                }
+            }
+
+            if (args.Length != 3)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect command parameters\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            int id;
+            string[] idString = args[1].Split('=');
+            if (idString.Length == 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect command parameters\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            if (idString[0] != "-id" || !int.TryParse(idString[1], out id))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect command parameters\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            if (id < 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect command parameters\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("incorrect command parameters\n");
+            Console.ForegroundColor = ConsoleColor.White;
             return;
         }
 
@@ -245,7 +393,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetName()
         {
-            return "update user|task|tag";
+            return "update {-id={value} task|tag}|user";
         }
 
         public bool IsCommand(string command)

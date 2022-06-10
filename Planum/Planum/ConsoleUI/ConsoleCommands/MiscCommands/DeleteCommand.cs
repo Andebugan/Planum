@@ -23,10 +23,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void DeleteUser()
         {
-            Serilog.Log.Information("Delete user command was called");
+            Log.Information("delete user command was called");
             _userManager.DeleteUser(_taskManager, _tagManager);
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("User was successfully deleted\n");
+            Console.WriteLine("user was successfully deleted\n\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -76,27 +76,32 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.WriteLine("Task with specified id does not exist\n");
                 return;
             }
-            Console.WriteLine();
             _taskManager.DeleteTask(id);
         }
 
         public void Execute(string[] args)
         {
-            return;
+            if (args.Length == 2 && args[1] == "user")
+            {
+                DeleteUser();
+                return;
+            }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("incorrect command parameters\n\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public string GetDescription()
         {
-            return "deletes specified object|objects\n" +
-                "flags:\n" +
-                "-all - delete all objects\n" +
-                "-id=[value] - specify id of deleted object, value of said id must be signed integer," +
-                "does not work with user (id is ignored and current user is deleted)";
+            return "deletes specified object|objects, deletes all by default\n" +
+                "flags:\n" + 
+                "-id=[value] - specify id of deleted object, value of said id must be signed integer";
         }
 
         public string GetName()
         {
-            return "delete [flags] user|task|tag";
+            return "delete {[-id={value} task|tag}|user";
         }
 
         public bool IsCommand(string command)

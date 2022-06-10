@@ -22,22 +22,41 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void ShowCurrentUser()
         {
-            Serilog.Log.Information("Show current user command was called");
+            Serilog.Log.Information("show current user command was called");
             if (_userManager.CurrentUser == null)
                 return;
-            Console.WriteLine("id: " + _userManager.CurrentUser.Id);
-            Console.WriteLine("login: " + _userManager.CurrentUser.Login);
-            Console.WriteLine("password: " + _userManager.CurrentUser.Password);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("id: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(_userManager.CurrentUser.Id);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("login: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(_userManager.CurrentUser.Login);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("password: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(_userManager.CurrentUser.Password);
             Console.WriteLine();
         }
 
         public void ShowAllUsers()
         {
-            Serilog.Log.Information("Show all users command was called");
+            Serilog.Log.Information("show all users command was called");
             List<User> users = _userManager.GetAllUsers();
+            if (users.Count == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("there are no users in the system\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("existing users:\n");
+            Console.ForegroundColor = ConsoleColor.White;
             foreach (User user in users)
             {
-                Console.WriteLine("login: " + user.Login);
+                Console.WriteLine(user.Login);
             }
             Console.WriteLine();
         }
@@ -237,23 +256,45 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void Execute(string[] args)
         {
-            // when show check user
+            if (args[args.Length - 1] == "user")
+            {
+                if (args.Length == 2 && _userManager.CurrentUser == null)
+                {
+                    ShowAllUsers();
+                    return;
+                }
+
+                if (args.Length == 2 && _userManager.CurrentUser != null)
+                {
+                    ShowCurrentUser();
+                    return;
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Incorrect command parameters\n");
+            Console.ForegroundColor = ConsoleColor.White;
             return;
         }
 
         public string GetDescription()
         {
-            return "displays specified object|objects\n" +
-                "flags:\n" +
-                "-all - display all objects, used by default\n" +
-                "for tag and task:\n" +
-                "-l [options] - display tasks or tags as a list with list options\n" +
-                "-id=[value] - specify id of displayed object, value of said id must be signed integer";
+            if (_userManager.CurrentUser == null)
+                return "displays objects, shows all existing by default";
+            else
+                return "displays objects, shows all existing by default\n" +
+                    "flags:\n" +
+                    "-l [options] - display tasks or tags as a list with list options\n" +
+                    "-id=[value] - specify id of displayed object, value of said id must be signed integer,\n" +
+                    "doesn't work with user";
         }
 
         public string GetName()
         {
-            return "show [options] user|task|tag";
+            if (_userManager.CurrentUser == null)
+                return "show user";
+            else
+                return "show {[-l] [-id={value} tag|task}|user";
         }
 
         public bool IsCommand(string command)

@@ -23,8 +23,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("\nlogin can't be empty!\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("login can't be empty!\n");
                 Console.ForegroundColor= ConsoleColor.White;
                 return;
             }
@@ -50,8 +50,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (string.IsNullOrEmpty(password))
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("\npassword can't be empty!\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("password can't be empty!\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -60,13 +60,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (user == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\nlogin failed, login or password incorrect\n");
+                Console.WriteLine("login failed, login or password incorrect\n");
                 Console.ForegroundColor = ConsoleColor.White;
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\nlogin successfull\n");
+                Console.WriteLine("login successfull\n");
                 Console.ForegroundColor = ConsoleColor.White;
             }
         }

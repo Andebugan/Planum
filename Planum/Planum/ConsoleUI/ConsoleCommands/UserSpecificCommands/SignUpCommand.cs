@@ -26,8 +26,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? login = Console.ReadLine();
             if (string.IsNullOrEmpty(login))
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("\nlogin can't be empty\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("login can't be empty\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -35,7 +35,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (_userManager.FindUser(login) != null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\nuser with this login already exist\n");
+                Console.WriteLine("user with this login already exist\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -57,15 +57,15 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 }
                 password += key.KeyChar;
             }
+            Console.WriteLine();
 
             if (string.IsNullOrEmpty(password))
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("\npassword can't be null\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("password can't be null\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("repeat password: ");
@@ -88,8 +88,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (password != checkPassword)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("\npasswords do not match\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("passwords do not match\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -97,7 +97,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             int id = _userManager.CreateUser(login, password);
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\nsuccessfully created new user profile\n");
+            Console.WriteLine("successfully created new user profile\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 

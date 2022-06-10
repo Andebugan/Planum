@@ -17,7 +17,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Serilog.Log.Information("logout command was called");
             _userManager.CurrentUser = null;
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("\nlogged out of profile\n");
+            Console.WriteLine("logged out of profile\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 

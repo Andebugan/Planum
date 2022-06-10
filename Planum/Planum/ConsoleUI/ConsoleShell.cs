@@ -60,6 +60,9 @@ namespace Planum.ConsoleUI
 
                 if (input == "help")
                 {
+                    // [] - optional
+                    // | - or
+                    // {} - mandatory
                     Console.ForegroundColor = ConsoleColor.DarkCyan;
                     Console.WriteLine("avalible commands:");
                     Console.ForegroundColor = ConsoleColor.White;
@@ -71,7 +74,7 @@ namespace Planum.ConsoleUI
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(command.GetName());
                         Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write("description:");
+                        Console.Write("description: ");
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(command.GetDescription());
                         Console.WriteLine();
@@ -92,7 +95,7 @@ namespace Planum.ConsoleUI
                 
                 if (!executed)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("incorrect command\n");
                     Console.ForegroundColor = ConsoleColor.White;
                 }

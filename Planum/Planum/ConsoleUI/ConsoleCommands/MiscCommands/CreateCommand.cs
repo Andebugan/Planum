@@ -201,7 +201,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetName()
         {
-            return "create [flags] task|tag";
+            return "create [-d] task|tag";
         }
 
         public bool IsAvaliable()

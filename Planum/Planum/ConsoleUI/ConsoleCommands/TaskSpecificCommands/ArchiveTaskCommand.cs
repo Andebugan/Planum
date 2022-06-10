@@ -39,7 +39,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             return "archives task\n" +
                 "flags:\n" +
                 "-all - archive all tasks\n" +
-                "-id=[value] - specify id of archived task";
+                "-id={value} - specify id of archived task";
         }
 
         public string GetName()
