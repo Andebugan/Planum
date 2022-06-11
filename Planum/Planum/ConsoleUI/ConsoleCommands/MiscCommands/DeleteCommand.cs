@@ -30,39 +30,55 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public void DeleteTag()
+        public void DeleteTag(int id)
         {
-            Serilog.Log.Information("Delete tag command was called");
-            Console.Write("Deleted task id: ");
-            string? input = Console.ReadLine();
-            int id;
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
-            {
-                Console.WriteLine("Id must be signed integer\n");
-                return;
-            }
+            Log.Information("delete tag command was called");
             _tagManager.DeleteTag(id);
-            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("tag was successfully deleted\n\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public void DeleteAllTags()
         {
-            Log.Information("Delete all tags command was called");
-            List<Tag> tags = _tagManager.GetAllTags();
-            foreach (Tag tag in tags)
-                _tagManager.DeleteTag(tag.Id);
-            Console.WriteLine();
+            Log.Information("delete all tags command was called");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("confirm deleting all tags (y/n): \n");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            string? input = null;
+            input = Console.ReadLine();
+            if (input != "y" && input != "n")
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            if (input == "y")
+            {
+                List<Tag> tags = _tagManager.GetAllTags();
+                foreach (Tag tag in tags)
+                    _tagManager.DeleteTag(tag.Id);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("successfully deleted all tags\n");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("canceled deletion of all tags\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public void DeleteAllTasks()
         {
-            Serilog.Log.Information("Delete all tasks command was called");
+            Log.Information("Delete all tasks command was called");
             _taskManager.GetAllTasks(null).ForEach(task => _taskManager.DeleteTask(task.Id));
         }
 
         public void DeleteTask()
         {
-            Serilog.Log.Information("Delete task command was called");
+            Log.Information("Delete task command was called");
             Console.Write("Enter task id: ");
             int id;
             if (!int.TryParse(Console.ReadLine(), out id))
@@ -87,8 +103,45 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
+            if (args[args.Length - 1] == "tag")
+            {
+                List<string> argsList = new List<string>(args);
+                argsList.Remove("delete");
+                argsList.Remove("tag");
+
+                bool parseSuccessfull = true;
+                bool deleteAll = true;
+                int id = -1;
+
+                foreach (var arg in argsList)
+                {
+                    if (arg.Substring(0, 4) == "-id=" && deleteAll)
+                    {
+                        if (!int.TryParse(arg.Substring(4), out id) || id < 0)
+                        {
+                            parseSuccessfull = false;
+                            break;
+                        }
+                        deleteAll = false;
+                    }
+                    else
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                }
+
+                if (parseSuccessfull)
+                {
+                    if (deleteAll)
+                        DeleteAllTags();
+                    else
+                        DeleteTag(id);
+                }
+            }
+
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("incorrect command parameters\n\n");
+            Console.WriteLine("incorrect command parameters\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -101,7 +154,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetName()
         {
-            return "delete {[-id={value} task|tag}|user";
+            return "delete [-id={value}] task|tag\n" +
+                "delete user";
         }
 
         public bool IsCommand(string command)

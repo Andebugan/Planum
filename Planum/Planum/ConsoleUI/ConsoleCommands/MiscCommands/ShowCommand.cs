@@ -1,4 +1,5 @@
-﻿using Planum.Models.BuisnessLogic.Entities;
+﻿using Planum.ConsoleUI.ConsoleViews;
+using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
 using System;
 using System.Collections.Generic;
@@ -61,38 +62,37 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine();
         }
 
-        public void ShowTag()
+        public void ShowTag(int id, bool showCategory = false, bool showDescription = false)
         {
-            Serilog.Log.Information("Show tag command was called");
-            int id = 0;
-            Console.Write("Enter id: ");
-            string? input = Console.ReadLine();
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
+            Serilog.Log.Information("show tag command was called");
+            Tag? tag = _tagManager.FindTag(id);
+            if (tag == null)
             {
-                Console.WriteLine("Id must be signed integer\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"tag with id={id} does not exist\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            Tag? tag = _tagManager.FindTag(id);
 
-            Console.WriteLine("Tag id: " + tag.Id);
-            Console.WriteLine("Tag name: " + tag.Name);
-            Console.WriteLine("Tag description: " + tag.Description);
-            Console.WriteLine("Tag category: " + tag.Category);
-            Console.WriteLine();
+            TagListView tagListView = new TagListView();
+            tagListView.RenderTag(tag, showCategory, showDescription);
         }
 
-        public void ShowAllTags()
+        public void ShowAllTags(bool showCategory = false, bool showDescription = false)
         {
-            Serilog.Log.Information("Show all tags command was called");
+            Serilog.Log.Information("show all tags command was called");
             List<Tag> tags = _tagManager.GetAllTags();
-            foreach (Tag tag in tags)
+
+            if (tags.Count == 0)
             {
-                Console.WriteLine("Tag id: " + tag.Id);
-                Console.WriteLine("Tag name: " + tag.Name);
-                Console.WriteLine("Tag description: " + tag.Description);
-                Console.WriteLine("Tag category: " + tag.Category);
-                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("there are no tags in the system\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
             }
+
+            TagListView tagListView = new TagListView();
+            tagListView.RenderTags(tags, showCategory, showDescription);
         }
 
         public void ShowTask()
@@ -271,10 +271,58 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 }
             }
 
+            if (args[args.Length - 1] == "tag")
+            {
+                bool parseSuccessfull = true;
+                bool showDescription = false;
+                bool showCategory = false;
+                bool showAll = true;
+                int id = -1;
+
+                List<string> argsList = new List<string>(args);
+                argsList.Remove("show");
+                argsList.Remove("tag");
+
+                foreach (var arg in argsList)
+                {
+                    if (arg == "-c" && !showCategory)
+                        showCategory = true;
+                    else if (arg == "-d" && !showDescription)
+                        showDescription = true;
+                    else if (arg.Substring(0, 4) == "-id=" && showAll)
+                    {
+                        if (!int.TryParse(arg.Substring(4), out id) || id < 0)
+                        {
+                            parseSuccessfull = false;
+                            break;
+                        }
+                        showAll = false;
+                    }
+                    else
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                }
+
+                if (parseSuccessfull)
+                {
+                    if (showAll)
+                    {
+                        ShowAllTags(showCategory, showDescription);
+                        return;
+                    }
+                    else
+                    {
+                        ShowTag(id, showCategory, showDescription);
+                        return;
+                    }
+                }
+            }
+
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Incorrect command parameters\n");
             Console.ForegroundColor = ConsoleColor.White;
-            return;
         }
 
         public string GetDescription()
@@ -284,9 +332,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             else
                 return "displays objects, shows all existing by default\n" +
                     "flags:\n" +
-                    "-l [options] - display tasks or tags as a list with list options\n" +
-                    "-id=[value] - specify id of displayed object, value of said id must be signed integer,\n" +
-                    "doesn't work with user";
+                    "-id=[value] - specify id of displayed object, value of said id must be signed integer\n" +
+                    "tag:\n" +
+                    "-c - show category\n" +
+                    "-d - show description\n" +
+                    "task:\n" +
+                    "-archived - show archived tasks\n" + 
+                    "-l [options] - display tasks list with list options";
         }
 
         public string GetName()
@@ -294,7 +346,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (_userManager.CurrentUser == null)
                 return "show user";
             else
-                return "show {[-l] [-id={value} tag|task}|user";
+                return "show [-l] [-id={value}] [-archived] task\n" +
+                    "show [-id={value}] [-c] [-d] tag\n" +
+                    "show user";
         }
 
         public bool IsCommand(string command)

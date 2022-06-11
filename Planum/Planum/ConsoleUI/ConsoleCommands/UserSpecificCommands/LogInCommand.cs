@@ -39,12 +39,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                     break;
-                if (key.Key == ConsoleKey.Backspace)
+                else if (key.Key == ConsoleKey.Backspace)
                 {
-                    if (password != null)
-                        password = password.Remove(0, password.Length - 1);
+                    if (password != null && password.Length > 0)
+                        password = password.Substring(0, password.Length - 1);
                 }
-                password += key.KeyChar;
+                else
+                    password += key.KeyChar;
             }
             Console.WriteLine();
 

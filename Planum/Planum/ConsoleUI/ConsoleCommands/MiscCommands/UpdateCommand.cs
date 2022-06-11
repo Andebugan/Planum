@@ -108,12 +108,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     var key = Console.ReadKey(true);
                     if (key.Key == ConsoleKey.Enter)
                         break;
-                    if (key.Key == ConsoleKey.Backspace)
+                    else if (key.Key == ConsoleKey.Backspace)
                     {
-                        if (password != null)
-                            password = password.Remove(0, password.Length - 1);
+                        if (password != null && password.Length > 0)
+                            password = password.Substring(0, password.Length - 1);
                     }
-                    password += key.KeyChar;
+                    else
+                        password += key.KeyChar;
                 }
 
                 if (string.IsNullOrEmpty(password))
@@ -135,12 +136,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     var key = Console.ReadKey(true);
                     if (key.Key == ConsoleKey.Enter)
                         break;
-                    if (key.Key == ConsoleKey.Backspace)
+                    else if (key.Key == ConsoleKey.Backspace)
                     {
-                        if (password != null)
-                            password = password.Remove(0, password.Length - 1);
+                        if (password != null && password.Length > 0)
+                            password = password.Substring(0, password.Length - 1);
                     }
-                    checkPassword += key.KeyChar;
+                    else
+                        password += key.KeyChar;
                 }
                 Console.WriteLine();
 
@@ -339,51 +341,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
         {
             if (args.Length == 2 && args[1] == "user")
             {
-                if (args[1] == "user")
-                {
-                    UpdateUser(_userManager.CurrentUser.Id);
-                    return;
-                }
-            }
-
-            if (args.Length != 3)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("incorrect command parameters\n");
-                Console.ForegroundColor = ConsoleColor.White;
-                return;
-            }
-
-            int id;
-            string[] idString = args[1].Split('=');
-            if (idString.Length == 1)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("incorrect command parameters\n");
-                Console.ForegroundColor = ConsoleColor.White;
-                return;
-            }
-
-            if (idString[0] != "-id" || !int.TryParse(idString[1], out id))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("incorrect command parameters\n");
-                Console.ForegroundColor = ConsoleColor.White;
-                return;
-            }
-
-            if (id < 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("incorrect command parameters\n");
-                Console.ForegroundColor = ConsoleColor.White;
+                UpdateUser(_userManager.CurrentUser.Id);
                 return;
             }
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("incorrect command parameters\n");
             Console.ForegroundColor = ConsoleColor.White;
-            return;
         }
 
         public string GetDescription()
@@ -393,7 +357,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetName()
         {
-            return "update {-id={value} task|tag}|user";
+            return "update -id={value} task|tag\n" +
+                "update user";
         }
 
         public bool IsCommand(string command)

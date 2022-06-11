@@ -24,45 +24,66 @@ namespace Planum.ConsoleUI.ConsoleCommands
         public void Execute(string[] args)
         {
             Log.Information("Create command was called");
-            if (args.Length == 1)
+            if (args[1] == "tag")
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: ");
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("object unspecified");
-                Console.ForegroundColor = ConsoleColor.White;
+                CreateTag(args);
+                return;
             }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("incorrect command parameters\n");
+            Console.ForegroundColor = ConsoleColor.White;
+            return;
         }
 
         public void CreateTag(string[] args)
         {
             Log.Information("Create tag command was called");
-            string? input = null;
-            Console.Write("Enter tag name: ");
-            input = Console.ReadLine();
-            if (string.IsNullOrEmpty(input))
+
+            if (args.Length == 2)
             {
-                Console.WriteLine("Tag name can't be empty\n");
+                string? input;
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("name: ");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                input = Console.ReadLine();
+                if (string.IsNullOrEmpty(input))
+                {
+                    Console.WriteLine("Tag name can't be empty\n");
+                    return;
+                }
+                string name = input;
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("description: ");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                input = Console.ReadLine();
+                string? description = input;
+                if (description == null)
+                    description = "";
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("category: ");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                string? category = Console.ReadLine();
+                if (category == null)
+                    category = "";
+
+                _tagManager.CreateTag(category, name, description);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("successfully created new tag\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            string name = input;
 
-            Console.Write("Enter tag description: ");
-            input = Console.ReadLine();
-            string? description = input;
-            if (description == null)
-                description = "";
-
-            Console.Write("Enter tag category: ");
-            input = Console.ReadLine();
-            int category;
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out category))
-            {
-                Console.WriteLine("Tag category must be signed integer\n");
-                return;
-            }
-            Console.WriteLine();
-            _tagManager.CreateTag("", name, description);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("incorrect command parameters\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public void CreateTask(string[] args)
@@ -194,14 +215,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "Creates specified object\n" +
-                "flags:\n" +
-                "-d - create with default values";
+            return "Creates specified object";
         }
 
         public string GetName()
         {
-            return "create [-d] task|tag";
+            return "create tag|task";
         }
 
         public bool IsAvaliable()

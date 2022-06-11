@@ -32,6 +32,7 @@
     <TrimmableAssembly Include="Avalonia.Themes.Default" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Alba.CsConsoleFormat" Version="1.0.0" />
     <PackageReference Include="Avalonia" Version="0.10.12" />
     <PackageReference Include="Avalonia.Desktop" Version="0.10.12" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -51,8 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ConsoleUI\ConsoleViews\CalendarView\" />
-    <Folder Include="ConsoleUI\ConsoleViews\ListView\" />
     <Folder Include="ConsoleUI\ConsoleViews\MindMapView\" />
-    <Folder Include="ConsoleUI\ConsoleViews\" />
   </ItemGroup>
 </Project>
