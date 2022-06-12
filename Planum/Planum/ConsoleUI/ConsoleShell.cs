@@ -87,7 +87,7 @@ namespace Planum.ConsoleUI
                 {
                     if (command.IsCommand(input))
                     {
-                        command.Execute(input.Split());
+                        command.Execute(input);
                         executed = true;
                         break;
                     }

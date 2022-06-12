@@ -130,7 +130,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _taskManager.AddTagToTask(taskId, tagId);
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
             return;
         }

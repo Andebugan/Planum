@@ -12,7 +12,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _userManager = userManager;
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
             Serilog.Log.Information("logout command was called");
             _userManager.CurrentUser = null;

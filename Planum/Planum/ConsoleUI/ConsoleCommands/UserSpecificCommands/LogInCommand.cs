@@ -13,7 +13,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _userManager = userManager;
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
             Serilog.Log.Information("login command was called");
             Console.ForegroundColor = ConsoleColor.Cyan;

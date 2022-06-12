@@ -2,7 +2,7 @@
 {
     public interface ICommand
     {
-        void Execute(string[] args);
+        void Execute(string command);
         string GetName();
         string GetDescription();
         bool IsAvaliable();

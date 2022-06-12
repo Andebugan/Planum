@@ -78,7 +78,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             tagListView.RenderTag(tag, showCategory, showDescription);
         }
 
-        public void ShowAllTags(bool showCategory = false, bool showDescription = false)
+        public void ShowAllTags(bool showCategory = false, bool showDescription = false, List<string>? filters = null)
         {
             Serilog.Log.Information("show all tags command was called");
             List<Tag> tags = _tagManager.GetAllTags();
@@ -87,6 +87,36 @@ namespace Planum.ConsoleUI.ConsoleCommands
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("there are no tags in the system\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            bool parseSuccessfull = true;
+            List<Tag> filteredTags = new List<Tag>();
+            foreach (var filter in filters)
+            {
+                if (filter.Substring(0, 4) == "-cat")
+                {
+                    string category = filter.Substring(4);
+                    foreach (var tag in tags)
+                    {
+                        if (tag.Category == category)
+                        {
+                            filteredTags.Add(tag);
+                        }
+                    }
+                }
+                else
+                {
+                    parseSuccessfull = false;
+                    break;
+                }
+            }
+
+            if (!parseSuccessfull)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect filter parameters\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -254,8 +284,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
+            string[] args = command.Split();
+
             if (args[args.Length - 1] == "user")
             {
                 if (args.Length == 2 && _userManager.CurrentUser == null)
@@ -277,26 +309,49 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 bool showDescription = false;
                 bool showCategory = false;
                 bool showAll = true;
+
+                List<string> filters = new List<string>();
                 int id = -1;
 
                 List<string> argsList = new List<string>(args);
                 argsList.Remove("show");
                 argsList.Remove("tag");
 
-                foreach (var arg in argsList)
+                for (int i = 0; i < argsList.Count; i++)
                 {
-                    if (arg == "-c" && !showCategory)
+                    if (argsList[i] == "-c" && !showCategory)
                         showCategory = true;
-                    else if (arg == "-d" && !showDescription)
+                    else if (argsList[i] == "-d" && !showDescription)
                         showDescription = true;
-                    else if (arg.Substring(0, 4) == "-id=" && showAll)
+                    else if (argsList[i].Substring(0, 4) == "-id=" && showAll)
                     {
-                        if (!int.TryParse(arg.Substring(4), out id) || id < 0)
+                        if (!int.TryParse(argsList[i].Substring(4), out id) || id < 0)
                         {
                             parseSuccessfull = false;
                             break;
                         }
                         showAll = false;
+                    }
+                    else if (argsList[i].Substring(0, 2) == "-s")
+                    {
+                        if (argsList[i].Substring(0, 7) == "-s-cat=")
+                        {
+                            string category = argsList[i].Substring(7);
+                            i += 1;
+                            while (argsList[i][0] != '-' && i < argsList.Count)
+                            {
+                                category += " " + argsList[i];
+                                i += 1;
+                            }
+
+                            category = category.Replace("\"", "");
+                            filters.Add("-cat" + category);
+
+                            if (i == argsList.Count)
+                                break;
+                            else
+                                i -= 1;
+                        }
                     }
                     else
                     {
@@ -309,10 +364,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 {
                     if (showAll)
                     {
-                        ShowAllTags(showCategory, showDescription);
+                        ShowAllTags(showCategory, showDescription, filters);
                         return;
                     }
-                    else
+                    else if (filters.Count == 0)
                     {
                         ShowTag(id, showCategory, showDescription);
                         return;
@@ -332,10 +387,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
             else
                 return "displays objects, shows all existing by default\n" +
                     "flags:\n" +
-                    "-id=[value] - specify id of displayed object, value of said id must be signed integer\n" +
+                    "-id={value} - specify id of displayed object, value of said id must be signed integer\n" +
                     "tag:\n" +
                     "-c - show category\n" +
                     "-d - show description\n" +
+                    "-s - sort by:\n" +
+                        "-cat={value} - sort by category (-s-cat=\"category 1\")\n" +
                     "task:\n" +
                     "-archived - show archived tasks\n" + 
                     "-l [options] - display tasks list with list options";
@@ -348,6 +405,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             else
                 return "show [-l] [-id={value}] [-archived] task\n" +
                     "show [-id={value}] [-c] [-d] tag\n" +
+                    "show [-c] [-d] [-s[-cat={value}]] tag\n" +
                     "show user";
         }
 

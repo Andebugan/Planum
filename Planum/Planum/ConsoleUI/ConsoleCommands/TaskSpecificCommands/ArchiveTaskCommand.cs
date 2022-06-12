@@ -14,7 +14,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _userManager = userManager;
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
             Serilog.Log.Information("Archive task command was called");
             Console.Write("Enter task id: ");

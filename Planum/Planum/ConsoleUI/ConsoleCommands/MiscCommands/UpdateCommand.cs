@@ -1,5 +1,6 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -23,13 +24,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void UpdateUser(int id)
         {
-            Serilog.Log.Information("update user command was called");
+            Log.Information("update user command was called");
 
             User? user = _userManager.FindUser(id);
             if (user == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("user with entered id does not exist\n");
+                Console.WriteLine($"user with id={id}" +
+                    $" does not exist\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -159,52 +161,120 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("user updated successfully\n");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine();
         }
 
-        public void UpdateTag()
+        public void UpdateTag(int id)
         {
-            Serilog.Log.Information("Update tag command was called");
-            int id = 0;
-            Console.Write("Enter id: ");
-            string? input = Console.ReadLine();
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out id))
-            {
-                Console.WriteLine("Id must be signed integer\n");
-                return;
-            }
+            Log.Information("update tag command was called");
 
             Tag? tag = _tagManager.FindTag(id);
             if (tag == null)
             {
-                Console.WriteLine("User with specified id does not exist\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"tag with id={id} does not exist\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
-            Console.Write("Enter name: ");
-            string? name = Console.ReadLine();
-            if (string.IsNullOrEmpty(name))
-            {
-                Console.WriteLine("Name can't be null or zero\n");
-                return;
-            }
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("name: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(tag.Name);
+            string? name = tag.Name;
 
-            Console.Write("Enter descriptions: ");
-            string? description = Console.ReadLine();
-            if (description == null)
-                description = "";
-
-            Console.Write("Enter category: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("change name (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+            string? input = null;
             input = Console.ReadLine();
-            int category;
-            if (string.IsNullOrEmpty(input) || !int.TryParse(input, out category))
+            if (input != "y" && input != "n")
             {
-                Console.WriteLine("Category must be signed integer\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            Console.WriteLine();
 
-            _tagManager.UpdateTag(new Tag(tag.Id, tag.UserId, "", name, description));
+            if (input == "y")
+            {
+                name = "";
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("new name: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                name = Console.ReadLine();
+                if (string.IsNullOrEmpty(name))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("name can't be empty\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("category: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(tag.Category);
+            string? category = tag.Category;
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("change category (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+            input = null;
+            input = Console.ReadLine();
+            if (input != "y" && input != "n")
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            if (input == "y")
+            {
+                category = "";
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("new category: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                category = Console.ReadLine();
+                if (category == null)
+                    category = "";
+            }
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("description: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(tag.Description);
+            string? description = tag.Description;
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("change description (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+            input = null;
+            input = Console.ReadLine();
+            if (input != "y" && input != "n")
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
+            if (input == "y")
+            {
+                description = "";
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("new description: ");
+                Console.ForegroundColor = ConsoleColor.White;
+                description = Console.ReadLine();
+                if (description == null)
+                    description = "";
+            }
+
+            _tagManager.UpdateTag(new Tag(tag.Id, tag.UserId, category, name, description));
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("tag updated successfully\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public void UpdateTask()
@@ -337,12 +407,26 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _taskManager.UpdateTask(newTask_);
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
+            string[] args = command.Split(' ');
             if (args.Length == 2 && args[1] == "user")
             {
                 UpdateUser(_userManager.CurrentUser.Id);
                 return;
+            }
+
+            if (args[args.Length - 1] == "tag" && args.Length == 3)
+            {
+                if (args[1].Substring(0, 4) == "-id=")
+                {
+                    int id = -1;
+                    if (int.TryParse(args[1].Substring(4), out id) && id >= 0)
+                    {
+                        UpdateTag(id);
+                        return;
+                    }
+                }
             }
 
             Console.ForegroundColor = ConsoleColor.Red;

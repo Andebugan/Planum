@@ -21,12 +21,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _taskManager = taskManager;
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
+            string[] args = command.Split(' ');
             Log.Information("Create command was called");
-            if (args[1] == "tag")
+            if (args[1] == "tag" && args.Length == 2)
             {
                 CreateTag(args);
+                return;
+            }
+
+            if (args[1] == "task" && args.Length == 2)
+            {
+                CreateTask(args);
                 return;
             }
 
@@ -88,13 +95,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public void CreateTask(string[] args)
         {
-            Log.Information("Clear task command was called");
-            Console.Write("Enter task name: ");
+            Log.Information("clear task command was called");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter task name: ");
+            Console.ForegroundColor = ConsoleColor.White;
             string? input = Console.ReadLine();
+
             string name;
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Task name can't be null or empty\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("task name can't be null or empty\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
             name = input;

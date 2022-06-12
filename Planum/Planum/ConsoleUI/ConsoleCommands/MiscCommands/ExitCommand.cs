@@ -5,8 +5,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class ExitCommand : ICommand
     {
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
+            string[] args = command.Split(' ');
             Log.Information("Exit command was called");
             Environment.Exit(0);
         }

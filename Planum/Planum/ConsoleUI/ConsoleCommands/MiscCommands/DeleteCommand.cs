@@ -35,7 +35,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Log.Information("delete tag command was called");
             _tagManager.DeleteTag(id);
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("tag was successfully deleted\n\n");
+            Console.WriteLine("tag was successfully deleted\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -43,7 +43,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
         {
             Log.Information("delete all tags command was called");
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("confirm deleting all tags (y/n): \n");
+            Console.Write("confirm deleting all tags (y/n): ");
             Console.ForegroundColor = ConsoleColor.White;
 
             string? input = null;
@@ -64,6 +64,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("successfully deleted all tags\n");
                 Console.ForegroundColor = ConsoleColor.White;
+                return;
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("canceled deletion of all tags\n");
@@ -95,8 +96,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
             _taskManager.DeleteTask(id);
         }
 
-        public void Execute(string[] args)
+        public void Execute(string command)
         {
+            string[] args = command.Split(' ');
             if (args.Length == 2 && args[1] == "user")
             {
                 DeleteUser();
@@ -137,6 +139,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         DeleteAllTags();
                     else
                         DeleteTag(id);
+                    return;
                 }
             }
 
