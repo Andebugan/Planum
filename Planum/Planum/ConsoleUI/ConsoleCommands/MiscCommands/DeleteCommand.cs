@@ -71,29 +71,45 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public void DeleteAllTasks()
+        public void DeleteTask(int id)
         {
-            Log.Information("Delete all tasks command was called");
-            _taskManager.GetAllTasks(null).ForEach(task => _taskManager.DeleteTask(task.Id));
+            Log.Information("delete task command was called");
+            _taskManager.DeleteTask(id);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("task was successfully deleted\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public void DeleteTask()
+        public void DeleteAllTasks()
         {
-            Log.Information("Delete task command was called");
-            Console.Write("Enter task id: ");
-            int id;
-            if (!int.TryParse(Console.ReadLine(), out id))
+            Log.Information("delete all tasks command was called");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("confirm deleting all tasks (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            string? input = null;
+            input = Console.ReadLine();
+            if (input != "y" && input != "n")
             {
-                Console.WriteLine("Task id must be signed integer\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
-            if (_taskManager.FindTask(id) == null)
+            if (input == "y")
             {
-                Console.WriteLine("Task with specified id does not exist\n");
+                List<Task> tasks = _taskManager.GetAllTasks(null);
+                foreach (Task task in tasks)
+                    _taskManager.DeleteTask(task.Id);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("successfully deleted all tasks\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            _taskManager.DeleteTask(id);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("canceled deletion of all tasks\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public void Execute(string command)
@@ -139,6 +155,44 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         DeleteAllTags();
                     else
                         DeleteTag(id);
+                    return;
+                }
+            }
+
+            if (args[args.Length - 1] == "task")
+            {
+                List<string> argsList = new List<string>(args);
+                argsList.Remove("delete");
+                argsList.Remove("task");
+
+                bool parseSuccessfull = true;
+                bool deleteAll = true;
+                int id = -1;
+
+                foreach (var arg in argsList)
+                {
+                    if (arg.Substring(0, 4) == "-id=" && deleteAll)
+                    {
+                        if (!int.TryParse(arg.Substring(4), out id) || id < 0)
+                        {
+                            parseSuccessfull = false;
+                            break;
+                        }
+                        deleteAll = false;
+                    }
+                    else
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                }
+
+                if (parseSuccessfull)
+                {
+                    if (deleteAll)
+                        DeleteAllTasks();
+                    else
+                        DeleteTask(id);
                     return;
                 }
             }

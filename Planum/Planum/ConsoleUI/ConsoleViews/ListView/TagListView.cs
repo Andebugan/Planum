@@ -15,6 +15,10 @@ namespace Planum.ConsoleUI.ConsoleViews
             var doc = new Document();
 
             Grid grid = new Grid();
+
+            if (!showCategory && showDescription)
+                NameWidth = 50;
+
             grid.Color = DarkGray;
 
             grid.Columns.Add(GridLength.Auto);

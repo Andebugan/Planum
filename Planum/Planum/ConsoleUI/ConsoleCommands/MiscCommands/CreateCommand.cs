@@ -111,10 +111,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
             name = input;
 
-            Console.Write("Enter task description: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter task description: ");
+            Console.ForegroundColor = ConsoleColor.White;
             string? description = Console.ReadLine();
 
-            Console.Write("Enter tag ids: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter tag ids: ");
+            Console.ForegroundColor = ConsoleColor.White;
             input = Console.ReadLine();
             List<int> tagIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
@@ -122,10 +126,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
             foreach (int tagId in tagIds)
             {
                 if (_tagManager.FindTag(tagId) == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("incorrect tag id\n");
+                    Console.ForegroundColor = ConsoleColor.White;
                     return;
+                }
             }
 
-            Console.Write("Enter parent ids: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter parent ids: ");
+            Console.ForegroundColor = ConsoleColor.White;
+
             input = Console.ReadLine();
             List<int> parentIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
@@ -133,10 +145,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
             foreach (int parentId in parentIds)
             {
                 if (_taskManager.FindTask(parentId) == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("incorrect tag id\n");
+                    Console.ForegroundColor = ConsoleColor.White;
                     return;
+                }
             }
 
-            Console.Write("Enter children ids: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter children ids: ");
+            Console.ForegroundColor = ConsoleColor.White;
+
             input = Console.ReadLine();
             List<int> childIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
@@ -145,51 +165,99 @@ namespace Planum.ConsoleUI.ConsoleCommands
             foreach (int childId in childIds)
             {
                 if (_taskManager.FindTask(childId) == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("incorrect tag id\n");
+                    Console.ForegroundColor = ConsoleColor.White;
                     return;
+                }
             }
 
-            Console.Write("Is task timed (y/n): ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter status tags ids: ");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            input = Console.ReadLine();
+            List<int> statusIds = new List<int>();
+            if (!string.IsNullOrEmpty(input))
+                childIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+
+            foreach (int statusId in statusIds)
+            {
+                if (_tagManager.FindTag(statusId) == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("incorrect tag id\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("is task timed (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+
             input = Console.ReadLine();
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Must be y of n\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
             if (input == "n")
             {
-                _taskManager.CreateTask(DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name,
+                _taskManager.CreateTask(DateTime.Now, DateTime.Now, TimeSpan.Zero, tagIds, parentIds, childIds, name,
                     description: description);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("task created successfully\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("Enter task start time as \"yyyy-mm-dd hh:mm\": ");
+            Console.ForegroundColor = ConsoleColor.White;
+
             input = Console.ReadLine();
             DateTime startTime;
             if (string.IsNullOrEmpty(input))
                 startTime = DateTime.MinValue;
             else if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime))
             {
-                Console.WriteLine("Incorrect input\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect input\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
-            Console.Write("Enter task deadline as \"yyyy-MM-dd HH:mm\": ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("enter task deadline as \"yyyy-MM-dd HH:mm\": ");
+            Console.ForegroundColor = ConsoleColor.White;
+
             input = Console.ReadLine();
             DateTime deadline;
             if (string.IsNullOrEmpty(input))
                 deadline = DateTime.MinValue;
             else if (!DateTime.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out deadline))
             {
-                Console.WriteLine("Incorrect input\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect input\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
-            Console.Write("Is task repeated (y/n): ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("is task repeated (y/n): ");
+            Console.ForegroundColor = ConsoleColor.White;
+
             input = Console.ReadLine();
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Must be y of n\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
@@ -197,32 +265,35 @@ namespace Planum.ConsoleUI.ConsoleCommands
             {
                 _taskManager.CreateTask(startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
                     description: description, timed: true);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("task created successfully\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
 
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("Enter task repeat period as \"d:hh:mm\": ");
-            input = Console.ReadLine();
+            Console.ForegroundColor = ConsoleColor.White;
+
+            input = Console.ReadLine(); 
             TimeSpan repeatPeriod;
             if (string.IsNullOrEmpty(input))
                 repeatPeriod = TimeSpan.Zero;
             else if (!TimeSpan.TryParseExact(input, @"d\:hh\:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
             {
-                Console.WriteLine("Incorrect input\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("should have entered y or x\n");
+                Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
             Console.WriteLine();
             int newTaskId = _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
                 description: description, timed: true, isRepeated: true);
 
-            foreach (int taskId in parentIds)
-            {
-                _taskManager.AddChildToTask(taskId, newTaskId);
-            }
-
-            foreach (int taskId in childIds)
-            {
-                _taskManager.AddParentToTask(taskId, newTaskId);
-            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("task created successfully\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public string GetDescription()
