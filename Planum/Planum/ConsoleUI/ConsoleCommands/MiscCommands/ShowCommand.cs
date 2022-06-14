@@ -62,28 +62,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine();
         }
 
-        public void ShowTag(int id, bool showCategory = false, bool showDescription = false)
-        {
-            Serilog.Log.Information("show tag command was called");
-            Tag? tag = _tagManager.FindTag(id);
-            if (tag == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"tag with id={id} does not exist\n");
-                Console.ForegroundColor = ConsoleColor.White;
-                return;
-            }
-
-            TagListView tagListView = new TagListView();
-            tagListView.RenderTag(tag, showCategory, showDescription);
-        }
-
         public void ShowAllTags(bool showCategory = false, bool showDescription = false, List<string>? filters = null)
         {
             Serilog.Log.Information("show all tags command was called");
-            List<Tag> tags = _tagManager.GetAllTags();
+            List<Tag> filteredTags = _tagManager.GetAllTags();
 
-            if (tags.Count == 0)
+            if (filteredTags.Count == 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("there are no tags in the system\n");
@@ -92,19 +76,29 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             bool parseSuccessfull = true;
-            List<Tag> filteredTags = new List<Tag>();
             foreach (var filter in filters)
             {
                 if (filter.Substring(0, 4) == "-cat")
                 {
+                    List<Tag> tempList = new List<Tag>();
                     string category = filter.Substring(4);
-                    foreach (var tag in tags)
+                    foreach (var tag in filteredTags)
                     {
                         if (tag.Category == category)
-                        {
-                            filteredTags.Add(tag);
-                        }
+                            tempList.Add(tag);
                     }
+                    filteredTags = tempList;
+                }
+                else if (filter.Substring(0, 3) == "-id")
+                {
+                    List<Tag> tempList = new List<Tag>();
+                    int id = int.Parse(filter.Substring(3));
+                    foreach (var tag in filteredTags)
+                    {
+                        if (tag.Id == id)
+                            tempList.Add(tag);
+                    }
+                    filteredTags = tempList;
                 }
                 else
                 {
@@ -122,12 +116,16 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             TagListView tagListView = new TagListView();
-            tagListView.RenderTags(tags, showCategory, showDescription);
+            tagListView.RenderTags(filteredTags, showCategory, showDescription);
         }
 
         public void ShowTask()
         {
             Serilog.Log.Information("Show task command was called");
+            TaskListView taskListView = new TaskListView();
+            taskListView.RenderTask(_taskManager.FindTask(1), _tagManager, _taskManager,
+                true, true, true, true, true, true, true, true, true);
+            /*
             Console.Write("Enter task id: ");
             int taskId;
             if (!int.TryParse(Console.ReadLine(), out taskId))
@@ -170,6 +168,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine("Task is repeated: " + task.IsRepeated);
             Console.WriteLine("Task repeat period: " + task.RepeatPeriod.ToString());
             Console.WriteLine();
+            */
         }
 
         public void ShowAllTasks()
@@ -254,7 +253,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine();
         }
 
-        public void ShowAllArchived()
+        public void ShowAllArchivedTasks()
         {
             Serilog.Log.Information("Show all archived tasks command was called");
             List<Task> archivedTasks = _taskManager.GetAllTasks(true);
@@ -308,35 +307,55 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 bool parseSuccessfull = true;
                 bool showDescription = false;
                 bool showCategory = false;
-                bool showAll = true;
 
                 List<string> filters = new List<string>();
-                int id = -1;
 
                 List<string> argsList = new List<string>(args);
                 argsList.Remove("show");
                 argsList.Remove("tag");
 
+                // TODO: test new filter system for tag
                 for (int i = 0; i < argsList.Count; i++)
                 {
                     if (argsList[i] == "-c" && !showCategory)
                         showCategory = true;
                     else if (argsList[i] == "-d" && !showDescription)
                         showDescription = true;
-                    else if (argsList[i].Substring(0, 4) == "-id=" && showAll)
-                    {
-                        if (!int.TryParse(argsList[i].Substring(4), out id) || id < 0)
-                        {
-                            parseSuccessfull = false;
-                            break;
-                        }
-                        showAll = false;
-                    }
                     else if (argsList[i].Substring(0, 2) == "-s")
                     {
                         if (argsList[i].Substring(0, 7) == "-s-cat=")
                         {
+                            // replace filter algorythm
                             string category = argsList[i].Substring(7);
+                            i += 1;
+                            while (argsList[i][argsList[i].Length - 1] != '}' && i < argsList.Count)
+                            {
+                                category += " " + argsList[i];
+                                i += 1;
+                            }
+
+                            category = category.Replace("{", "");
+                            category = category.Replace("}", "");
+                            filters.Add("-cat" + category);
+
+                            if (i == argsList.Count)
+                                break;
+                            else
+                                i -= 1;
+                        }
+                        else if (argsList[i].Substring(0, 6) == "-s-id=")
+                        {
+                            int id;
+                            if (!int.TryParse(argsList[i].Substring(6), out id) || id < 0)
+                            {
+                                parseSuccessfull = false;
+                                break;
+                            }
+                            filters.Add("-id" + id.ToString());
+                        }
+                        else if (argsList[i].Substring(0, 8) == "-s-name=")
+                        {
+                            string category = argsList[i].Substring(8);
                             i += 1;
                             while (argsList[i][0] != '-' && i < argsList.Count)
                             {
@@ -362,17 +381,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                 if (parseSuccessfull)
                 {
-                    if (showAll)
-                    {
-                        ShowAllTags(showCategory, showDescription, filters);
-                        return;
-                    }
-                    else if (filters.Count == 0)
-                    {
-                        ShowTag(id, showCategory, showDescription);
-                        return;
-                    }
+                    ShowAllTags(showCategory, showDescription, filters);
                 }
+            }
+
+            if (args[args.Length - 1] == "task")
+            {
+                ShowTask();
             }
 
             Console.ForegroundColor = ConsoleColor.Red;
@@ -387,12 +402,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             else
                 return "displays objects, shows all existing by default\n" +
                     "flags:\n" +
-                    "-id={value} - specify id of displayed object, value of said id must be signed integer\n" +
                     "tag:\n" +
                     "-c - show category\n" +
                     "-d - show description\n" +
-                    "-s - sort by:\n" +
-                        "-cat={value} - sort by category (-s-cat=\"category 1\")\n" +
+                    "-f - filter by:\n" +
+                        "-cat={value} - filter by category (-f-cat={category 1})\n" +
+                        "-name={value} - filter by name (names) (-f-name=name_1)\n" +
+                        "-id={value} - filter by id (-f-id=1)\n" +
                     "task:\n" +
                     "-archived - show archived tasks\n" + 
                     "-l [options] - display tasks list with list options";

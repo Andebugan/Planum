@@ -1,7 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.ReactiveUI;
-using Planum.ConsoleUI;
+﻿using Planum.ConsoleUI;
 using Planum.ConsoleUI.ConsoleCommands;
 using Planum.ConsoleUI.ConsoleViews;
 using Planum.DataModels;
@@ -25,17 +22,8 @@ namespace Planum
 
     internal class Program
     {
-        // Initialization code. Don't use any Avalonia, third-party APIs or any
-        // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-        // yet and stuff might break.
-        
-
-        [STAThread]
         public static void Main(string[] args)
         {
-            //╒╕╘╛╞╡╤╧╪═
-            //┌┐└┘├┤─│
-            
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Debug()
@@ -60,15 +48,6 @@ namespace Planum
                 ConsoleShell console = new ConsoleShell(userManager, taskManager, tagManager);
                 console.MainLoop();
             }
-            if (displayType == "desktop")
-                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
-
-        // Avalonia configuration, don't remove; also used by visual designer.
-        public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
-                .UsePlatformDetect()
-                .LogToTrace()
-                .UseReactiveUI();
     }
 }
