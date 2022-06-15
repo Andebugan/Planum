@@ -46,9 +46,9 @@ namespace Planum.ConsoleUI.ConsoleViews
                 if (task.Archived)
                 {
                     if (showStatus)
-                        grid.Children.Add(new Cell("archived") { Align = Align.Left, Color = Yellow, ColumnSpan = 3 });
+                        grid.Children.Add(new Cell("archived") { Align = Align.Left, Color = Magenta, ColumnSpan = 3 });
                     else
-                        grid.Children.Add(new Cell("archived") { Align = Align.Left, Color = Yellow, ColumnSpan = 2 });
+                        grid.Children.Add(new Cell("archived") { Align = Align.Left, Color = Magenta, ColumnSpan = 2 });
                 }
                 else
                 // time logic (complete tasks are deleted or archived)

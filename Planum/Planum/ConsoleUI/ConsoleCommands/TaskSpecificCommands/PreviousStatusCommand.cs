@@ -48,17 +48,17 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "if task has status queue, moves current status index one step forwards (right)";
+            return "if task has status queue, moves current status index one step backwards (left)";
         }
 
         public string GetName()
         {
-            return "next -id={value} task";
+            return "previous -id={value} task";
         }
 
         public bool IsCommand(string command)
         {
-            if (command.Split()[0] == "next")
+            if (command.Split()[0] == "previous")
                 return true;
             return false;
         }

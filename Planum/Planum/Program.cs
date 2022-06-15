@@ -16,6 +16,7 @@ namespace Planum
 {
     // TODO:
     // add move status command with steps
+    // fix selectors and filters
     internal class Program
     {
         public static void Main(string[] args)

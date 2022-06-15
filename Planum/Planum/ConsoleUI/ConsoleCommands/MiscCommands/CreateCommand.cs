@@ -209,7 +209,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (input == "n")
             {
                 _taskManager.CreateTask(DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name,
-                true, description, true, statusIds);
+                false, description, false, statusIds);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("task created successfully\n");
                 Console.ForegroundColor = ConsoleColor.White;
@@ -264,7 +264,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (input == "n")
             {
                 _taskManager.CreateTask(startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
-                true, description, true, statusIds);
+                true, description, false, statusIds);
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("task created successfully\n");

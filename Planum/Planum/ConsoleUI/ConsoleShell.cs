@@ -18,7 +18,12 @@ namespace Planum.ConsoleUI
                 new CreateCommand(tagManager, userManager, taskManager),
                 new DeleteCommand(userManager, taskManager, tagManager),
                 new ShowCommand(userManager, taskManager, tagManager),
-                new UpdateCommand(userManager, taskManager, tagManager)
+                new UpdateCommand(userManager, taskManager, tagManager),
+                new ArchiveTaskCommand(taskManager, tagManager, userManager),
+                new CompleteTaskCommand(taskManager, tagManager, userManager),
+                new NextStatusCommand(taskManager, tagManager, userManager),
+                new PreviousStatusCommand(taskManager, tagManager, userManager),
+                new UnarchiveTaskCommand(taskManager, tagManager, userManager)
             };
 
             Commands = commands;

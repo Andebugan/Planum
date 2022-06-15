@@ -85,6 +85,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
             List<string> argsList = new List<string>(args);
             bool parseSuccessfull = true;
 
+            argsList.Remove("archive");
+            argsList.Remove("task");
+
             for (int i = 0; i < argsList.Count; i++)
             {
                 if (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr")
@@ -205,7 +208,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         // selector
                         foreach (var filter in filters)
                         {
-                            if (filter.Substring(0, 5) == "-sr-n")
+                            if (filter.Length > 5 && filter.Substring(0, 5) == "-sr-n")
                             {
                                 string name = filter.Substring(5);
                                 foreach (var task in tasks)
@@ -214,7 +217,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         selectedTasks.Add(task);
                                 }
                             }
-                            else if (filter.Substring(0, 5) == "-sr-i")
+                            else if (filter.Length > 5 && filter.Substring(0, 5) == "-sr-i")
                             {
                                 int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
@@ -223,7 +226,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         selectedTasks.Add(task);
                                 }
                             }
-                            else if (filter.Substring(0, 7) == "-sr-csn")
+                            else if (filter.Length > 7 && filter.Substring(0, 7) == "-sr-csn")
                             {
                                 string currentStatusName = filter.Substring(7);
                                 foreach (var task in tasks)
@@ -240,7 +243,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 7) == "-sr-csi")
+                            else if (filter.Length > 7 && filter.Substring(0, 7) == "-sr-csi")
                             {
                                 int id = int.Parse(filter.Substring(7));
                                 foreach (var task in tasks)
@@ -256,7 +259,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 6) == "-sr-tn")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-tn")
                             {
                                 string tagName = filter.Substring(6);
                                 foreach (var task in tasks)
@@ -275,7 +278,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 6) == "-sr-ti")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-ti")
                             {
                                 int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
@@ -293,7 +296,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 6) == "-sr-pn")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-pn")
                             {
                                 string parentName = filter.Substring(6);
                                 foreach (var task in tasks)
@@ -312,7 +315,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 6) == "-sr-pi")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-pi")
                             {
                                 int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
@@ -330,7 +333,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 6) == "-sr-cn")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-cn")
                             {
                                 string childName = filter.Substring(6);
                                 foreach (var task in tasks)
@@ -349,7 +352,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 6) == "-sr-ci")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-ci")
                             {
                                 int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
@@ -367,7 +370,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                     }
                                 }
                             }
-                            else if (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr")
+                            else if (filter.Length < 3 || (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr"))
                             {
                                 parseSuccessfull = false;
                                 break;
@@ -380,10 +383,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         // filter
                         foreach (var filter in filters)
                         {
-                            if (filter.Substring(0, 5) == "-f-n")
+                            if (filter.Length > 4 && filter.Substring(0, 4) == "-f-n")
                             {
                                 List<Task> tempList = new List<Task>();
-                                string name = filter.Substring(5);
+                                string name = filter.Substring(4);
                                 foreach (var task in filteredTasks)
                                 {
                                     if (task.Name == name)
@@ -391,10 +394,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 5) == "-f-i")
+                            else if (filter.Length > 4 && filter.Substring(0, 4) == "-f-i")
                             {
                                 List<Task> tempList = new List<Task>();
-                                int id = int.Parse(filter.Substring(5));
+                                int id = int.Parse(filter.Substring(4));
                                 foreach (var task in tasks)
                                 {
                                     if (task.Id == id)
@@ -402,10 +405,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 7) == "-f-csn")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-f-csn")
                             {
                                 List<Task> tempList = new List<Task>();
-                                string currentStatusName = filter.Substring(7);
+                                string currentStatusName = filter.Substring(6);
                                 foreach (var task in tasks)
                                 {
                                     if (task.StatusQueueIds.Count > 0)
@@ -421,10 +424,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 7) == "-f-csi")
+                            else if (filter.Length > 6 && filter.Substring(0, 6) == "-f-csi")
                             {
                                 List<Task> tempList = new List<Task>();
-                                int id = int.Parse(filter.Substring(7));
+                                int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
                                 {
                                     if (task.StatusQueueIds.Count > 0)
@@ -439,10 +442,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 6) == "-f-tn")
+                            else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-tn")
                             {
                                 List<Task> tempList = new List<Task>();
-                                string tagName = filter.Substring(6);
+                                string tagName = filter.Substring(5);
                                 foreach (var task in tasks)
                                 {
                                     if (task.TagIds.Count > 0)
@@ -460,10 +463,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 6) == "-f-ti")
+                            else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-ti")
                             {
                                 List<Task> tempList = new List<Task>();
-                                int id = int.Parse(filter.Substring(6));
+                                int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
                                 {
                                     if (task.TagIds.Count > 0)
@@ -480,10 +483,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 6) == "-f-pn")
+                            else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-pn")
                             {
                                 List<Task> tempList = new List<Task>();
-                                string parentName = filter.Substring(6);
+                                string parentName = filter.Substring(5);
                                 foreach (var task in tasks)
                                 {
                                     if (task.ParentIds.Count > 0)
@@ -501,10 +504,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 6) == "-f-pi")
+                            else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-pi")
                             {
                                 List<Task> tempList = new List<Task>();
-                                int id = int.Parse(filter.Substring(6));
+                                int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
                                 {
                                     if (task.ParentIds.Count > 0)
@@ -521,10 +524,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 6) == "-f-cn")
+                            else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-cn")
                             {
                                 List<Task> tempList = new List<Task>();
-                                string childName = filter.Substring(6);
+                                string childName = filter.Substring(5);
                                 foreach (var task in tasks)
                                 {
                                     if (task.ChildIds.Count > 0)
@@ -542,10 +545,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 6) == "-f-ci")
+                            else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-ci")
                             {
                                 List<Task> tempList = new List<Task>();
-                                int id = int.Parse(filter.Substring(6));
+                                int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
                                 {
                                     if (task.ChildIds.Count > 0)
@@ -562,7 +565,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                 }
                                 filteredTasks = tempList;
                             }
-                            else if (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr")
+                            else if (filter.Length < 3 || (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr"))
                             {
                                 parseSuccessfull = false;
                                 break;
@@ -630,7 +633,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public bool IsCommand(string command)
         {
-            if (command == "archive")
+            if (command.Split()[0] == "archive")
                 return true;
             return false;
         }
