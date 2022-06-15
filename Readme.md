@@ -1,1 +1,1 @@
-Simple app for personal organization
+# Console version
