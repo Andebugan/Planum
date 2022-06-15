@@ -14,7 +14,10 @@ namespace Planum.Config
 
         public static ConfigJson LoadConfig()
         {
-            using StreamReader r = new StreamReader(configPath);
+            var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+            exeName = exeName.Replace("file:///", "");
+            var systemPath = Path.GetDirectoryName(exeName);
+            using StreamReader r = new StreamReader(Path.Combine(systemPath, configPath));
             string json = r.ReadToEnd();
             return JsonConvert.DeserializeObject<ConfigJson>(json);
         }
@@ -25,6 +28,5 @@ namespace Planum.Config
         public string TagRepoFilePath { get; set; }
         public string TaskRepoFilePath { get; set; }
         public string UserRepoFilePath { get; set; }
-        public string DisplayType { get; set; }
     }
 }

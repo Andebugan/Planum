@@ -27,26 +27,22 @@ namespace Planum
             .WriteTo.File("logs\\planumLogs.log", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
-            string displayType = Config.ConfigData.LoadConfig().DisplayType;
-            if (displayType == "console")
-            {
-                IUserRepo userRepo = new UserRepoFile(new UserDTOComparator());
-                ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
-                ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
+            IUserRepo userRepo = new UserRepoFile(new UserDTOComparator());
+            ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
+            ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
 
-                //((TaskRepoFile)taskRepo).Reset();
+            //((TaskRepoFile)taskRepo).Reset();
 
-                ITaskConverter taskConverter = new TaskConverter();
-                ITagConverter tagConverter = new TagConverter();
-                IUserConverter userConverter = new UserConverter();
+            ITaskConverter taskConverter = new TaskConverter();
+            ITagConverter tagConverter = new TagConverter();
+            IUserConverter userConverter = new UserConverter();
 
-                IUserManager userManager = new UserManager(userRepo, userConverter);
-                ITaskManager taskManager = new TaskManager(taskRepo, taskConverter, userManager);
-                ITagManager tagManager = new TagManager(tagRepo, taskManager, tagConverter, userManager);
+            IUserManager userManager = new UserManager(userRepo, userConverter);
+            ITaskManager taskManager = new TaskManager(taskRepo, taskConverter, userManager);
+            ITagManager tagManager = new TagManager(tagRepo, taskManager, tagConverter, userManager);
 
-                ConsoleShell console = new ConsoleShell(userManager, taskManager, tagManager);
-                console.MainLoop();
-            }
+            ConsoleShell console = new ConsoleShell(userManager, taskManager, tagManager);
+            console.MainLoop();
         }
     }
 }
