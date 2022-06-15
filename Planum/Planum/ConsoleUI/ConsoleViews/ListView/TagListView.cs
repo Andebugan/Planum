@@ -46,7 +46,7 @@ namespace Planum.ConsoleUI.ConsoleViews
             if (grid.Children.Count == 0)
             {
                 Console.ForegroundColor = Cyan;
-                Console.WriteLine("none of the tags match the given paremeters");
+                Console.WriteLine("none of the tags match the given paremeters\n");
                 Console.ForegroundColor = White;
                 return;
             }
