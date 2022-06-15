@@ -277,9 +277,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public void UpdateTask()
+        public void UpdateTask(int id)
         {
-            Serilog.Log.Information("Update task command was called");
+            Log.Information("update task command was called");
             Console.Write("Enter task id: ");
             int id;
             if (!int.TryParse(Console.ReadLine(), out id))
@@ -429,6 +429,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 }
             }
 
+            if (args[args.Length - 1] == "task" && args.Length == 3)
+            {
+                if (args[1].Substring(0, 4) == "-id=")
+                {
+                    int id = -1;
+                    if (int.TryParse(args[1].Substring(4), out id) && id >= 0)
+                    {
+                        UpdateTask(id);
+                        return;
+                    }
+                }
+            }
+
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("incorrect command parameters\n");
             Console.ForegroundColor = ConsoleColor.White;
@@ -441,7 +454,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetName()
         {
-            return "update -id={value} task|tag\n" +
+            return "update -id={value} task\n" +
+                "update -id={value} tag\n" +
                 "update user";
         }
 

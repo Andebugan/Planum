@@ -60,9 +60,12 @@ namespace Planum.ConsoleUI
 
                 if (input == "help")
                 {
-                    // [] - optional
-                    // | - or
-                    // {} - mandatory
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("general tips:");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("[] - stands for optional parameter\n" +
+                        "{} - mandatory parameter, in input used to signal multiword string\n" +
+                        ", for example: -name={some long name with spaces}");
                     Console.ForegroundColor = ConsoleColor.DarkCyan;
                     Console.WriteLine("avalible commands:");
                     Console.ForegroundColor = ConsoleColor.White;

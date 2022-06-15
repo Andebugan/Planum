@@ -65,45 +65,106 @@ namespace Planum.ConsoleUI.ConsoleCommands
         public void ShowAllTags(bool showCategory = false, bool showDescription = false, List<string>? filters = null)
         {
             Serilog.Log.Information("show all tags command was called");
-            List<Tag> filteredTags = _tagManager.GetAllTags();
-
-            if (filteredTags.Count == 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("there are no tags in the system\n");
-                Console.ForegroundColor = ConsoleColor.White;
-                return;
-            }
 
             bool parseSuccessfull = true;
-            foreach (var filter in filters)
+
+            List<Tag> tags = _tagManager.GetAllTags();
+            List<Tag> filteredTags = tags;
+
+            if (filters != null && filters.Count != 0)
             {
-                if (filter.Substring(0, 4) == "-cat")
+
+                if (tags.Count == 0)
                 {
-                    List<Tag> tempList = new List<Tag>();
-                    string category = filter.Substring(4);
-                    foreach (var tag in filteredTags)
-                    {
-                        if (tag.Category == category)
-                            tempList.Add(tag);
-                    }
-                    filteredTags = tempList;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("there are no tags in the system\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
                 }
-                else if (filter.Substring(0, 3) == "-id")
+
+                List<Tag> selectedTags = new List<Tag>();
+
+                // selector
+                foreach (var filter in filters)
                 {
-                    List<Tag> tempList = new List<Tag>();
-                    int id = int.Parse(filter.Substring(3));
-                    foreach (var tag in filteredTags)
+                    if (filter.Substring(0, 5) == "-sr-c")
                     {
-                        if (tag.Id == id)
-                            tempList.Add(tag);
+                        string category = filter.Substring(5);
+                        foreach (var tag in tags)
+                        {
+                            if (tag.Category == category)
+                                selectedTags.Add(tag);
+                        }
                     }
-                    filteredTags = tempList;
+                    else if (filter.Substring(0, 5) == "-sr-i")
+                    {
+                        int id = int.Parse(filter.Substring(5));
+                        foreach (var tag in tags)
+                        {
+                            if (tag.Id == id)
+                                selectedTags.Add(tag);
+                        }
+                    }
+                    else if (filter.Substring(0, 5) == "-sr-n")
+                    {
+                        string name = filter.Substring(5);
+                        foreach (var tag in tags)
+                        {
+                            if (tag.Name == name)
+                                selectedTags.Add(tag);
+                        }
+                    }
+                    else if (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr")
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
                 }
-                else
+
+                if (selectedTags.Count > 0)
+                    filteredTags = selectedTags;
+
+                // filter
+                foreach (var filter in filters)
                 {
-                    parseSuccessfull = false;
-                    break;
+                    if (filter.Substring(0, 4) == "-f-c")
+                    {
+                        List<Tag> tempList = new List<Tag>();
+                        string category = filter.Substring(4);
+                        foreach (var tag in filteredTags)
+                        {
+                            if (tag.Category == category)
+                                tempList.Add(tag);
+                        }
+                        filteredTags = tempList;
+                    }
+                    else if (filter.Substring(0, 4) == "-f-i")
+                    {
+                        List<Tag> tempList = new List<Tag>();
+                        int id = int.Parse(filter.Substring(4));
+                        foreach (var tag in filteredTags)
+                        {
+                            if (tag.Id == id)
+                                tempList.Add(tag);
+                        }
+                        filteredTags = tempList;
+                    }
+                    else if (filter.Substring(0, 4) == "-f-n")
+                    {
+                        List<Tag> tempList = new List<Tag>();
+                        string name = filter.Substring(4);
+                        foreach (var tag in filteredTags)
+                        {
+                            if (tag.Name == name)
+                                tempList.Add(tag);
+                        }
+                        filteredTags = tempList;
+                    }
+                    else if (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr")
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
                 }
             }
 
@@ -119,168 +180,489 @@ namespace Planum.ConsoleUI.ConsoleCommands
             tagListView.RenderTags(filteredTags, showCategory, showDescription);
         }
 
-        public void ShowTask()
+        public void ShowAllTasks(
+            bool showDescription = false,
+            bool showTags = false,
+            bool showStatus = false,
+            bool showParent = false,
+            bool showChildren = false,
+            bool showStatusQueue = false,
+            bool showStartTime = false,
+            bool showDeadline = false,
+            bool showRepeatPeriod = false,
+            bool showArchivedTasks = false,
+            bool showOnlyArchivedTasks = false, List<string>? filters = null)
         {
-            Serilog.Log.Information("Show task command was called");
+            Serilog.Log.Information("show all tasks command was called");
+
+            List<Task> tasks = new List<Task>();
+            if (showOnlyArchivedTasks)
+                tasks = _taskManager.GetAllTasks(true);
+            else if (showArchivedTasks)
+                tasks = _taskManager.GetAllTasks(null);
+            else
+                tasks = _taskManager.GetAllTasks(false);
+
+            bool parseSuccessfull = true;
+            List<Task> filteredTasks = tasks;
+
+            if (filters != null && filters.Count != 0)
+            {
+
+                if (tasks.Count == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("there are no tasks in the system\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+
+                List<Task> selectedTasks = new List<Task>();
+
+                // selector
+                foreach (var filter in filters)
+                {
+                    if (filter.Substring(0, 5) == "-sr-n")
+                    {
+                        string name = filter.Substring(5);
+                        foreach (var task in tasks)
+                        {
+                            if (task.Name == name)
+                                selectedTasks.Add(task);
+                        }
+                    }
+                    else if (filter.Substring(0, 5) == "-sr-i")
+                    {
+                        int id = int.Parse(filter.Substring(5));
+                        foreach (var task in tasks)
+                        {
+                            if (task.Id == id)
+                                selectedTasks.Add(task);
+                        }
+                    }
+                    else if (filter.Substring(0, 7) == "-sr-csn")
+                    {
+                        string currentStatusName = filter.Substring(7);
+                        foreach (var task in tasks)
+                        {
+                            if (task.StatusQueueIds.Count > 0)
+                            {
+                                int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
+                                if (_tagManager.FindTag(statusTagId) != null && 
+                                    _tagManager.FindTag(statusTagId).Name == currentStatusName)
+                                {
+                                    selectedTasks.Add(task);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 7) == "-sr-csi")
+                    {
+                        int id = int.Parse(filter.Substring(7));
+                        foreach (var task in tasks)
+                        {
+                            if (task.StatusQueueIds.Count > 0)
+                            {
+                                int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
+                                if (statusTagId == id)
+                                {
+                                    selectedTasks.Add(task);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 6) == "-sr-tn")
+                    {
+                        string tagName = filter.Substring(6);
+                        foreach (var task in tasks)
+                        {
+                            if (task.TagIds.Count > 0)
+                            {
+                                foreach (var tag in task.TagIds)
+                                {
+                                    if (_tagManager.FindTag(tag) != null &&
+                                        _tagManager.FindTag(tag).Name == tagName)
+                                        {
+                                            selectedTasks.Add(task);
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 6) == "-sr-ti")
+                    {
+                        int id = int.Parse(filter.Substring(6));
+                        foreach (var task in tasks)
+                        {
+                            if (task.TagIds.Count > 0)
+                            {
+                                foreach (var tag in task.TagIds)
+                                {
+                                    if (tag == id)
+                                    {
+                                        selectedTasks.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 6) == "-sr-pn")
+                    {
+                        string parentName = filter.Substring(6);
+                        foreach (var task in tasks)
+                        {
+                            if (task.ParentIds.Count > 0)
+                            {
+                                foreach (var parent in task.ParentIds)
+                                {
+                                    if (_taskManager.FindTask(parent) != null &&
+                                        _taskManager.FindTask(parent).Name == parentName)
+                                        {
+                                            selectedTasks.Add(task);
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 6) == "-sr-pi")
+                    {
+                        int id = int.Parse(filter.Substring(6));
+                        foreach (var task in tasks)
+                        {
+                            if (task.ParentIds.Count > 0)
+                            {
+                                foreach (var parent in task.ParentIds)
+                                {
+                                    if (parent == id)
+                                    {
+                                        selectedTasks.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 6) == "-sr-cn")
+                    {
+                        string childName = filter.Substring(6);
+                        foreach (var task in tasks)
+                        {
+                            if (task.ChildIds.Count > 0)
+                            {
+                                foreach (var child in task.ChildIds)
+                                {
+                                    if (_taskManager.FindTask(child) != null &&
+                                        _taskManager.FindTask(child).Name == childName)
+                                        {
+                                            selectedTasks.Add(task);
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 6) == "-sr-ci")
+                    {
+                        int id = int.Parse(filter.Substring(6));
+                        foreach (var task in tasks)
+                        {
+                            if (task.ChildIds.Count > 0)
+                            {
+                                foreach (var child in task.ChildIds)
+                                {
+                                    if (child == id)
+                                    {
+                                        selectedTasks.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr")
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                }
+
+                if (selectedTasks.Count > 0)
+                    filteredTasks = selectedTasks;
+
+                // filter
+                foreach (var filter in filters)
+                {
+                    if (filter.Substring(0, 5) == "-f-n")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        string name = filter.Substring(5);
+                        foreach (var task in filteredTasks)
+                        {
+                            if (task.Name == name)
+                                tempList.Add(task);
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 5) == "-f-i")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        int id = int.Parse(filter.Substring(5));
+                        foreach (var task in tasks)
+                        {
+                            if (task.Id == id)
+                                tempList.Add(task);
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 7) == "-f-csn")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        string currentStatusName = filter.Substring(7);
+                        foreach (var task in tasks)
+                        {
+                            if (task.StatusQueueIds.Count > 0)
+                            {
+                                int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
+                                if (_tagManager.FindTag(statusTagId) != null &&
+                                    _tagManager.FindTag(statusTagId).Name == currentStatusName)
+                                {
+                                    tempList.Add(task);
+                                    break;
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 7) == "-f-csi")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        int id = int.Parse(filter.Substring(7));
+                        foreach (var task in tasks)
+                        {
+                            if (task.StatusQueueIds.Count > 0)
+                            {
+                                int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
+                                if (statusTagId == id)
+                                {
+                                    tempList.Add(task);
+                                    break;
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 6) == "-f-tn")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        string tagName = filter.Substring(6);
+                        foreach (var task in tasks)
+                        {
+                            if (task.TagIds.Count > 0)
+                            {
+                                foreach (var tag in task.TagIds)
+                                {
+                                    if (_tagManager.FindTag(tag) != null &&
+                                        _tagManager.FindTag(tag).Name == tagName)
+                                    {
+                                        tempList.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 6) == "-f-ti")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        int id = int.Parse(filter.Substring(6));
+                        foreach (var task in tasks)
+                        {
+                            if (task.TagIds.Count > 0)
+                            {
+                                foreach (var tag in task.TagIds)
+                                {
+                                    if (tag == id)
+                                    {
+                                        tempList.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 6) == "-f-pn")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        string parentName = filter.Substring(6);
+                        foreach (var task in tasks)
+                        {
+                            if (task.ParentIds.Count > 0)
+                            {
+                                foreach (var parent in task.ParentIds)
+                                {
+                                    if (_taskManager.FindTask(parent) != null &&
+                                        _taskManager.FindTask(parent).Name == parentName)
+                                    {
+                                        tempList.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 6) == "-f-pi")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        int id = int.Parse(filter.Substring(6));
+                        foreach (var task in tasks)
+                        {
+                            if (task.ParentIds.Count > 0)
+                            {
+                                foreach (var parent in task.ParentIds)
+                                {
+                                    if (parent == id)
+                                    {
+                                        tempList.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 6) == "-f-cn")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        string childName = filter.Substring(6);
+                        foreach (var task in tasks)
+                        {
+                            if (task.ChildIds.Count > 0)
+                            {
+                                foreach (var child in task.ChildIds)
+                                {
+                                    if (_taskManager.FindTask(child) != null &&
+                                        _taskManager.FindTask(child).Name == childName)
+                                    {
+                                        tempList.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 6) == "-f-ci")
+                    {
+                        List<Task> tempList = new List<Task>();
+                        int id = int.Parse(filter.Substring(6));
+                        foreach (var task in tasks)
+                        {
+                            if (task.ChildIds.Count > 0)
+                            {
+                                foreach (var child in task.ChildIds)
+                                {
+                                    if (child == id)
+                                    {
+                                        tempList.Add(task);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        filteredTasks = tempList;
+                    }
+                    else if (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr")
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!parseSuccessfull)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("incorrect filter parameters\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
             TaskListView taskListView = new TaskListView();
-            taskListView.RenderTask(_taskManager.FindTask(1), _tagManager, _taskManager,
-                true, true, true, true, true, true, true, true, true);
-            /*
-            Console.Write("Enter task id: ");
-            int taskId;
-            if (!int.TryParse(Console.ReadLine(), out taskId))
-            {
-                Console.WriteLine("Task id must be signed integer\n");
-                return;
-            }
-
-            Task? task = _taskManager.FindTask(taskId);
-
-            if (task == null)
-            {
-                Console.WriteLine("Task with specified id does not exist\n");
-                return;
-            }
-
-            Console.WriteLine("Task id: " + task.Id);
-            Console.WriteLine("Task name: " + task.Name);
-            Console.WriteLine("Task description: " + task.Description);
-            Console.Write("Task tags: ");
-            foreach (int id in task.TagIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task current status: " + task.StatusQueueIds[task.CurrentStatusIndex]);
-            Console.Write("Task statuses: ");
-            foreach (int id in task.StatusQueueIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task parents: ");
-            foreach (int id in task.ParentIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task children: ");
-            foreach (int id in task.ChildIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task is timed: " + task.Timed);
-            Console.WriteLine("Task start time: " + task.StartTime.ToString());
-            Console.WriteLine("Task deadline: " + task.Deadline.ToString());
-            Console.WriteLine("Task is repeated: " + task.IsRepeated);
-            Console.WriteLine("Task repeat period: " + task.RepeatPeriod.ToString());
-            Console.WriteLine();
-            */
+            taskListView.RenderTasks(filteredTasks, _tagManager, _taskManager,
+                showDescription,
+                showTags,
+                showStatus,
+                showParent,
+                showChildren,
+                showStatusQueue,
+                showStartTime,
+                showDeadline,
+                showRepeatPeriod);
         }
 
-        public void ShowAllTasks()
+        public int TryGetIdFilter(string filterName, string parsedString, ref List<string> filters)
         {
-            Serilog.Log.Information("Show all tasks command was called");
-            List<Task> tasks = _taskManager.GetAllTasks();
-            foreach (Task task in tasks)
+            string filter = filterName + "=";
+            if (parsedString.Length > filter.Length && parsedString.Substring(0, filter.Length) == filter)
             {
-                Console.WriteLine("Task id: " + task.Id);
-                Console.WriteLine("Task name: " + task.Name);
-                Console.WriteLine("Task description: " + task.Description);
-                Console.Write("Task tags: ");
-                foreach (int id in task.TagIds)
-                    Console.Write(id + " ");
-                Console.WriteLine();
-                Console.WriteLine("Task current status: " + task.StatusQueueIds[task.CurrentStatusIndex]);
-                Console.Write("Task statuses: ");
-                foreach (int id in task.StatusQueueIds)
-                    Console.Write(id + " ");
-                Console.WriteLine();
-                Console.WriteLine("Task parents: ");
-                foreach (int id in task.ParentIds)
-                    Console.Write(id + " ");
-                Console.WriteLine();
-                Console.WriteLine("Task children: ");
-                foreach (int id in task.ChildIds)
-                    Console.Write(id + " ");
-                Console.WriteLine();
-                Console.WriteLine("Task is timed: " + task.Timed);
-                Console.WriteLine("Task start time: " + task.StartTime.ToString());
-                Console.WriteLine("Task deadline: " + task.Deadline.ToString());
-                Console.WriteLine("Task is repeated: " + task.IsRepeated);
-                Console.WriteLine("Task repeat period: " + task.RepeatPeriod.ToString());
-                Console.WriteLine();
+                int id;
+                if (!int.TryParse(parsedString.Substring(filter.Length), out id) || id < 0)
+                {
+                    return -1;
+                }
+                filters.Add(filterName + id.ToString());
+                return 0;
             }
+            return 1;
         }
 
-        public void ShowArchivedTasks()
+        public int TryGetStringFilter(string filterName, ref List<string> argsList, ref List<string> filters, ref int i)
         {
-            Serilog.Log.Information("Show archived task command was called");
-            Console.Write("Enter task id: ");
-            int taskId;
-            if (!int.TryParse(Console.ReadLine(), out taskId))
+            string filter = filterName + "=";
+            if (argsList[i].Length > filter.Length && argsList[i].Substring(0, filter.Length) == filter)
             {
-                Console.WriteLine("Task id must be signed integer\n");
-                return;
+                string filterValue = argsList[i].Substring(filter.Length);
+
+                if (filterValue[0] == '{' && filterValue[filterValue.Length - 1] == '}')
+                {
+                    filterValue = filterValue.Replace("{", "");
+                    filterValue = filterValue.Replace("}", "");
+                }
+                else if (filterValue[0] == '{' && filterValue[filterValue.Length - 1] != '}')
+                {
+                    i += 1;
+                    while (i < argsList.Count)
+                    {
+                        filterValue += " " + argsList[i];
+                        if (argsList[i][argsList[i].Length - 1] == '}')
+                        {
+                            i += 1;
+                            break;
+                        }
+                        i += 1;
+                    }
+
+                    filterValue = filterValue.Replace("{", "");
+                    filterValue = filterValue.Replace("}", "");
+
+                    if (i == argsList.Count)
+                        return -2;
+                    else
+                        i -= 1;
+                }
+
+                filters.Add(filterName + filterValue);
+                return 0;
             }
-
-            Task? archivedTask = _taskManager.FindTask(taskId, true);
-
-            if (archivedTask == null)
-            {
-                Console.WriteLine("Task with specified id does not exist\n");
-                return;
-            }
-
-            Console.WriteLine("Task id: " + archivedTask.Id);
-            Console.WriteLine("Task name: " + archivedTask.Name);
-            Console.WriteLine("Task description: " + archivedTask.Description);
-            Console.Write("Task tags: ");
-            foreach (int id in archivedTask.TagIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task current status: " + archivedTask.StatusQueueIds[archivedTask.CurrentStatusIndex]);
-            Console.Write("Task statuses: ");
-            foreach (int id in archivedTask.StatusQueueIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task parents: ");
-            foreach (int id in archivedTask.ParentIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task children: ");
-            foreach (int id in archivedTask.ChildIds)
-                Console.Write(id + " ");
-            Console.WriteLine();
-            Console.WriteLine("Task is timed: " + archivedTask.Timed);
-            Console.WriteLine("Task start time: " + archivedTask.StartTime.ToString());
-            Console.WriteLine("Task deadline: " + archivedTask.Deadline.ToString());
-            Console.WriteLine("Task is repeated: " + archivedTask.IsRepeated);
-            Console.WriteLine("Task repeat period: " + archivedTask.RepeatPeriod.ToString());
-            Console.WriteLine();
-        }
-
-        public void ShowAllArchivedTasks()
-        {
-            Serilog.Log.Information("Show all archived tasks command was called");
-            List<Task> archivedTasks = _taskManager.GetAllTasks(true);
-            foreach (Task archivedTask in archivedTasks)
-            {
-                Console.WriteLine("Task id: " + archivedTask.Id);
-                Console.WriteLine("Task name: " + archivedTask.Name);
-                Console.WriteLine("Task description: " + archivedTask.Description);
-                Console.Write("Task tags: ");
-                foreach (int id in archivedTask.TagIds)
-                    Console.Write(id + " ");
-                Console.WriteLine();
-                Console.WriteLine("Task parents: ");
-                foreach (int id in archivedTask.ParentIds)
-                    Console.Write(id + " ");
-                Console.WriteLine();
-                Console.WriteLine("Task children: ");
-                foreach (int id in archivedTask.ChildIds)
-                    Console.Write(id + " ");
-                Console.WriteLine();
-                Console.WriteLine("Task is timed: " + archivedTask.Timed);
-                Console.WriteLine("Task start time: " + archivedTask.StartTime.ToString());
-                Console.WriteLine("Task deadline: " + archivedTask.Deadline.ToString());
-                Console.WriteLine("Task is repeated: " + archivedTask.IsRepeated);
-                Console.WriteLine("Task repeat period: " + archivedTask.RepeatPeriod.ToString());
-                Console.WriteLine();
-            }
+            return 1;
         }
 
         public void Execute(string command)
@@ -314,63 +696,61 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 argsList.Remove("show");
                 argsList.Remove("tag");
 
-                // TODO: test new filter system for tag
                 for (int i = 0; i < argsList.Count; i++)
                 {
                     if (argsList[i] == "-c" && !showCategory)
                         showCategory = true;
                     else if (argsList[i] == "-d" && !showDescription)
                         showDescription = true;
-                    else if (argsList[i].Substring(0, 2) == "-s")
+                    else if (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr")
                     {
-                        if (argsList[i].Substring(0, 7) == "-s-cat=")
+                        string[] intFilters =
                         {
-                            // replace filter algorythm
-                            string category = argsList[i].Substring(7);
-                            i += 1;
-                            while (argsList[i][argsList[i].Length - 1] != '}' && i < argsList.Count)
-                            {
-                                category += " " + argsList[i];
-                                i += 1;
-                            }
+                            "-f-i",
+                            "-sr-i"
+                        };
 
-                            category = category.Replace("{", "");
-                            category = category.Replace("}", "");
-                            filters.Add("-cat" + category);
-
-                            if (i == argsList.Count)
-                                break;
-                            else
-                                i -= 1;
-                        }
-                        else if (argsList[i].Substring(0, 6) == "-s-id=")
+                        string[] stringFilters =
                         {
-                            int id;
-                            if (!int.TryParse(argsList[i].Substring(6), out id) || id < 0)
+                            "-f-n",
+                            "-sr-n",
+                            "-f-c",
+                            "-sr-c"
+                        };
+
+                        bool needBreak = false;
+                        foreach (string filter in intFilters)
+                        {
+                            int rc = TryGetIdFilter(filter, argsList[i], ref filters);
+                            if (rc == -1)
                             {
+                                needBreak = true;
                                 parseSuccessfull = false;
                                 break;
                             }
-                            filters.Add("-id" + id.ToString());
                         }
-                        else if (argsList[i].Substring(0, 8) == "-s-name=")
+
+                        if (needBreak)
+                            break;
+
+                        foreach (string filter in stringFilters)
                         {
-                            string category = argsList[i].Substring(8);
-                            i += 1;
-                            while (argsList[i][0] != '-' && i < argsList.Count)
+                            int rc = TryGetStringFilter(filter, ref argsList, ref filters, ref i);
+                            if (rc == -1)
                             {
-                                category += " " + argsList[i];
-                                i += 1;
-                            }
-
-                            category = category.Replace("\"", "");
-                            filters.Add("-cat" + category);
-
-                            if (i == argsList.Count)
+                                needBreak = true;
+                                parseSuccessfull = false;
                                 break;
-                            else
-                                i -= 1;
+                            }
+                            else if (rc == -2)
+                            {
+                                needBreak = true;
+                                break;
+                            }
                         }
+
+                        if (needBreak)
+                            break;
                     }
                     else
                     {
@@ -382,12 +762,158 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 if (parseSuccessfull)
                 {
                     ShowAllTags(showCategory, showDescription, filters);
+                    return;
                 }
             }
 
             if (args[args.Length - 1] == "task")
             {
-                ShowTask();
+                bool parseSuccessfull = true;
+                bool showDescription = false;
+                bool showTags = false;
+                bool showStatus = false;
+                bool showParent = false;
+                bool showChildren = false;
+                bool showStatusQueue = false;
+                bool showStartTime = false;
+                bool showDeadline = false;
+                bool showRepeatPeriod = false;
+                bool showArchivedTasks = false;
+                bool showOnlyArchivedTasks = false;
+                string displayType = "l";
+
+                List<string> filters = new List<string>();
+
+                List<string> argsList = new List<string>(args);
+                argsList.Remove("show");
+                argsList.Remove("task");
+
+                for (int i = 0; i < argsList.Count; i++)
+                {
+                    if (argsList[i] == "-all")
+                    {
+                        showDescription = true;
+                        showTags = true;
+                        showStatus = true;
+                        showParent = true;
+                        showChildren = true;
+                        showStatusQueue = true;
+                        showStartTime = true;
+                        showDeadline = true;
+                        showRepeatPeriod = true;
+                    }
+                    else if (argsList[i] == "-d" && !showDescription)
+                        showDescription = true;
+                    else if (argsList[i] == "-t" && !showTags)
+                        showTags = true;
+                    else if (argsList[i] == "-s" && !showStatus)
+                        showStatus = true;
+                    else if (argsList[i] == "-p" && !showParent)
+                        showParent = true;
+                    else if (argsList[i] == "-c" && !showChildren)
+                        showChildren = true;
+                    else if (argsList[i] == "-sq" && !showStatusQueue)
+                        showStatusQueue = true;
+                    else if (argsList[i] == "-st" && !showStartTime)
+                        showStartTime = true;
+                    else if (argsList[i] == "-dl" && !showDeadline)
+                        showDeadline = true;
+                    else if (argsList[i] == "-rp" && !showRepeatPeriod)
+                        showRepeatPeriod = true;
+                    else if (argsList[i] == "-rp" && !showRepeatPeriod)
+                        showRepeatPeriod = true;
+                    else if (argsList[i] == "-a" && !showArchivedTasks)
+                        showArchivedTasks = true;
+                    else if (argsList[i] == "-ao" && !showOnlyArchivedTasks)
+                        showOnlyArchivedTasks = true;
+                    else if (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr")
+                    {
+                        string[] intFilters =
+                        {
+                            "-f-i",
+                            "-f-csi",
+                            "-f-ti",
+                            "-f-pi",
+                            "-f-ci",
+                            "-sr-i",
+                            "-sr-csi",
+                            "-sr-ti",
+                            "-sr-pi",
+                            "-sr-ci"
+                        };
+
+                        string[] stringFilters =
+                        {
+                            "-f-n",
+                            "-f-csn",
+                            "-f-tn",
+                            "-f-pn",
+                            "-f-cn",
+                            "-sr-n",
+                            "-sr-csn",
+                            "-sr-tn",
+                            "-sr-pn",
+                            "-sr-cn"
+                        };
+                        
+                        bool needBreak = false;
+                        foreach (string filter in intFilters)
+                        {
+                            int rc = TryGetIdFilter(filter, argsList[i], ref filters);
+                            if (rc == -1)
+                            {
+                                needBreak = true;
+                                parseSuccessfull = false;
+                                break;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+
+                        foreach (string filter in stringFilters)
+                        {
+                            int rc = TryGetStringFilter(filter, ref argsList, ref filters, ref i);
+                            if (rc == -1)
+                            {
+                                needBreak = true;
+                                parseSuccessfull = false;
+                                break;
+                            }
+                            else if (rc == -2)
+                            {
+                                needBreak = true;
+                                break;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+                    }
+                    else
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                }
+
+                if (parseSuccessfull)
+                {
+                    ShowAllTasks(
+                        showDescription,
+                        showTags,
+                        showStatus,
+                        showParent,
+                        showChildren,
+                        showStatusQueue,
+                        showStartTime,
+                        showDeadline,
+                        showRepeatPeriod,
+                        showArchivedTasks,
+                        showOnlyArchivedTasks,
+                        filters);
+                    return;
+                }
             }
 
             Console.ForegroundColor = ConsoleColor.Red;
@@ -402,16 +928,41 @@ namespace Planum.ConsoleUI.ConsoleCommands
             else
                 return "displays objects, shows all existing by default\n" +
                     "flags:\n" +
-                    "tag:\n" +
-                    "-c - show category\n" +
-                    "-d - show description\n" +
-                    "-f - filter by:\n" +
-                        "-cat={value} - filter by category (-f-cat={category 1})\n" +
-                        "-name={value} - filter by name (names) (-f-name=name_1)\n" +
-                        "-id={value} - filter by id (-f-id=1)\n" +
-                    "task:\n" +
-                    "-archived - show archived tasks\n" + 
-                    "-l [options] - display tasks list with list options";
+                    "   tag:\n" +
+                    "   -c - show category\n" +
+                    "   -d - show description\n" +
+                    "   -f[options] - filter, filters tags by some criterion (set subtraction)\n" +
+                    "   -sr[options] - selector, selects from tags according to a given criterion (set addition)\n" +
+                    "   filter (-f) and selector (-sr) options:\n" +
+                    "       -c={value} - filter by category\n" +
+                    "       -n={value} - filter by name\n" +
+                    "       -i={value} - filter by id\n" +
+                    "   task:\n" +
+                    "       -all - show full info about task\n" +
+                    "       -d - show description\n" +
+                    "       -t - show tags\n" +
+                    "       -s - show status\n" +
+                    "       -p - show parents\n" +
+                    "       -c - show children\n" +
+                    "       -sq - show status queue\n" +
+                    "       -st - show start time\n" +
+                    "       -dl - show deadline\n" +
+                    "       -r - show repeat period\n" +
+                    "       -a - show archived tasks\n" +
+                    "       -ao - show only archived tasks\n" +
+                    "       -f[options] - filter, filters tasks by some criterion (set subtraction)\n" +
+                    "       -sr[options] - selector, selects from tasks according to a given criterion (set addition)\n" +
+                    "       filter (-f) and selector (-sr) options:\n" +
+                    "           -i={value} - id\n" +
+                    "           -n={value} - name\n" +
+                    "           -csi={value} - current status id\n" +
+                    "           -csn={value} - current status name\n" +
+                    "           -ti={value} - tag id\n" +
+                    "           -tn={value} - tag name\n" +
+                    "           -pi={value} - parent id\n" +
+                    "           -pn={value} - parent name\n" +
+                    "           -ci={value} - child id\n" +
+                    "           -cn={value} - child name";
         }
 
         public string GetName()
@@ -419,9 +970,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (_userManager.CurrentUser == null)
                 return "show user";
             else
-                return "show [-l] [-id={value}] [-archived] task\n" +
-                    "show [-id={value}] [-c] [-d] tag\n" +
-                    "show [-c] [-d] [-s[-cat={value}]] tag\n" +
+                return "show [-l] [-d] [-a] task\n" +
+                    "show [-c] [-d] [-f[options]] tag\n" +
                     "show user";
         }
 
