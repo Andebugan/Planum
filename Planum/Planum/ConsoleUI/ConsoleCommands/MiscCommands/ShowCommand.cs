@@ -203,6 +203,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
             else
                 tasks = _taskManager.GetAllTasks(false);
 
+            if (tasks.Count == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                if (showOnlyArchivedTasks)
+                    Console.WriteLine("there are no archived tasks in the system\n");
+                else if (showArchivedTasks)
+                    Console.WriteLine("there are no tasks in the system\n");
+                else
+                    Console.WriteLine("there are no unarchived tasks in the system\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
             bool parseSuccessfull = true;
             List<Task> filteredTasks = tasks;
 
@@ -950,8 +963,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     "       -r - show repeat period\n" +
                     "       -a - show archived tasks\n" +
                     "       -ao - show only archived tasks\n" +
-                    "       -f[options] - filter, filters tasks by some criterion (set subtraction)\n" +
-                    "       -sr[options] - selector, selects from tasks according to a given criterion (set addition)\n" +
+                    "       -f[option] - filter, filters tasks by some criterion(set subtraction), can be used multiple times\n" +
+                    "       -sr[option] - selector, selects from tasks according to a given criterion\n" +
+                    "           (set addition), can be used multiple times\n" +
                     "       filter (-f) and selector (-sr) options:\n" +
                     "           -i={value} - id\n" +
                     "           -n={value} - name\n" +
@@ -971,7 +985,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return "show user";
             else
                 return "show [-l] [-d] [-a] task\n" +
-                    "show [-c] [-d] [-f[options]] tag\n" +
+                    "show [-c] [-d] [-f[options]] [-sr[options]] tag\n" +
                     "show user";
         }
 

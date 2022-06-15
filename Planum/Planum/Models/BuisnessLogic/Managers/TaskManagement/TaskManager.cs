@@ -24,13 +24,14 @@ namespace Planum.Models.BuisnessLogic.Managers
         public int CreateTask(DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false,
-            string description = "", bool isRepeated = false)
+            string description = "", bool isRepeated = false, IReadOnlyList<int> StatusQueueIds = null)
         {
             Log.Debug("Create task");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("Can't create task while current user is null");
             Task new_task = new Task(-1, startTime, deadline, repeatPeriod, TagIds, ParentIds, ChildIds,
-                name, timed, _userManager.CurrentUser.Id, description, isRepeated);
+                name, timed, _userManager.CurrentUser.Id, description, isRepeated, false, StatusQueueIds);
+            new_task.SetStatusIndex(0);
             TaskDTO taskDTO = _taskConverter.ConvertToDTO(new_task);
             int newTaskId = _taskRepo.AddTask(taskDTO);
             foreach (int taskId in new_task.ParentIds)
@@ -81,9 +82,9 @@ namespace Planum.Models.BuisnessLogic.Managers
 
         public void DeleteTask(int taskId)
         {
-            Log.Debug($"Delete task with id={taskId}");
+            Log.Debug($"delete task with id={taskId}");
             if (_userManager.CurrentUser == null)
-                throw new CurrentUserIsNullException("Can't delete task while current user is null");
+                throw new CurrentUserIsNullException("can't delete task while current user is null");
 
             Task? deletedTask = FindTask(taskId, null);
 
@@ -91,19 +92,25 @@ namespace Planum.Models.BuisnessLogic.Managers
             List<int> addedParents = (List<int>)deletedTask.ParentIds;
             foreach(int id in deletedTask.ChildIds)
             {
-                Task task = GetTask(id, null);
-                List<int> newParentList = (List<int>)task.ParentIds;
-                newParentList.AddRange(addedParents);
-                UpdateTask(task);
+                Task task = FindTask(id);
+                if (task != null)
+                {
+                    List<int> newParentList = (List<int>)task.ParentIds;
+                    newParentList.AddRange(addedParents);
+                    UpdateTask(task);
+                }
             }
 
             List<int> addedChildren = (List<int>)deletedTask.ChildIds;
             foreach (int id in deletedTask.ParentIds)
             {
-                Task task = GetTask(id, null);
-                List<int> newChildList = (List<int>)task.ChildIds;
-                newChildList.AddRange(addedChildren);
-                UpdateTask(task);
+                Task task = FindTask(id);
+                if (task != null)
+                {
+                    List<int> newChildList = (List<int>)task.ChildIds;
+                    newChildList.AddRange(addedChildren);
+                    UpdateTask(task);
+                }
             }
 
             _taskRepo.DeleteTask(taskId);
@@ -451,6 +458,32 @@ namespace Planum.Models.BuisnessLogic.Managers
             if (task == null) return;
             task.PreviousStatus();
             UpdateTask(task);
+        }
+
+        public void CompleteTask(int taskId)
+        {
+            Log.Debug($"Complete task with id={taskId}");
+            if (_userManager.CurrentUser == null)
+                throw new CurrentUserIsNullException("Can't change task status while current user is null");
+            Task? task = FindTask(taskId);
+            if (task == null) return;
+            if (task.IsRepeated)
+            {
+                DateTime startTime = task.StartTime;
+                DateTime deadline = task.Deadline;
+                if (task.StartTime != DateTime.MinValue)
+                    startTime = startTime + task.RepeatPeriod;
+                if (task.Deadline != DateTime.MinValue)
+                    deadline = deadline + task.RepeatPeriod;
+                Task newTask = new Task(task.Id, startTime, deadline, task.RepeatPeriod, task.TagIds, task.ParentIds,
+                    task.ChildIds, task.Name, task.Timed, task.UserId, task.Description, task.IsRepeated, task.Archived,
+                    task.StatusQueueIds);
+
+                newTask.SetStatusIndex(0);
+                UpdateTask(task);
+            }
+            else
+                ArchiveTask(taskId);
         }
     }
 }

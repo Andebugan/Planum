@@ -14,12 +14,8 @@ using System.Diagnostics;
 
 namespace Planum
 {
-    /*
-     * TODO:
-     * [x] Add status logic to console UI
-     * DONE:
-     */
-
+    // TODO:
+    // add move status command with steps
     internal class Program
     {
         public static void Main(string[] args)
@@ -36,6 +32,8 @@ namespace Planum
                 IUserRepo userRepo = new UserRepoFile(new UserDTOComparator());
                 ITaskRepo taskRepo = new TaskRepoFile(new TaskDTOComparator());
                 ITagRepo tagRepo = new TagRepoFile(new TagDTOComparator());
+
+                //((TaskRepoFile)taskRepo).Reset();
 
                 ITaskConverter taskConverter = new TaskConverter();
                 ITagConverter tagConverter = new TagConverter();

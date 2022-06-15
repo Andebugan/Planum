@@ -180,7 +180,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             List<int> statusIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
-                childIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+                statusIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
 
             foreach (int statusId in statusIds)
             {
@@ -208,8 +208,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (input == "n")
             {
-                _taskManager.CreateTask(DateTime.Now, DateTime.Now, TimeSpan.Zero, tagIds, parentIds, childIds, name,
-                    description: description);
+                _taskManager.CreateTask(DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name,
+                true, description, true, statusIds);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("task created successfully\n");
                 Console.ForegroundColor = ConsoleColor.White;
@@ -217,7 +217,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("Enter task start time as \"yyyy-mm-dd hh:mm\": ");
+            Console.Write("enter task start time as yyyy-mm-dd hh:mm (leave empty for default value): ");
             Console.ForegroundColor = ConsoleColor.White;
 
             input = Console.ReadLine();
@@ -233,7 +233,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("enter task deadline as \"yyyy-MM-dd HH:mm\": ");
+            Console.Write("enter task deadline as yyyy-MM-dd hh:mm (leave empty for default value): ");
             Console.ForegroundColor = ConsoleColor.White;
 
             input = Console.ReadLine();
@@ -264,7 +264,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (input == "n")
             {
                 _taskManager.CreateTask(startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
-                    description: description, timed: true);
+                true, description, true, statusIds);
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("task created successfully\n");
@@ -289,7 +289,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
             Console.WriteLine();
             int newTaskId = _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
-                description: description, timed: true, isRepeated: true);
+                true, description, true, statusIds);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("task created successfully\n");

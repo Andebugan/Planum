@@ -62,14 +62,16 @@ namespace Planum.ConsoleUI.ConsoleViews
                             TimeSpan timeSpan = task.Deadline - currentDate;
 
                             if (showStatus)
-                                grid.Children.Add(new Cell($"+ time before deadline: {timeSpan.ToString()}")
+                                grid.Children.Add(new Cell("+ time before deadline: " + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
                                 {
                                     ColumnSpan = 3,
                                     Align = Align.Left,
                                     Color = Green
                                 });
                             else
-                                grid.Children.Add(new Cell($"+ time before deadline: {timeSpan.ToString()}")
+                                grid.Children.Add(new Cell($"+ time before deadline: " + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
                                 {
                                     ColumnSpan = 2,
                                     Align = Align.Left,
@@ -79,15 +81,19 @@ namespace Planum.ConsoleUI.ConsoleViews
                         // today is the day
                         else if (Math.Abs((currentDate - task.Deadline).TotalDays) < 1 && currentDate <= task.Deadline)
                         {
+                            TimeSpan timeSpan = task.Deadline - currentDate;
+
                             if (showStatus)
-                                grid.Children.Add(new Cell("~ deadline today")
+                                grid.Children.Add(new Cell("~ less than a day before the deadline: " + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
                                 {
                                     ColumnSpan = 3,
                                     Align = Align.Left,
                                     Color = Yellow
                                 });
                             else
-                                grid.Children.Add(new Cell("~ deadline today")
+                                grid.Children.Add(new Cell("~ less than a day before the deadline" + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
                                 {
                                     ColumnSpan = 2,
                                     Align = Align.Left,
@@ -99,18 +105,20 @@ namespace Planum.ConsoleUI.ConsoleViews
                             TimeSpan timeSpan = currentDate - task.Deadline;
 
                             if (showStatus)
-                                grid.Children.Add(new Cell($"! time overdue: {timeSpan.ToString()}")
+                                grid.Children.Add(new Cell($"! time overdue: " + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
                                 {
                                     ColumnSpan = 3,
                                     Align = Align.Left,
-                                    Color = Green
+                                    Color = Red
                                 });
                             else
-                                grid.Children.Add(new Cell($"! time overdue: {timeSpan.ToString()}")
+                                grid.Children.Add(new Cell($"! time overdue: " + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
                                 {
                                     ColumnSpan = 2,
                                     Align = Align.Left,
-                                    Color = Green
+                                    Color = Red
                                 });
                         }
                         // overdue
@@ -127,7 +135,7 @@ namespace Planum.ConsoleUI.ConsoleViews
                 if (task.StatusQueueIds.Count > 0)
                     status = tagManager.FindTag(task.StatusQueueIds[task.CurrentStatusIndex]);
                 if (showStatus && status != null)
-                    grid.Children.Add(new Cell(status.Id.ToString() + ":" + status.Name) { Align = Align.Center, Color = Cyan });
+                    grid.Children.Add(new Cell(status.Name) { Align = Align.Center, Color = Cyan });
                 else if (showStatus && status == null)
                     grid.Children.Add(new Cell("no status") { Align = Align.Center, Color = Cyan });
 
@@ -165,7 +173,7 @@ namespace Planum.ConsoleUI.ConsoleViews
                             return;
                         }
 
-                        tagGrid.Children.Add(new Cell(tag.Id) { Align = Align.Stretch, Color = White });
+                        tagGrid.Children.Add(new Cell("[" + tag.Id + "]") { Align = Align.Stretch, Color = White });
                         tagGrid.Children.Add(new Cell(tag.Name) { Align = Align.Stretch, Color = White });
                     }
 
@@ -204,7 +212,7 @@ namespace Planum.ConsoleUI.ConsoleViews
                             return;
                         }
 
-                        parentGrid.Children.Add(new Cell(parent.Id) { Align = Align.Stretch, Color = White });
+                        parentGrid.Children.Add(new Cell("[" + parent.Id + "]") { Align = Align.Stretch, Color = White });
                         parentGrid.Children.Add(new Cell(parent.Name) { Align = Align.Stretch, Color = White });
                     }
 
@@ -243,13 +251,13 @@ namespace Planum.ConsoleUI.ConsoleViews
                             return;
                         }
 
-                        childGrid.Children.Add(new Cell(child.Id) { Align = Align.Stretch, Color = White });
+                        childGrid.Children.Add(new Cell("[" + child.Id + "]") { Align = Align.Stretch, Color = White });
                         childGrid.Children.Add(new Cell(child.Name) { Align = Align.Stretch, Color = White });
                     }
 
                     if (showStatus)
                     {
-                        grid.Children.Add(new Cell(childGrid) { ColumnSpan = 1, Align = Align.Stretch, Color = White });
+                        grid.Children.Add(new Cell(childGrid) { ColumnSpan = 2, Align = Align.Stretch, Color = White });
                     }
                     else
                     {
@@ -261,9 +269,9 @@ namespace Planum.ConsoleUI.ConsoleViews
                 if (showStatusQueue && task.StatusQueueIds.Count != 0)
                 {
                     if (showStatus)
-                        grid.Children.Add(new Cell("status\n queue:") { Align = Align.Left, VerticalAlign = VerticalAlign.Center, Color = Cyan });
+                        grid.Children.Add(new Cell("status queue:") { Align = Align.Center, VerticalAlign = VerticalAlign.Center, Color = Cyan });
                     else
-                        grid.Children.Add(new Cell("status\n queue:") { Align = Align.Left, VerticalAlign = VerticalAlign.Center, Color = Cyan });
+                        grid.Children.Add(new Cell("status queue:") { Align = Align.Center, VerticalAlign = VerticalAlign.Center, Color = Cyan });
 
                     Grid statusGrid = new Grid();
                     statusGrid.Color = Black;
@@ -284,23 +292,23 @@ namespace Planum.ConsoleUI.ConsoleViews
 
                         if (i != task.CurrentStatusIndex)
                         {
-                            statusGrid.Children.Add(new Cell(tag.Id) { Align = Align.Stretch, Color = White });
+                            statusGrid.Children.Add(new Cell("[" + tag.Id + "]") { Align = Align.Stretch, Color = White });
                             statusGrid.Children.Add(new Cell(tag.Name) { Align = Align.Stretch, Color = White });
                         }
                         else
                         {
-                            statusGrid.Children.Add(new Cell(tag.Id) { Align = Align.Stretch, Color = DarkYellow });
+                            statusGrid.Children.Add(new Cell("[" + tag.Id + "]") { Align = Align.Stretch, Color = DarkYellow });
                             statusGrid.Children.Add(new Cell(tag.Name) { Align = Align.Stretch, Color = Yellow });
                         }
                     }
 
                     if (showStatus)
                     {
-                        grid.Children.Add(new Cell(statusGrid) { ColumnSpan = 3, Align = Align.Stretch, Color = White });
+                        grid.Children.Add(new Cell(statusGrid) { ColumnSpan = 2, Align = Align.Stretch, Color = White });
                     }
                     else
                     {
-                        grid.Children.Add(new Cell(statusGrid) { ColumnSpan = 2, Align = Align.Stretch, Color = White });
+                        grid.Children.Add(new Cell(statusGrid) { Align = Align.Stretch, Color = White });
                     }
                 }
 
@@ -309,12 +317,22 @@ namespace Planum.ConsoleUI.ConsoleViews
                 {
                     if (showStatus)
                     {
-                        grid.Children.Add(new Cell("start\n time: " + task.StartTime.ToString())
+                        grid.Children.Add(new Cell("start time: " + 
+                            task.StartTime.Year.ToString() + "-" +
+                            task.StartTime.Month.ToString() + "-" +
+                            task.StartTime.Day.ToString() + " " +
+                            task.StartTime.Hour.ToString() + ":" +
+                            task.StartTime.Minute.ToString())
                         { ColumnSpan = 3, Align = Align.Stretch, Color = White });
                     }
                     else
                     {
-                        grid.Children.Add(new Cell("start\n time: " + task.StartTime.ToString())
+                        grid.Children.Add(new Cell("start time: " +
+                            task.StartTime.Year.ToString() + "-" +
+                            task.StartTime.Month.ToString() + "-" +
+                            task.StartTime.Day.ToString() + " " +
+                            task.StartTime.Hour.ToString() + ":" +
+                            task.StartTime.Minute.ToString())
                         { ColumnSpan = 2, Align = Align.Stretch, Color = White });
                     }
                 }
@@ -324,12 +342,22 @@ namespace Planum.ConsoleUI.ConsoleViews
                 {
                     if (showStatus)
                     {
-                        grid.Children.Add(new Cell("deadline: " + task.Deadline.ToString())
+                        grid.Children.Add(new Cell("deadline: " +
+                            task.Deadline.Year.ToString() + "-" +
+                            task.Deadline.Month.ToString() + "-" +
+                            task.Deadline.Day.ToString() + " " +
+                            task.Deadline.Hour.ToString() + ":" +
+                            task.Deadline.Minute.ToString())
                         { ColumnSpan = 3, Align = Align.Stretch, Color = White });
                     }
                     else
                     {
-                        grid.Children.Add(new Cell("deadline: " + task.Deadline.ToString())
+                        grid.Children.Add(new Cell("deadline: " +
+                            task.Deadline.Year.ToString() + "-" +
+                            task.Deadline.Month.ToString() + "-" +
+                            task.Deadline.Day.ToString() + " " +
+                            task.Deadline.Hour.ToString() + ":" +
+                            task.Deadline.Minute.ToString())
                         { ColumnSpan = 2, Align = Align.Stretch, Color = White });
                     }
                 }
@@ -339,12 +367,14 @@ namespace Planum.ConsoleUI.ConsoleViews
                 {
                     if (showStatus)
                     {
-                        grid.Children.Add(new Cell("repeat period: " + task.RepeatPeriod.ToString())
+                        grid.Children.Add(new Cell("repeat period: " + task.RepeatPeriod.Days.ToString() + "d " +
+                                    task.RepeatPeriod.Hours.ToString() + "h " + task.RepeatPeriod.Minutes.ToString() + "m")
                         { ColumnSpan = 3, Align = Align.Stretch, Color = White });
                     }
                     else
                     {
-                        grid.Children.Add(new Cell("repeat period: " + task.RepeatPeriod.ToString())
+                        grid.Children.Add(new Cell("repeat period: " + task.RepeatPeriod.Days.ToString() + "d " +
+                                    task.RepeatPeriod.Hours.ToString() + "h " + task.RepeatPeriod.Minutes.ToString() + "m")
                         { ColumnSpan = 2, Align = Align.Stretch, Color = White });
                     }
                 }
@@ -358,7 +388,7 @@ namespace Planum.ConsoleUI.ConsoleViews
             if (grid.Children.Count == 0)
             {
                 Console.ForegroundColor = Cyan;
-                Console.WriteLine("none of the tasks match the given paremeters");
+                Console.WriteLine("none of the tasks match the given paremeters\n");
                 Console.ForegroundColor = White;
                 return;
             }

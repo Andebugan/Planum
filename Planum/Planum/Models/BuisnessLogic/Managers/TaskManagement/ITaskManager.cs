@@ -10,7 +10,7 @@ namespace Planum.Models.BuisnessLogic.Managers
         int CreateTask(DateTime startTime, DateTime deadline,
             TimeSpan repeatPeriod, IReadOnlyList<int> TagIds, IReadOnlyList<int> ParentIds, IReadOnlyList<int> ChildIds,
             string name, bool timed = false,
-            string description = "", bool isRepeated = false);
+            string description = "", bool isRepeated = false, IReadOnlyList<int> StatusQueueIds = null);
         void DeleteConnectedToUser(int userId);
         void DeleteTask(int taskId);
         Task GetTask(int taskId, bool? archived = false);
@@ -33,5 +33,6 @@ namespace Planum.Models.BuisnessLogic.Managers
         void RemoveStatus(int statusId, int taskId);
         void NextStatus(int taskId);
         void PreviousStatus(int taskId);
+        void CompleteTask(int taskId);
     }
 }

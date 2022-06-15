@@ -41,6 +41,8 @@ namespace Planum.Models.BuisnessLogic.Entities
             {
                 if (value >= 0 && value < StatusQueueIds.Count)
                     currentStatusIndex = value;
+                if (StatusQueueIds.Count == 0)
+                    currentStatusIndex = 0;
             }
         }
 
