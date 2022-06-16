@@ -3,8 +3,6 @@ using Planum.Models.BuisnessLogic.Entities;
 using System;
 using System.Collections.Generic;
 using static System.ConsoleColor;
-using System.Linq;
-using System.Text;
 using Planum.Models.BuisnessLogic.Managers;
 
 namespace Planum.ConsoleUI.ConsoleViews
@@ -92,7 +90,7 @@ namespace Planum.ConsoleUI.ConsoleViews
                                     Color = Yellow
                                 });
                             else
-                                grid.Children.Add(new Cell("~ less than a day before the deadline" + timeSpan.Days.ToString() + "d " +
+                                grid.Children.Add(new Cell("~ less than a day before the deadline: " + timeSpan.Days.ToString() + "d " +
                                     timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
                                 {
                                     ColumnSpan = 2,
