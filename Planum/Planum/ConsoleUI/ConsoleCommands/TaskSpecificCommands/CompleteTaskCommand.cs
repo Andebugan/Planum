@@ -241,7 +241,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             _tagManager.FindTag(statusTagId).Name == currentStatusName)
                                         {
                                             selectedTasks.Add(task);
-                                            break;
                                         }
                                     }
                                 }
@@ -257,7 +256,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         if (statusTagId == id)
                                         {
                                             selectedTasks.Add(task);
-                                            break;
                                         }
                                     }
                                 }
@@ -275,7 +273,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                                 _tagManager.FindTag(tag).Name == tagName)
                                             {
                                                 selectedTasks.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -293,7 +290,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (tag == id)
                                             {
                                                 selectedTasks.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -312,7 +308,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                                 _taskManager.FindTask(parent).Name == parentName)
                                             {
                                                 selectedTasks.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -330,7 +325,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (parent == id)
                                             {
                                                 selectedTasks.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -349,7 +343,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                                 _taskManager.FindTask(child).Name == childName)
                                             {
                                                 selectedTasks.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -367,7 +360,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (child == id)
                                             {
                                                 selectedTasks.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -389,7 +381,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                             if (filter.Length > 4 && filter.Substring(0, 4) == "-f-n")
                             {
                                 List<Task> tempList = new List<Task>();
-                                string name = filter.Substring(5);
+                                string name = filter.Substring(4);
                                 foreach (var task in filteredTasks)
                                 {
                                     if (task.Name == name)
@@ -421,7 +413,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             _tagManager.FindTag(statusTagId).Name == currentStatusName)
                                         {
                                             tempList.Add(task);
-                                            break;
                                         }
                                     }
                                 }
@@ -439,7 +430,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         if (statusTagId == id)
                                         {
                                             tempList.Add(task);
-                                            break;
                                         }
                                     }
                                 }
@@ -459,7 +449,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                                 _tagManager.FindTag(tag).Name == tagName)
                                             {
                                                 tempList.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -479,7 +468,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (tag == id)
                                             {
                                                 tempList.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -500,7 +488,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                                 _taskManager.FindTask(parent).Name == parentName)
                                             {
                                                 tempList.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -520,7 +507,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (parent == id)
                                             {
                                                 tempList.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -541,7 +527,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                                 _taskManager.FindTask(child).Name == childName)
                                             {
                                                 tempList.Add(task);
-                                                break;
                                             }
                                         }
                                     }
@@ -561,7 +546,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (child == id)
                                             {
                                                 tempList.Add(task);
-                                                break;
                                             }
                                         }
                                     }

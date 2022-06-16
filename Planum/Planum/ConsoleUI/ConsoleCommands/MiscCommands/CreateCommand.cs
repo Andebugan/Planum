@@ -141,7 +141,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             List<int> parentIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
-                parentIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+            {
+                string[] temp = input.Split(' ');
+                foreach (string s in temp)
+                {
+                    int tempId;
+                    if (!int.TryParse(s, out tempId))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("incorrect input\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        return;
+                    }
+                    parentIds.Add(tempId);
+                }
+            }
             foreach (int parentId in parentIds)
             {
                 if (_taskManager.FindTask(parentId) == null)
@@ -160,7 +174,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             List<int> childIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
-                childIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+            {
+                string[] temp = input.Split(' ');
+                foreach (string s in temp)
+                {
+                    int tempId;
+                    if (!int.TryParse(s, out tempId))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("incorrect input\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        return;
+                    }
+                    childIds.Add(tempId);
+                }
+            }
 
             foreach (int childId in childIds)
             {
@@ -180,7 +208,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             List<int> statusIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
-                statusIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+            {
+                string[] temp = input.Split(' ');
+                foreach (string s in temp)
+                {
+                    int tempId;
+                    if (!int.TryParse(s, out tempId))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("incorrect input\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        return;
+                    }
+                    statusIds.Add(tempId);
+                }
+            }
 
             foreach (int statusId in statusIds)
             {
