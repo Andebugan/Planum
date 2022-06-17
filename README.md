@@ -4,7 +4,7 @@ Simple app for self-organization.
 The console version of the application is on the branch *console_ui*.
 
 ## Features
-- simple console interface
+- practical console interface
 - convenient task management tools
 - support for windows/linux
 
