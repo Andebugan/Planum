@@ -80,11 +80,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     break;
                 else if (key.Key == ConsoleKey.Backspace)
                 {
-                    if (password != null && password.Length > 0)
-                        password = password.Substring(0, password.Length - 1);
+                    if (checkPassword != null && checkPassword.Length > 0)
+                        checkPassword = checkPassword.Substring(0, checkPassword.Length - 1);
                 }
                 else
-                    password += key.KeyChar;
+                    checkPassword += key.KeyChar;
             }
             Console.WriteLine();
 

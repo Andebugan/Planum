@@ -1,12 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
     <TrimMode>copyused</TrimMode>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <Platforms>AnyCPU</Platforms>
-    <StartupObject></StartupObject>
+    <StartupObject>Planum.Program</StartupObject>
+	<!--lower config for single file app-->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".gitignore" />
@@ -22,17 +27,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Alba.CsConsoleFormat" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.2.0" />
-    <PackageReference Include="Moq" Version="4.18.1" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="Serilog" Version="2.11.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-    <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\" />

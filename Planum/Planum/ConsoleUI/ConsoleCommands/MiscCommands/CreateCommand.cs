@@ -315,7 +315,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("Enter task repeat period as \"d:hh:mm\": ");
+            Console.Write("enter task repeat period as d:hh:mm : ");
             Console.ForegroundColor = ConsoleColor.White;
 
             input = Console.ReadLine(); 
@@ -329,7 +329,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            Console.WriteLine();
             int newTaskId = _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
                 true, description, true, statusIds);
 

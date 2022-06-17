@@ -213,24 +213,39 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         {
                             if (filter.Length > 5 && filter.Substring(0, 5) == "-sr-n")
                             {
+                                bool added = false;
                                 string name = filter.Substring(5);
                                 foreach (var task in tasks)
                                 {
                                     if (task.Name == name)
-                                        selectedTasks.Add(task);
+                                    {
+                                        if (!selectedTasks.Contains(task))
+                                            selectedTasks.Add(task);
+                                        added = true;
+                                    }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 5 && filter.Substring(0, 5) == "-sr-i")
                             {
+                                bool added = false;
                                 int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
                                 {
                                     if (task.Id == id)
-                                        selectedTasks.Add(task);
+                                    {
+                                        if (!selectedTasks.Contains(task))
+                                            selectedTasks.Add(task);
+                                        added = true;
+                                    }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 7 && filter.Substring(0, 7) == "-sr-csn")
                             {
+                                bool added = false;
                                 string currentStatusName = filter.Substring(7);
                                 foreach (var task in tasks)
                                 {
@@ -240,13 +255,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         if (_tagManager.FindTag(statusTagId) != null &&
                                             _tagManager.FindTag(statusTagId).Name == currentStatusName)
                                         {
-                                            selectedTasks.Add(task);
+                                            if (!selectedTasks.Contains(task))
+                                                selectedTasks.Add(task);
+                                            added = true;
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 7 && filter.Substring(0, 7) == "-sr-csi")
                             {
+                                bool added = false;
                                 int id = int.Parse(filter.Substring(7));
                                 foreach (var task in tasks)
                                 {
@@ -255,13 +275,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
                                         if (statusTagId == id)
                                         {
-                                            selectedTasks.Add(task);
+                                            if (!selectedTasks.Contains(task))
+                                                selectedTasks.Add(task);
+                                            added = true;
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-tn")
                             {
+                                bool added = false;
                                 string tagName = filter.Substring(6);
                                 foreach (var task in tasks)
                                 {
@@ -270,16 +295,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         foreach (var tag in task.TagIds)
                                         {
                                             if (_tagManager.FindTag(tag) != null &&
-                                                _tagManager.FindTag(tag).Name == tagName)
+                                            _tagManager.FindTag(tag).Name == tagName)
                                             {
-                                                selectedTasks.Add(task);
+                                                if (!selectedTasks.Contains(task))
+                                                    selectedTasks.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-ti")
                             {
+                                bool added = false;
                                 int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
                                 {
@@ -289,14 +319,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         {
                                             if (tag == id)
                                             {
-                                                selectedTasks.Add(task);
+                                                if (!selectedTasks.Contains(task))
+                                                    selectedTasks.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-pn")
                             {
+                                bool added = false;
                                 string parentName = filter.Substring(6);
                                 foreach (var task in tasks)
                                 {
@@ -305,16 +340,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         foreach (var parent in task.ParentIds)
                                         {
                                             if (_taskManager.FindTask(parent) != null &&
-                                                _taskManager.FindTask(parent).Name == parentName)
+                                            _taskManager.FindTask(parent).Name == parentName)
                                             {
-                                                selectedTasks.Add(task);
+                                                if (!selectedTasks.Contains(task))
+                                                    selectedTasks.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-pi")
                             {
+                                bool added = false;
                                 int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
                                 {
@@ -324,14 +364,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         {
                                             if (parent == id)
                                             {
-                                                selectedTasks.Add(task);
+                                                if (!selectedTasks.Contains(task))
+                                                    selectedTasks.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-cn")
                             {
+                                bool added = false;
                                 string childName = filter.Substring(6);
                                 foreach (var task in tasks)
                                 {
@@ -340,16 +385,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         foreach (var child in task.ChildIds)
                                         {
                                             if (_taskManager.FindTask(child) != null &&
-                                                _taskManager.FindTask(child).Name == childName)
+                                            _taskManager.FindTask(child).Name == childName)
                                             {
-                                                selectedTasks.Add(task);
+                                                if (!selectedTasks.Contains(task))
+                                                    selectedTasks.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-sr-ci")
                             {
+                                bool added = false;
                                 int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
                                 {
@@ -359,17 +409,24 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         {
                                             if (child == id)
                                             {
-                                                selectedTasks.Add(task);
+                                                if (!selectedTasks.Contains(task))
+                                                    selectedTasks.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length < 3 || (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr"))
                             {
                                 parseSuccessfull = false;
                                 break;
                             }
+
+                            if (!parseSuccessfull)
+                                break;
                         }
 
                         if (selectedTasks.Count > 0)
@@ -380,28 +437,43 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         {
                             if (filter.Length > 4 && filter.Substring(0, 4) == "-f-n")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 string name = filter.Substring(4);
                                 foreach (var task in filteredTasks)
                                 {
                                     if (task.Name == name)
-                                        tempList.Add(task);
+                                    {
+                                        if (!tempList.Contains(task))
+                                            tempList.Add(task);
+                                        added = true;
+                                    }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 4 && filter.Substring(0, 4) == "-f-i")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 int id = int.Parse(filter.Substring(4));
                                 foreach (var task in tasks)
                                 {
                                     if (task.Id == id)
-                                        tempList.Add(task);
+                                    {
+                                        if (!tempList.Contains(task))
+                                            tempList.Add(task);
+                                        added = true;
+                                    }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-f-csn")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 string currentStatusName = filter.Substring(6);
                                 foreach (var task in tasks)
@@ -412,14 +484,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         if (_tagManager.FindTag(statusTagId) != null &&
                                             _tagManager.FindTag(statusTagId).Name == currentStatusName)
                                         {
-                                            tempList.Add(task);
+                                            if (!tempList.Contains(task))
+                                                tempList.Add(task);
+                                            added = true;
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 6 && filter.Substring(0, 6) == "-f-csi")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 int id = int.Parse(filter.Substring(6));
                                 foreach (var task in tasks)
@@ -429,14 +506,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
                                         if (statusTagId == id)
                                         {
-                                            tempList.Add(task);
+                                            if (!tempList.Contains(task))
+                                                tempList.Add(task);
+                                            added = true;
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-tn")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 string tagName = filter.Substring(5);
                                 foreach (var task in tasks)
@@ -448,15 +530,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (_tagManager.FindTag(tag) != null &&
                                                 _tagManager.FindTag(tag).Name == tagName)
                                             {
-                                                tempList.Add(task);
+                                                if (!tempList.Contains(task))
+                                                    tempList.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-ti")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
@@ -467,15 +554,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         {
                                             if (tag == id)
                                             {
-                                                tempList.Add(task);
+                                                if (!tempList.Contains(task))
+                                                    tempList.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-pn")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 string parentName = filter.Substring(5);
                                 foreach (var task in tasks)
@@ -487,15 +579,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (_taskManager.FindTask(parent) != null &&
                                                 _taskManager.FindTask(parent).Name == parentName)
                                             {
-                                                tempList.Add(task);
+                                                if (!tempList.Contains(task))
+                                                    tempList.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-pi")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
@@ -506,15 +603,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         {
                                             if (parent == id)
                                             {
-                                                tempList.Add(task);
+                                                if (!tempList.Contains(task))
+                                                    tempList.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-cn")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 string childName = filter.Substring(5);
                                 foreach (var task in tasks)
@@ -526,15 +628,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                             if (_taskManager.FindTask(child) != null &&
                                                 _taskManager.FindTask(child).Name == childName)
                                             {
-                                                tempList.Add(task);
+                                                if (!tempList.Contains(task))
+                                                    tempList.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-ci")
                             {
+                                bool added = false;
                                 List<Task> tempList = new List<Task>();
                                 int id = int.Parse(filter.Substring(5));
                                 foreach (var task in tasks)
@@ -545,18 +652,25 @@ namespace Planum.ConsoleUI.ConsoleCommands
                                         {
                                             if (child == id)
                                             {
-                                                tempList.Add(task);
+                                                if (!tempList.Contains(task))
+                                                    tempList.Add(task);
+                                                added = true;
                                             }
                                         }
                                     }
                                 }
                                 filteredTasks = tempList;
+                                if (!added)
+                                    parseSuccessfull = false;
                             }
                             else if (filter.Length < 3 || (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr"))
                             {
                                 parseSuccessfull = false;
                                 break;
                             }
+
+                            if (!parseSuccessfull)
+                                break;
                         }
                     }
 

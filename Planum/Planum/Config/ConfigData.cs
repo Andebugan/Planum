@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Planum.Config
 {
@@ -14,12 +10,30 @@ namespace Planum.Config
 
         public static ConfigJson LoadConfig()
         {
-            var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
-            exeName = exeName.Replace("file:///", "");
-            var systemPath = Path.GetDirectoryName(exeName);
-            using StreamReader r = new StreamReader(Path.Combine(systemPath, configPath));
-            string json = r.ReadToEnd();
-            return JsonConvert.DeserializeObject<ConfigJson>(json);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                configPath = configPath.Replace("\\", "/");
+                var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+                exeName = exeName.Replace("file://", "");
+                var systemPath = Path.GetDirectoryName(exeName);
+                using StreamReader r = new StreamReader(Path.Combine("", configPath));
+                string json = r.ReadToEnd();
+                ConfigJson config = JsonConvert.DeserializeObject<ConfigJson>(json);
+                config.TagRepoFilePath = config.TagRepoFilePath.Replace("\\", "/");
+                config.TaskRepoFilePath = config.TaskRepoFilePath.Replace("\\", "/");
+                config.UserRepoFilePath = config.UserRepoFilePath.Replace("\\", "/");
+                return config;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+                exeName = exeName.Replace("file:///", "");
+                var systemPath = Path.GetDirectoryName(exeName);
+                using StreamReader r = new StreamReader(Path.Combine(systemPath, configPath));
+                string json = r.ReadToEnd();
+                return JsonConvert.DeserializeObject<ConfigJson>(json);
+            }
+            throw new System.ExecutionEngineException();
         }
     }
 
