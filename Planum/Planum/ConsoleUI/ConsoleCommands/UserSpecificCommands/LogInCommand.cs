@@ -21,7 +21,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.White;
 
             string? login = Console.ReadLine();
-            if (string.IsNullOrEmpty(login))
+            if (string.IsNullOrEmpty(login) || string.IsNullOrWhiteSpace(login))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("login can't be empty!\n");
@@ -49,7 +49,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
             Console.WriteLine();
 
-            if (string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(password) || string.IsNullOrWhiteSpace(password))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("password can't be empty!\n");

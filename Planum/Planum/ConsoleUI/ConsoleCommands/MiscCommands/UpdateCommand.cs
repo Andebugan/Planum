@@ -63,7 +63,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.Write("new login: ");
                 Console.ForegroundColor = ConsoleColor.White;
                 login = Console.ReadLine();
-                if (string.IsNullOrEmpty(login))
+                if (string.IsNullOrEmpty(login) || string.IsNullOrWhiteSpace(login))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("login can't be empty\n");
@@ -120,7 +120,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         password += key.KeyChar;
                 }
 
-                if (string.IsNullOrEmpty(password))
+                if (string.IsNullOrEmpty(password) || string.IsNullOrWhiteSpace(password))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("password can't be null\n");
@@ -203,7 +203,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.Write("new name: ");
                 Console.ForegroundColor = ConsoleColor.White;
                 name = Console.ReadLine();
-                if (string.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("name can't be empty\n");
@@ -320,7 +320,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.Write("new name: ");
                 Console.ForegroundColor = ConsoleColor.White;
                 name = Console.ReadLine();
-                if (name == null)
+                if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("name can't be null or empty\n");
@@ -396,7 +396,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-
 
             List<int> tagIds = (List<int>)task.TagIds;
 
@@ -847,6 +846,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (input == "n")
             {
+                if (startTime > deadline)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("start time can't be after deadline\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+
                 Task newTask = new Task(task.Id, startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name, true,
                     task.UserId, description, false, task.Archived, statusQueueIds);
                 newTask.SetStatusIndex(currentStatusIndex);

@@ -56,7 +56,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.ForegroundColor = ConsoleColor.White;
 
                 input = Console.ReadLine();
-                if (string.IsNullOrEmpty(input))
+                if (string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input))
                 {
                     Console.WriteLine("Tag name can't be empty\n");
                     return;
@@ -102,7 +102,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             string? input = Console.ReadLine();
 
             string name;
-            if (string.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("task name can't be null or empty\n");
@@ -122,7 +122,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
             input = Console.ReadLine();
             List<int> tagIds = new List<int>();
             if (!string.IsNullOrEmpty(input))
-                tagIds = input.Split(' ').Select(n => Convert.ToInt32(n)).ToList<int>();
+            {
+                string[] temp = input.Split(' ');
+                foreach (string s in temp)
+                {
+                    int tempId;
+                    if (!int.TryParse(s, out tempId))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("incorrect input\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        return;
+                    }
+                    tagIds.Add(tempId);
+                }
+            }
             foreach (int tagId in tagIds)
             {
                 if (_tagManager.FindTag(tagId) == null)
@@ -240,7 +254,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.White;
 
             input = Console.ReadLine();
-            if (string.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input) && input != "x" && input != "y")
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("should have entered y or x\n");
@@ -295,7 +309,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.ForegroundColor = ConsoleColor.White;
 
             input = Console.ReadLine();
-            if (string.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input) && input != "x" && input != "y")
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("should have entered y or x\n");
@@ -305,6 +319,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (input == "n")
             {
+                if (startTime > deadline)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("start time can't be after deadline\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
+
                 _taskManager.CreateTask(startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
                 true, description, false, statusIds);
 
@@ -320,7 +342,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             input = Console.ReadLine(); 
             TimeSpan repeatPeriod;
-            if (string.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input) && input != "x" && input != "y")
                 repeatPeriod = TimeSpan.Zero;
             else if (!TimeSpan.TryParseExact(input, @"d\:hh\:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
             {

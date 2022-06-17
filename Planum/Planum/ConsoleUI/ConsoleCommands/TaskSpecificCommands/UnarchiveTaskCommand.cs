@@ -89,7 +89,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             for (int i = 0; i < argsList.Count; i++)
             {
-                if (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr")
+                if (argsList[i].Length > 3 && (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr"))
                 {
                     string[] intFilters =
                     {

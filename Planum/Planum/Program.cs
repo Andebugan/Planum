@@ -10,7 +10,8 @@ namespace Planum
     // TODO:
     // add move status command with steps
     // update repeat period for months
-    // figure out how to compile for linux (without dotnet memes)
+    // move files to local dirs (not sure)
+    // add uninstall command
 
     internal class Program
     {

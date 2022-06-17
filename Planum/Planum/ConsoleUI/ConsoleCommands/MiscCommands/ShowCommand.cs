@@ -297,7 +297,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         showCategory = true;
                     else if (argsList[i] == "-d" && !showDescription)
                         showDescription = true;
-                    else if (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr")
+                    else if (argsList[i].Length > 3 && (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr"))
                     {
                         string[] intFilters =
                         {
@@ -421,7 +421,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         showArchivedTasks = true;
                     else if (argsList[i] == "-ao" && !showOnlyArchivedTasks)
                         showOnlyArchivedTasks = true;
-                    else if (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr")
+                    else if (argsList[i].Length > 3 && (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr"))
                     {
                         string[] intFilters =
                         {
