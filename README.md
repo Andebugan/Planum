@@ -6,10 +6,10 @@ The console version of the application is on the branch *console_ui*.
 ## Features
 - simple console interface
 - convenient task management tools
-- support for windows
+- support for windows/linux
 
 ## Coming soon
-- build for linux platforms
+- new commands
 - new views for tasks
 - GUI
 
