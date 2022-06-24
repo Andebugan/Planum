@@ -364,7 +364,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             // tag ids
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("tags: ");
+            Console.Write("tags:\n");
             Console.ForegroundColor = ConsoleColor.White;
             var doc = new Document();
 
@@ -438,7 +438,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             // parent ids
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("parents: ");
+            Console.Write("parents:\n");
             Console.ForegroundColor = ConsoleColor.White;
             doc = new Document();
 
@@ -512,7 +512,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             // child ids
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("children: ");
+            Console.Write("children:\n");
             Console.ForegroundColor = ConsoleColor.White;
             doc = new Document();
 
@@ -586,7 +586,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             // status ids
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("status queue: ");
+            Console.Write("status queue:\n");
             Console.ForegroundColor = ConsoleColor.White;
             doc = new Document();
 

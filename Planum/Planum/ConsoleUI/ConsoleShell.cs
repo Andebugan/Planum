@@ -38,8 +38,10 @@ namespace Planum.ConsoleUI
                           "│ ╰╯ │ │ │    │ ╭╮ │ │ ╭╮ │ │ ││ │ │ ╭╮ ╭╮ │\n" +
                           "│ ╭──╯ │ │    │ ╰╯ │ │ ││ │ │ ││ │ │ ││ ││ │\n" +
                           "│ │    │ ╰──╮ │ ╭╮ │ │ ││ │ │ ╰╯ │ │ ││ ││ │\n" +
-                          "╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯\n";
-            Console.WriteLine(text);
+                          "╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯";
+            Console.Write(text);
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(" " + Config.ConfigData.LoadConfig().version + "\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 

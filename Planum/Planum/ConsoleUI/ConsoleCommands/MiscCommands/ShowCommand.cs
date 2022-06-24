@@ -199,67 +199,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 showRepeatPeriod);
         }
 
-        public int TryGetIdFilter(string filterName, string parsedString, ref List<string> filters)
-        {
-            string filter = filterName + "=";
-            if (parsedString.Length > filter.Length && parsedString.Substring(0, filter.Length) == filter)
-            {
-                int id;
-                if (!int.TryParse(parsedString.Substring(filter.Length), out id) || id < 0)
-                {
-                    return -1;
-                }
-                filters.Add(filterName + id.ToString());
-                return 0;
-            }
-            return 1;
-        }
-
-        public int TryGetStringFilter(string filterName, ref List<string> argsList, ref List<string> filters, ref int i)
-        {
-            string filter = filterName + "=";
-            if (argsList[i].Length > filter.Length && argsList[i].Substring(0, filter.Length) == filter)
-            {
-                string filterValue = argsList[i].Substring(filter.Length);
-
-                if (filterValue[0] == '{' && filterValue[filterValue.Length - 1] == '}')
-                {
-                    filterValue = filterValue.Replace("{", "");
-                    filterValue = filterValue.Replace("}", "");
-                    filters.Add(filterName + filterValue);
-                }
-                else if (filterValue[0] == '{' && filterValue[filterValue.Length - 1] != '}')
-                {
-                    i += 1;
-                    while (i < argsList.Count)
-                    {
-                        filterValue += " " + argsList[i];
-                        if (argsList[i][argsList[i].Length - 1] == '}')
-                        {
-                            i += 1;
-                            break;
-                        }
-                        i += 1;
-                    }
-
-                    filterValue = filterValue.Replace("{", "");
-                    filterValue = filterValue.Replace("}", "");
-                    filters.Add(filterName + filterValue);
-
-                    if (i == argsList.Count)
-                        return -2;
-                    else
-                        i -= 1;
-                }
-                else
-                {
-                    filters.Add(filterName + filterValue);
-                }
-                return 0;
-            }
-            return 1;
-        }
-
         public void Execute(string command)
         {
             string[] args = command.Split();
@@ -290,69 +229,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 List<string> argsList = new List<string>(args);
                 argsList.Remove("show");
                 argsList.Remove("tag");
-
-                for (int i = 0; i < argsList.Count; i++)
-                {
-                    if (argsList[i] == "-c" && !showCategory)
-                        showCategory = true;
-                    else if (argsList[i] == "-d" && !showDescription)
-                        showDescription = true;
-                    else if (argsList[i].Length > 3 && (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr"))
-                    {
-                        string[] intFilters =
-                        {
-                            "-f-i",
-                            "-sr-i"
-                        };
-
-                        string[] stringFilters =
-                        {
-                            "-f-n",
-                            "-sr-n",
-                            "-f-c",
-                            "-sr-c"
-                        };
-
-                        bool needBreak = false;
-                        foreach (string filter in intFilters)
-                        {
-                            int rc = TryGetIdFilter(filter, argsList[i], ref filters);
-                            if (rc == -1)
-                            {
-                                needBreak = true;
-                                parseSuccessfull = false;
-                                break;
-                            }
-                        }
-
-                        if (needBreak)
-                            break;
-
-                        foreach (string filter in stringFilters)
-                        {
-                            int rc = TryGetStringFilter(filter, ref argsList, ref filters, ref i);
-                            if (rc == -1)
-                            {
-                                needBreak = true;
-                                parseSuccessfull = false;
-                                break;
-                            }
-                            else if (rc == -2)
-                            {
-                                needBreak = true;
-                                break;
-                            }
-                        }
-
-                        if (needBreak)
-                            break;
-                    }
-                    else
-                    {
-                        parseSuccessfull = false;
-                        break;
-                    }
-                }
+                TagCommandParser parser = new TagCommandParser();
+                parseSuccessfull = parser.Parse(ref filters, argsList, ref showDescription, ref showCategory);
 
                 if (parseSuccessfull)
                 {
@@ -450,7 +328,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
                             "-sr-pn",
                             "-sr-cn"
                         };
-                        
+
+                        if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
+                            !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
+                        {
+                            parseSuccessfull = false;
+                            break;
+                        }
+
                         bool needBreak = false;
                         foreach (string filter in intFilters)
                         {
@@ -528,7 +413,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     "   -d - show description\n" +
                     "   -f[options] - filter, filters tags by some criterion (set subtraction)\n" +
                     "   -sr[options] - selector, selects from tags according to a given criterion (set addition)\n" +
-                    "   filter (-f) and selector (-sr) options:\n" +
+                    "   -nf[options] - \"not\" filter, removes tags matching the filter from result\n" +
+                    "   -nsr[options] - \"not\" selector, removes tags matching the selector from result\n" +
+                    "   filter (-f/-nf) and selector (-sr/-nsr) options:\n" +
                     "       -c={value} - filter by category\n" +
                     "       -n={value} - filter by name\n" +
                     "       -i={value} - filter by id\n" +
@@ -548,7 +435,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     "       -f[option] - filter, filters tasks by some criterion(set subtraction), can be used multiple times\n" +
                     "       -sr[option] - selector, selects from tasks according to a given criterion\n" +
                     "           (set addition), can be used multiple times\n" +
-                    "       filter (-f) and selector (-sr) options:\n" +
+                    "       -nf[options] - \"not\" filter, removes tasks matching the filter from result\n" +
+                    "       -nsr[options] - \"not\" selector, removes tasks matching the selector from result\n" +
+                    "       filter (-f/-nf) and selector (-sr/-nsr) options:\n" +
                     "           -i={value} - id\n" +
                     "           -n={value} - name\n" +
                     "           -csi={value} - current status id\n" +

@@ -61,11 +61,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     if (!added)
                         parseSuccessfull = false;
                 }
-                else if (filter.Length < 3 || (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr"))
-                {
-                    parseSuccessfull = false;
-                    break;
-                }
 
                 if (!parseSuccessfull)
                     break;

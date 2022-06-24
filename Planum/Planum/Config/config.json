@@ -4,5 +4,6 @@
   */
   "TagRepoFilePath": "Planum\\Data\\tag_data.dat",
   "TaskRepoFilePath": "Planum\\Data\\task_data.dat",
-  "UserRepoFilePath": "Planum\\Data\\user_data.dat"
+  "UserRepoFilePath": "Planum\\Data\\user_data.dat",
+  "version": "1.0.1"
 }

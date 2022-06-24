@@ -472,15 +472,15 @@ namespace Planum.Models.BuisnessLogic.Managers
                 DateTime startTime = task.StartTime;
                 DateTime deadline = task.Deadline;
                 if (task.StartTime != DateTime.MinValue)
-                    startTime = startTime + task.RepeatPeriod;
+                    startTime = startTime.Add(task.RepeatPeriod);
                 if (task.Deadline != DateTime.MinValue)
-                    deadline = deadline + task.RepeatPeriod;
+                    deadline = deadline.Add(task.RepeatPeriod);
                 Task newTask = new Task(task.Id, startTime, deadline, task.RepeatPeriod, task.TagIds, task.ParentIds,
                     task.ChildIds, task.Name, task.Timed, task.UserId, task.Description, task.IsRepeated, task.Archived,
                     task.StatusQueueIds);
 
                 newTask.SetStatusIndex(0);
-                UpdateTask(task);
+                UpdateTask(newTask);
             }
             else
                 ArchiveTask(taskId);

@@ -8,10 +8,19 @@ using Serilog;
 namespace Planum
 {
     // TODO:
-    // add move status command with steps
-    // update repeat period for months
-    // move files to local dirs (not sure)
-    // add uninstall command
+    // add range selection for ids
+    // add overdue filer (possibly other time filters)
+    // add current day filter
+    // add task queue object
+    // add tries for input with options (try again? (y/n))
+    // replace filter for standart filter in update, next, previous commands
+
+    // 1.0.1
+    // added remove filer
+    // fixed update tables for task
+    // fixed complete command for repeated task
+    // added version counter
+    // fixed status filters (ignores incorrect filters)
 
     internal class Program
     {

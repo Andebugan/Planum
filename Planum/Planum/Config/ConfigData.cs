@@ -42,5 +42,6 @@ namespace Planum.Config
         public string TagRepoFilePath { get; set; }
         public string TaskRepoFilePath { get; set; }
         public string UserRepoFilePath { get; set; }
+        public string version { get; set; }
     }
 }
