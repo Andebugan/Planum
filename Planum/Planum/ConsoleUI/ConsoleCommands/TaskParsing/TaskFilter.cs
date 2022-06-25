@@ -10,13 +10,15 @@ namespace Planum.ConsoleUI.ConsoleCommands
         {
             List<Task> filteredTasks = tasks;
             // filter
+            string fname;
             foreach (var filter in filters)
             {
-                if (filter.Length > 4 && filter.Substring(0, 4) == "-f-n")
+                fname = "-f-n";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    string name = filter.Substring(4);
+                    string name = filter.Substring(fname.Length);
                     foreach (var task in filteredTasks)
                     {
                         if (task.Name == name)
@@ -28,13 +30,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 4 && filter.Substring(0, 4) == "-f-i")
+
+                fname = "-f-i";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    int id = int.Parse(filter.Substring(4));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var task in tasks)
                     {
                         if (task.Id == id)
@@ -46,13 +54,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 6 && filter.Substring(0, 6) == "-f-csn")
+
+                fname = "-f-n";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    string currentStatusName = filter.Substring(6);
+                    string currentStatusName = filter.Substring(fname.Length);
                     foreach (var task in tasks)
                     {
                         if (task.StatusQueueIds.Count > 0)
@@ -69,13 +83,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 6 && filter.Substring(0, 6) == "-f-csi")
+
+                fname = "-f-csi";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    int id = int.Parse(filter.Substring(6));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var task in tasks)
                     {
                         if (task.StatusQueueIds.Count > 0)
@@ -91,13 +111,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-tn")
+
+                fname = "-f-tn";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    string tagName = filter.Substring(5);
+                    string tagName = filter.Substring(fname.Length);
                     foreach (var task in tasks)
                     {
                         if (task.TagIds.Count > 0)
@@ -116,13 +142,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-ti")
+
+                fname = "-f-ti";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    int id = int.Parse(filter.Substring(5));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var task in tasks)
                     {
                         if (task.TagIds.Count > 0)
@@ -140,13 +172,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-pn")
+
+                fname = "-f-pn";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    string parentName = filter.Substring(5);
+                    string parentName = filter.Substring(fname.Length);
                     foreach (var task in tasks)
                     {
                         if (task.ParentIds.Count > 0)
@@ -165,13 +203,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-pi")
+
+                fname = "-f-pi";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    int id = int.Parse(filter.Substring(5));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var task in tasks)
                     {
                         if (task.ParentIds.Count > 0)
@@ -189,13 +233,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-cn")
+
+                fname = "-f-cn";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    string childName = filter.Substring(5);
+                    string childName = filter.Substring(fname.Length);
                     foreach (var task in tasks)
                     {
                         if (task.ChildIds.Count > 0)
@@ -214,13 +264,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-f-ci")
+
+                fname = "-f-ci";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Task> tempList = new List<Task>();
-                    int id = int.Parse(filter.Substring(5));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var task in tasks)
                     {
                         if (task.ChildIds.Count > 0)
@@ -238,18 +294,311 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     }
                     filteredTasks = tempList;
                     if (!added)
+                    {
                         parseSuccessfull = false;
-                }
-                else if (filter.Length < 3 || (filter.Substring(0, 2) != "-f" && filter.Substring(0, 3) != "-sr"))
-                {
-                    parseSuccessfull = false;
-                    break;
+                        break;
+                    }
+                    continue;
                 }
 
                 if (!parseSuccessfull)
-                    break;
+                    return tasks;
             }
 
+            // not filter
+            foreach (var filter in filters)
+            {
+                fname = "-nf-n";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    string name = filter.Substring(fname.Length);
+                    foreach (var task in filteredTasks)
+                    {
+                        if (task.Name != name)
+                        {
+                            if (!tempList.Contains(task))
+                                tempList.Add(task);
+                            added = true;
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-i";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    int id = int.Parse(filter.Substring(fname.Length));
+                    foreach (var task in tasks)
+                    {
+                        if (task.Id == id)
+                        {
+                            if (!tempList.Contains(task))
+                                tempList.Add(task);
+                            added = true;
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-csn";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    string currentStatusName = filter.Substring(fname.Length);
+                    foreach (var task in tasks)
+                    {
+                        if (task.StatusQueueIds.Count > 0)
+                        {
+                            int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
+                            if (_tagManager.FindTag(statusTagId) != null &&
+                                _tagManager.FindTag(statusTagId).Name != currentStatusName)
+                            {
+                                if (!tempList.Contains(task))
+                                    tempList.Add(task);
+                                added = true;
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-csi";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    int id = int.Parse(filter.Substring(fname.Length));
+                    foreach (var task in tasks)
+                    {
+                        if (task.StatusQueueIds.Count > 0)
+                        {
+                            int statusTagId = task.StatusQueueIds[task.CurrentStatusIndex];
+                            if (statusTagId != id)
+                            {
+                                if (!tempList.Contains(task))
+                                    tempList.Add(task);
+                                added = true;
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-tn";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    string tagName = filter.Substring(fname.Length);
+                    foreach (var task in tasks)
+                    {
+                        if (task.TagIds.Count > 0)
+                        {
+                            foreach (var tag in task.TagIds)
+                            {
+                                if (_tagManager.FindTag(tag) != null &&
+                                    _tagManager.FindTag(tag).Name != tagName)
+                                {
+                                    if (!tempList.Contains(task))
+                                        tempList.Add(task);
+                                    added = true;
+                                }
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-ti";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    int id = int.Parse(filter.Substring(fname.Length));
+                    foreach (var task in tasks)
+                    {
+                        if (task.TagIds.Count > 0)
+                        {
+                            foreach (var tag in task.TagIds)
+                            {
+                                if (tag != id)
+                                {
+                                    if (!tempList.Contains(task))
+                                        tempList.Add(task);
+                                    added = true;
+                                }
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-pn";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    string parentName = filter.Substring(fname.Length);
+                    foreach (var task in tasks)
+                    {
+                        if (task.ParentIds.Count > 0)
+                        {
+                            foreach (var parent in task.ParentIds)
+                            {
+                                if (_taskManager.FindTask(parent) != null &&
+                                    _taskManager.FindTask(parent).Name != parentName)
+                                {
+                                    if (!tempList.Contains(task))
+                                        tempList.Add(task);
+                                    added = true;
+                                }
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-pi";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    int id = int.Parse(filter.Substring(fname.Length));
+                    foreach (var task in tasks)
+                    {
+                        if (task.ParentIds.Count > 0)
+                        {
+                            foreach (var parent in task.ParentIds)
+                            {
+                                if (parent != id)
+                                {
+                                    if (!tempList.Contains(task))
+                                        tempList.Add(task);
+                                    added = true;
+                                }
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-cn";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    string childName = filter.Substring(fname.Length);
+                    foreach (var task in tasks)
+                    {
+                        if (task.ChildIds.Count > 0)
+                        {
+                            foreach (var child in task.ChildIds)
+                            {
+                                if (_taskManager.FindTask(child) != null &&
+                                    _taskManager.FindTask(child).Name != childName)
+                                {
+                                    if (!tempList.Contains(task))
+                                        tempList.Add(task);
+                                    added = true;
+                                }
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nf-ci";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    List<Task> tempList = new List<Task>();
+                    int id = int.Parse(filter.Substring(fname.Length));
+                    foreach (var task in tasks)
+                    {
+                        if (task.ChildIds.Count > 0)
+                        {
+                            foreach (var child in task.ChildIds)
+                            {
+                                if (child != id)
+                                {
+                                    if (!tempList.Contains(task))
+                                        tempList.Add(task);
+                                    added = true;
+                                }
+                            }
+                        }
+                    }
+                    filteredTasks = tempList;
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                if (!parseSuccessfull)
+                    return tasks;
+            }
             return filteredTasks;
         }
     }

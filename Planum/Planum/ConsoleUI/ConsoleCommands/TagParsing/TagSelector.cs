@@ -10,13 +10,15 @@ namespace Planum.ConsoleUI.ConsoleCommands
             ITaskManager _taskManager, ITagManager _tagManager)
         {
             List<Tag> selectedTags = new List<Tag>();
+            string fname;
             // selector
             foreach (var filter in filters)
             {
-                if (filter.Length > 5 && filter.Substring(0, 5) == "-sr-c")
+                fname = "-sr-c";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
-                    string category = filter.Substring(5);
+                    string category = filter.Substring(fname.Length);
                     foreach (var tag in tags)
                     {
                         if (tag.Category == category)
@@ -26,14 +28,19 @@ namespace Planum.ConsoleUI.ConsoleCommands
                             added = true;
                         }
                     }
-
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-sr-i")
+
+                fname = "-sr-i";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
-                    int id = int.Parse(filter.Substring(5));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var tag in tags)
                     {
                         if (tag.Id == id)
@@ -43,12 +50,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         }
                     }
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
-                else if (filter.Length > 5 && filter.Substring(0, 5) == "-sr-n")
+
+                fname = "-sr-n";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
-                    string name = filter.Substring(5);
+                    string name = filter.Substring(fname.Length);
                     foreach (var tag in tags)
                     {
                         if (tag.Name == name)
@@ -59,11 +72,88 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         }
                     }
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
                 }
 
                 if (!parseSuccessfull)
-                    break;
+                    return tags;
+            }
+
+            // not selector
+            foreach (var filter in filters)
+            {
+
+                fname = "-nsr-c";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    string category = filter.Substring(fname.Length);
+                    foreach (var tag in tags)
+                    {
+                        if (tag.Category != category)
+                        {
+                            if (!selectedTags.Contains(tag))
+                                selectedTags.Add(tag);
+                            added = true;
+                        }
+                    }
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nsr-i";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    int id = int.Parse(filter.Substring(fname.Length));
+                    foreach (var tag in tags)
+                    {
+                        if (tag.Id != id)
+                        {
+                            selectedTags.Add(tag);
+                            added = true;
+                        }
+                    }
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                fname = "-nsr-n";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
+                {
+                    bool added = false;
+                    string name = filter.Substring(fname.Length);
+                    foreach (var tag in tags)
+                    {
+                        if (tag.Name != name)
+                        {
+                            if (!selectedTags.Contains(tag))
+                                selectedTags.Add(tag);
+                            added = true;
+                        }
+                    }
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                if (!parseSuccessfull)
+                    return tags;
             }
             return selectedTags;
         }

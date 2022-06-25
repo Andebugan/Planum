@@ -22,7 +22,10 @@ namespace Planum.ConsoleUI.ConsoleViews
             bool showStatusQueue = false,
             bool showStartTime = false,
             bool showDeadline = false,
-            bool showRepeatPeriod = false)
+            bool showRepeatPeriod = false,
+            bool showOverdueTasks = false,
+            bool showTodayTasks = false,
+            bool showNotOverdueTasks = false)
         {
             var doc = new Document();
 
@@ -38,8 +41,29 @@ namespace Planum.ConsoleUI.ConsoleViews
             if (showStatus)
                 grid.Columns.Add(StatusWidth);
 
+            bool hasTimeFilters = showTodayTasks || showOverdueTasks || showNotOverdueTasks;
+
             foreach (var task in tasks)
             {
+                if (hasTimeFilters)
+                {
+                    bool today = false;
+                    bool notOverdue = false;
+                    bool overdue = false;
+
+                    if (Math.Abs((DateTime.Now - task.Deadline).TotalDays) < 1 && DateTime.Now <= task.Deadline)
+                        today = true;
+
+                    if (Math.Abs((DateTime.Now - task.Deadline).TotalDays) > 1 && DateTime.Now < task.Deadline)
+                        notOverdue = true;
+
+                    if (DateTime.Now > task.Deadline)
+                        overdue = true;
+
+                    if (!(today == showTodayTasks || notOverdue == showNotOverdueTasks || overdue == showOverdueTasks))
+                        continue;
+                }
+
                 // if archived
                 if (task.Archived)
                 {

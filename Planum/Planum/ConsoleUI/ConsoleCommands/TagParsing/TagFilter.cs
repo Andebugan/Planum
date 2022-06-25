@@ -11,13 +11,15 @@ namespace Planum.ConsoleUI.ConsoleCommands
         {
             List<Tag> filteredTags = tags;
             // filter
+            string fname;
             foreach (var filter in filters)
             {
-                if (filter.Length > 4 && filter.Substring(0, 4) == "-f-c")
+                fname = "-f-c";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Tag> tempList = new List<Tag>();
-                    string category = filter.Substring(4);
+                    string category = filter.Substring(fname.Length);
                     foreach (var tag in filteredTags)
                     {
                         if (tag.Category == category)
@@ -28,14 +30,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         }
                     }
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
                     filteredTags = tempList;
+                    continue;
                 }
-                else if (filter.Length > 4 && filter.Substring(0, 4) == "-f-i")
+
+                fname = "-f-i";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Tag> tempList = new List<Tag>();
-                    int id = int.Parse(filter.Substring(4));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var tag in filteredTags)
                     {
                         if (tag.Id == id)
@@ -46,13 +54,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
                             added = true;
                         }
                     }
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
                     filteredTags = tempList;
+                    continue;
                 }
-                else if (filter.Length > 4 && filter.Substring(0, 4) == "-f-n")
+
+                fname = "-f-n";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Tag> tempList = new List<Tag>();
-                    string name = filter.Substring(4);
+                    string name = filter.Substring(fname.Length);
                     foreach (var tag in filteredTags)
                     {
                         if (tag.Name == name)
@@ -63,8 +79,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         }
                     }
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
                     filteredTags = tempList;
+                    continue;
                 }
 
                 if (!parseSuccessfull)
@@ -74,11 +94,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
             // not filter
             foreach (var filter in filters)
             {
-                if (filter.Length > 4 && filter.Substring(0, 4) == "-nf-c")
+                fname = "-nf-c";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Tag> tempList = new List<Tag>();
-                    string category = filter.Substring(4);
+                    string category = filter.Substring(fname.Length);
                     foreach (var tag in filteredTags)
                     {
                         if (tag.Category != category)
@@ -89,14 +110,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         }
                     }
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
                     filteredTags = tempList;
+                    continue;
                 }
-                else if (filter.Length > 4 && filter.Substring(0, 4) == "-nf-i")
+
+                fname = "-nf-i";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Tag> tempList = new List<Tag>();
-                    int id = int.Parse(filter.Substring(4));
+                    int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var tag in filteredTags)
                     {
                         if (tag.Id != id)
@@ -107,13 +134,21 @@ namespace Planum.ConsoleUI.ConsoleCommands
                             added = true;
                         }
                     }
+                    if (!added)
+                    {
+                        parseSuccessfull = false;
+                        break;
+                    }
                     filteredTags = tempList;
+                    continue;
                 }
-                else if (filter.Length > 4 && filter.Substring(0, 4) == "-nf-n")
+
+                fname = "-nf-n";
+                if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
                     List<Tag> tempList = new List<Tag>();
-                    string name = filter.Substring(4);
+                    string name = filter.Substring(fname.Length);
                     foreach (var tag in filteredTags)
                     {
                         if (tag.Name != name)
@@ -124,8 +159,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         }
                     }
                     if (!added)
+                    {
                         parseSuccessfull = false;
+                        break;
+                    }
                     filteredTags = tempList;
+                    continue;
                 }
 
                 if (!parseSuccessfull)

@@ -122,7 +122,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
             bool showDeadline = false,
             bool showRepeatPeriod = false,
             bool showArchivedTasks = false,
-            bool showOnlyArchivedTasks = false, List<string>? filters = null)
+            bool showOnlyArchivedTasks = false,
+            bool showOverdueTasks = false,
+            bool showTodayTasks = false,
+            bool showNotOverdueTasks = false,
+            List<string>? filters = null)
         {
             Serilog.Log.Information("show all tasks command was called");
 
@@ -253,6 +257,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 bool showRepeatPeriod = false;
                 bool showArchivedTasks = false;
                 bool showOnlyArchivedTasks = false;
+                bool showOverdueTasks = false;
+                bool showTodayTasks = false;
+                bool showNotOverdueTasks = false;
                 string displayType = "l";
 
                 List<string> filters = new List<string>();
@@ -261,121 +268,22 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 argsList.Remove("show");
                 argsList.Remove("task");
 
-                for (int i = 0; i < argsList.Count; i++)
-                {
-                    if (argsList[i] == "-all")
-                    {
-                        showDescription = true;
-                        showTags = true;
-                        showStatus = true;
-                        showParent = true;
-                        showChildren = true;
-                        showStatusQueue = true;
-                        showStartTime = true;
-                        showDeadline = true;
-                        showRepeatPeriod = true;
-                    }
-                    else if (argsList[i] == "-d" && !showDescription)
-                        showDescription = true;
-                    else if (argsList[i] == "-t" && !showTags)
-                        showTags = true;
-                    else if (argsList[i] == "-s" && !showStatus)
-                        showStatus = true;
-                    else if (argsList[i] == "-p" && !showParent)
-                        showParent = true;
-                    else if (argsList[i] == "-c" && !showChildren)
-                        showChildren = true;
-                    else if (argsList[i] == "-sq" && !showStatusQueue)
-                        showStatusQueue = true;
-                    else if (argsList[i] == "-st" && !showStartTime)
-                        showStartTime = true;
-                    else if (argsList[i] == "-dl" && !showDeadline)
-                        showDeadline = true;
-                    else if (argsList[i] == "-rp" && !showRepeatPeriod)
-                        showRepeatPeriod = true;
-                    else if (argsList[i] == "-rp" && !showRepeatPeriod)
-                        showRepeatPeriod = true;
-                    else if (argsList[i] == "-a" && !showArchivedTasks)
-                        showArchivedTasks = true;
-                    else if (argsList[i] == "-ao" && !showOnlyArchivedTasks)
-                        showOnlyArchivedTasks = true;
-                    else if (argsList[i].Length > 3 && (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr"))
-                    {
-                        string[] intFilters =
-                        {
-                            "-f-i",
-                            "-f-csi",
-                            "-f-ti",
-                            "-f-pi",
-                            "-f-ci",
-                            "-sr-i",
-                            "-sr-csi",
-                            "-sr-ti",
-                            "-sr-pi",
-                            "-sr-ci"
-                        };
-
-                        string[] stringFilters =
-                        {
-                            "-f-n",
-                            "-f-csn",
-                            "-f-tn",
-                            "-f-pn",
-                            "-f-cn",
-                            "-sr-n",
-                            "-sr-csn",
-                            "-sr-tn",
-                            "-sr-pn",
-                            "-sr-cn"
-                        };
-
-                        if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
-                            !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
-                        {
-                            parseSuccessfull = false;
-                            break;
-                        }
-
-                        bool needBreak = false;
-                        foreach (string filter in intFilters)
-                        {
-                            int rc = TryGetIdFilter(filter, argsList[i], ref filters);
-                            if (rc == -1)
-                            {
-                                needBreak = true;
-                                parseSuccessfull = false;
-                                break;
-                            }
-                        }
-
-                        if (needBreak)
-                            break;
-
-                        foreach (string filter in stringFilters)
-                        {
-                            int rc = TryGetStringFilter(filter, ref argsList, ref filters, ref i);
-                            if (rc == -1)
-                            {
-                                needBreak = true;
-                                parseSuccessfull = false;
-                                break;
-                            }
-                            else if (rc == -2)
-                            {
-                                needBreak = true;
-                                break;
-                            }
-                        }
-
-                        if (needBreak)
-                            break;
-                    }
-                    else
-                    {
-                        parseSuccessfull = false;
-                        break;
-                    }
-                }
+                TaskCommandParser parser = new TaskCommandParser();
+                parseSuccessfull = parser.Parse(ref filters, argsList,
+                    ref showDescription,
+                    ref showTags,
+                    ref showStatus,
+                    ref showParent,
+                    ref showChildren,
+                    ref showStatusQueue,
+                    ref showStartTime,
+                    ref showDeadline,
+                    ref showRepeatPeriod,
+                    ref showArchivedTasks,
+                    ref showOnlyArchivedTasks,
+                    ref showOverdueTasks,
+                    ref showTodayTasks,
+                    ref showNotOverdueTasks);
 
                 if (parseSuccessfull)
                 {
@@ -391,6 +299,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         showRepeatPeriod,
                         showArchivedTasks,
                         showOnlyArchivedTasks,
+                        showOverdueTasks,
+                        showTodayTasks,
+                        showNotOverdueTasks,
                         filters);
                     return;
                 }
@@ -432,6 +343,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     "       -r - show repeat period\n" +
                     "       -a - show archived tasks\n" +
                     "       -ao - show only archived tasks\n" +
+                    "       -od - show overdue tasks\n" +
+                    "       -nod - show not overdue tasks\n" +
+                    "       -tt - show today tasks\n" +
                     "       -f[option] - filter, filters tasks by some criterion(set subtraction), can be used multiple times\n" +
                     "       -sr[option] - selector, selects from tasks according to a given criterion\n" +
                     "           (set addition), can be used multiple times\n" +
