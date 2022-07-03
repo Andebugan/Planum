@@ -13,24 +13,30 @@ namespace Planum.ConsoleUI.ConsoleViews
         public int StatusWidth = 30;
 
         public void RenderTasks(List<Task> tasks,
-            ITagManager tagManager, ITaskManager taskManager,
-            bool showDescription = false,
-            bool showTags = false,
-            bool showStatus = false,
-            bool showParent = false,
-            bool showChildren = false,
-            bool showStatusQueue = false,
-            bool showStartTime = false,
-            bool showDeadline = false,
-            bool showRepeatPeriod = false,
-            bool showOverdueTasks = false,
-            bool showTodayTasks = false,
-            bool showNotOverdueTasks = false)
+            ITagManager tagManager, ITaskManager taskManager, Dictionary<string, bool> boolParams)
         {
             var doc = new Document();
 
             Grid grid = new Grid();
             grid.Color = DarkGray;
+
+            bool showDescription = boolParams["showDescription"];
+            bool showTags = boolParams["showTags"];
+            bool showStatus = boolParams["showStatus"];
+            bool showParent = boolParams["showParent"];
+            bool showChildren = boolParams["showChildren"];
+            bool showStatusQueue = boolParams["showStatusQueue"];
+            bool showStartTime = boolParams["showStartTime"];
+            bool showDeadline = boolParams["showDeadline"];
+            bool showRepeatPeriod = boolParams["showRepeatPeriod"];
+            bool showOverdueTasks = boolParams["showOverdueTasks"];
+            bool showTodayTasks = boolParams["showTodayTasks"];
+            bool showNotOverdueTasks = boolParams["showNotOverdueTasks"];
+
+            bool showNoParent = boolParams["showNoParent"];
+            bool showNoChildren = boolParams["showNoChildren"];
+            bool showNoStatuses = boolParams["showNoStatuses"];
+            bool showNoTags = boolParams["showNoTags"];
 
             if (!showStatus)
                 NameWidth = 70;
@@ -45,12 +51,21 @@ namespace Planum.ConsoleUI.ConsoleViews
 
             foreach (var task in tasks)
             {
+                bool today = false;
+                bool notOverdue = false;
+                bool overdue = false;
+
+                if (task.ParentIds.Count > 0 && showNoParent)
+                    continue;
+                if (task.ChildIds.Count > 0 && showNoChildren)
+                    continue;
+                if (task.TagIds.Count > 0 && showNoTags)
+                    continue;
+                if (task.StatusQueueIds.Count > 0 && showNoStatuses)
+                    continue;
+
                 if (hasTimeFilters)
                 {
-                    bool today = false;
-                    bool notOverdue = false;
-                    bool overdue = false;
-
                     if (Math.Abs((DateTime.Now - task.Deadline).TotalDays) < 1 && DateTime.Now <= task.Deadline)
                         today = true;
 
@@ -59,10 +74,13 @@ namespace Planum.ConsoleUI.ConsoleViews
 
                     if (DateTime.Now > task.Deadline)
                         overdue = true;
-
-                    if (!(today == showTodayTasks || notOverdue == showNotOverdueTasks || overdue == showOverdueTasks))
-                        continue;
                 }
+
+                if (hasTimeFilters && !(today == showTodayTasks && notOverdue == showNotOverdueTasks && overdue == showOverdueTasks))
+                    continue;
+
+                if (!task.Timed && hasTimeFilters)
+                    continue;
 
                 // if archived
                 if (task.Archived)

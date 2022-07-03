@@ -62,7 +62,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             Console.WriteLine();
         }
 
-        public void ShowAllTags(bool showCategory = false, bool showDescription = false, List<string>? filters = null)
+        public void ShowAllTags(Dictionary<string, bool> boolParams, List<string>? filters = null)
         {
             Serilog.Log.Information("show all tags command was called");
 
@@ -108,32 +108,17 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             TagListView tagListView = new TagListView();
-            tagListView.RenderTags(filteredTags, showCategory, showDescription);
+            tagListView.RenderTags(filteredTags, boolParams);
         }
 
-        public void ShowAllTasks(
-            bool showDescription = false,
-            bool showTags = false,
-            bool showStatus = false,
-            bool showParent = false,
-            bool showChildren = false,
-            bool showStatusQueue = false,
-            bool showStartTime = false,
-            bool showDeadline = false,
-            bool showRepeatPeriod = false,
-            bool showArchivedTasks = false,
-            bool showOnlyArchivedTasks = false,
-            bool showOverdueTasks = false,
-            bool showTodayTasks = false,
-            bool showNotOverdueTasks = false,
-            List<string>? filters = null)
+        public void ShowAllTasks(Dictionary<string, bool> boolParams, List<string>? filters = null)
         {
             Serilog.Log.Information("show all tasks command was called");
 
             List<Task> tasks = new List<Task>();
-            if (showOnlyArchivedTasks)
+            if (boolParams["showOnlyArchivedTasks"])
                 tasks = _taskManager.GetAllTasks(true);
-            else if (showArchivedTasks)
+            else if (boolParams["showArchivedTasks"])
                 tasks = _taskManager.GetAllTasks(null);
             else
                 tasks = _taskManager.GetAllTasks(false);
@@ -141,9 +126,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (tasks.Count == 0)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                if (showOnlyArchivedTasks)
+                if (boolParams["showOnlyArchivedTasks"])
                     Console.WriteLine("there are no archived tasks in the system\n");
-                else if (showArchivedTasks)
+                else if (boolParams["showArchivedTasks"])
                     Console.WriteLine("there are no tasks in the system\n");
                 else
                     Console.WriteLine("there are no unarchived tasks in the system\n");
@@ -171,12 +156,20 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 bool hasSelectors = false;
                 foreach (string filter in filters)
                 {
-                    if (filter.Substring(0, 3) == "-sr")
+                    if (filter.Substring(0, 3) == "-sr" || filter.Substring(0, 4) == "-nsr")
                         hasSelectors = true;
                 }
 
                 if (hasSelectors)
                     filteredTasks = selectedTasks;
+
+                if (hasSelectors && selectedTasks.Count == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("incorrect selector parameters\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return;
+                }
 
                 TaskFilter taskFilter = new TaskFilter();
                 filteredTasks = taskFilter.Filter(filters, filteredTasks, ref parseSuccessfull, _taskManager, _tagManager);
@@ -191,16 +184,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             }
 
             TaskListView taskListView = new TaskListView();
-            taskListView.RenderTasks(filteredTasks, _tagManager, _taskManager,
-                showDescription,
-                showTags,
-                showStatus,
-                showParent,
-                showChildren,
-                showStatusQueue,
-                showStartTime,
-                showDeadline,
-                showRepeatPeriod);
+            taskListView.RenderTasks(filteredTasks, _tagManager, _taskManager, boolParams);
         }
 
         public void Execute(string command)
@@ -225,8 +209,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (args[args.Length - 1] == "tag")
             {
                 bool parseSuccessfull = true;
-                bool showDescription = false;
-                bool showCategory = false;
+
+                Dictionary<string, bool> boolParams = new Dictionary<string, bool>()
+                {
+                    { "showDescription", false },
+                    { "showCategory", false }
+                };
 
                 List<string> filters = new List<string>();
 
@@ -234,11 +222,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 argsList.Remove("show");
                 argsList.Remove("tag");
                 TagCommandParser parser = new TagCommandParser();
-                parseSuccessfull = parser.Parse(ref filters, argsList, ref showDescription, ref showCategory);
+                parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, "show");
 
                 if (parseSuccessfull)
                 {
-                    ShowAllTags(showCategory, showDescription, filters);
+                    ShowAllTags(boolParams, filters);
                     return;
                 }
             }
@@ -246,21 +234,29 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (args[args.Length - 1] == "task")
             {
                 bool parseSuccessfull = true;
-                bool showDescription = false;
-                bool showTags = false;
-                bool showStatus = false;
-                bool showParent = false;
-                bool showChildren = false;
-                bool showStatusQueue = false;
-                bool showStartTime = false;
-                bool showDeadline = false;
-                bool showRepeatPeriod = false;
-                bool showArchivedTasks = false;
-                bool showOnlyArchivedTasks = false;
-                bool showOverdueTasks = false;
-                bool showTodayTasks = false;
-                bool showNotOverdueTasks = false;
                 string displayType = "l";
+
+                Dictionary<string, bool> boolParams = new Dictionary<string, bool>()
+                {
+                    { "showDescription", false },
+                    { "showTags", false },
+                    { "showStatus", false },
+                    { "showParent", false },
+                    { "showChildren", false },
+                    { "showStatusQueue", false },
+                    { "showStartTime", false },
+                    { "showDeadline", false },
+                    { "showRepeatPeriod", false },
+                    { "showArchivedTasks", false },
+                    { "showOnlyArchivedTasks", false },
+                    { "showTodayTasks", false },
+                    { "showOverdueTasks", false },
+                    { "showNotOverdueTasks", false },
+                    { "showNoParent", false },
+                    { "showNoChildren", false },
+                    { "showNoTags", false },
+                    { "showNoStatuses", false },
+                };
 
                 List<string> filters = new List<string>();
 
@@ -269,40 +265,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 argsList.Remove("task");
 
                 TaskCommandParser parser = new TaskCommandParser();
-                parseSuccessfull = parser.Parse(ref filters, argsList,
-                    ref showDescription,
-                    ref showTags,
-                    ref showStatus,
-                    ref showParent,
-                    ref showChildren,
-                    ref showStatusQueue,
-                    ref showStartTime,
-                    ref showDeadline,
-                    ref showRepeatPeriod,
-                    ref showArchivedTasks,
-                    ref showOnlyArchivedTasks,
-                    ref showOverdueTasks,
-                    ref showTodayTasks,
-                    ref showNotOverdueTasks);
+                parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, "show");
 
                 if (parseSuccessfull)
                 {
-                    ShowAllTasks(
-                        showDescription,
-                        showTags,
-                        showStatus,
-                        showParent,
-                        showChildren,
-                        showStatusQueue,
-                        showStartTime,
-                        showDeadline,
-                        showRepeatPeriod,
-                        showArchivedTasks,
-                        showOnlyArchivedTasks,
-                        showOverdueTasks,
-                        showTodayTasks,
-                        showNotOverdueTasks,
-                        filters);
+                    ShowAllTasks(boolParams, filters);
                     return;
                 }
             }
@@ -334,10 +301,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     "       -all - show full info about task\n" +
                     "       -d - show description\n" +
                     "       -t - show tags\n" +
+                    "       -nt - show with no tags\n" +
                     "       -s - show status\n" +
                     "       -p - show parents\n" +
+                    "       -np - show with no parents\n" +
                     "       -c - show children\n" +
+                    "       -nc - show with no children\n" +
                     "       -sq - show status queue\n" +
+                    "       -nsq - show with no status queue\n" +
                     "       -st - show start time\n" +
                     "       -dl - show deadline\n" +
                     "       -r - show repeat period\n" +

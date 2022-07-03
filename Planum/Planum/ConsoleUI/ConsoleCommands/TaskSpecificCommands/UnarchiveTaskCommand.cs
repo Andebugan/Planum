@@ -88,44 +88,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
             argsList.Remove("unarchive");
             argsList.Remove("task");
 
-            bool showDescription = false;
-            bool showTags = false;
-            bool showStatus = false;
-            bool showParent = false;
-            bool showChildren = false;
-            bool showStatusQueue = false;
-            bool showStartTime = false;
-            bool showDeadline = false;
-            bool showRepeatPeriod = false;
-            bool showArchivedTasks = false;
-            bool showOnlyArchivedTasks = false;
-            bool showOverdueTasks = false;
-            bool showTodayTasks = false;
-            bool showNotOverdueTasks = false;
+            Dictionary<string, bool> boolParams = new Dictionary<string, bool>()
+            {
+
+            };
 
             TaskCommandParser parser = new TaskCommandParser();
-            parseSuccessfull = parser.Parse(ref filters, argsList,
-                ref showDescription,
-                ref showTags,
-                ref showStatus,
-                ref showParent,
-                ref showChildren,
-                ref showStatusQueue,
-                ref showStartTime,
-                ref showDeadline,
-                ref showRepeatPeriod,
-                ref showArchivedTasks,
-                ref showOnlyArchivedTasks,
-                ref showOverdueTasks,
-                ref showTodayTasks,
-                ref showNotOverdueTasks);
-
-            if (showDescription || showTags || showStatus ||
-                showParent || showChildren || showStatusQueue ||
-                showStartTime || showDeadline || showRepeatPeriod ||
-                showArchivedTasks || showOnlyArchivedTasks || showOverdueTasks ||
-                showTodayTasks || showNotOverdueTasks)
-                parseSuccessfull = false;
+            parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, "unarchive");
 
             if (parseSuccessfull)
             {

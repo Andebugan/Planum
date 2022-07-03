@@ -9,10 +9,18 @@ namespace Planum
 {
     // TODO:
     // add range selection for ids
-    // add current day filter
     // add task queue object
-    // add tries for input with options (try again? (y/n))
     // replace filter for standart filter in update, next, previous commands
+    // upgrade help command (add stuff like help [name] and ect)
+    // add commands for "no children", "no parents", "no tags", "no status" filters
+
+    // IN PROGRESS:
+
+    // 1.0.2
+    // added -np, -nc, -nt, -nsq flags
+    // fixed double show bug for -f-i show filter for tag
+    // added parameters for update (opportunity to change selected fields like -d - description, -s - status and ect)
+    // removed status id update when status index list wasn't changed
 
     internal class Program
     {

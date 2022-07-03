@@ -11,12 +11,20 @@ namespace Planum.ConsoleUI.ConsoleViews
         public int NameWidth = 25;
         public int CategoryWidth = 25;
 
-        public void RenderTags(List<Tag> tags, bool showCategory = false, bool showDescription = false)
+        public void RenderTags(List<Tag> tags, Dictionary<string, bool> boolParams)
         {
             var doc = new Document();
 
             Grid grid = new Grid();
             grid.Color = DarkGray;
+
+            bool showCategory = false;
+            bool showDescription = false;
+
+            if (boolParams.ContainsKey("showCategory"))
+                showCategory = boolParams["showCategory"];
+            if (boolParams.ContainsKey("showDescription"))
+                showDescription = boolParams["showDescription"];
 
             grid.Columns.Add(GridLength.Auto);
             grid.Columns.Add(NameWidth);

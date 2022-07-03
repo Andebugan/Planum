@@ -1,6 +1,7 @@
 ﻿using Planum.Models.BuisnessLogic.Entities;
 using Planum.Models.BuisnessLogic.Managers;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Planum.ConsoleUI.ConsoleCommands
 {
@@ -10,6 +11,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             ITaskManager _taskManager, ITagManager _tagManager)
         {
             List<Tag> filteredTags = tags;
+            int oldCount = filteredTags.Count;
             // filter
             string fname;
             foreach (var filter in filters)
@@ -50,7 +52,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         {
                             if (!tempList.Contains(tag))
                                 tempList.Add(tag);
-                            tempList.Add(tag);
                             added = true;
                         }
                     }
@@ -91,6 +92,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     return tags;
             }
 
+            if (filters.Any(x => x.Substring(0, 2) == "-f") && filteredTags.Count == oldCount)
+            {
+                parseSuccessfull = false;
+                return tags;
+            }
+
+            oldCount = filteredTags.Count;
+
             // not filter
             foreach (var filter in filters)
             {
@@ -98,14 +107,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
-                    List<Tag> tempList = new List<Tag>();
+                    List<Tag> tempList = new List<Tag>(filteredTags);
                     string category = filter.Substring(fname.Length);
                     foreach (var tag in filteredTags)
                     {
-                        if (tag.Category != category)
+                        if (tag.Category == category)
                         {
-                            if (!tempList.Contains(tag))
-                                tempList.Add(tag);
+                            if (tempList.Contains(tag))
+                                tempList.Remove(tag);
                             added = true;
                         }
                     }
@@ -122,15 +131,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
-                    List<Tag> tempList = new List<Tag>();
+                    List<Tag> tempList = new List<Tag>(filteredTags);
                     int id = int.Parse(filter.Substring(fname.Length));
                     foreach (var tag in filteredTags)
                     {
-                        if (tag.Id != id)
+                        if (tag.Id == id)
                         {
-                            if (!tempList.Contains(tag))
-                                tempList.Add(tag);
-                            tempList.Add(tag);
+                            if (tempList.Contains(tag))
+                                tempList.Remove(tag);
                             added = true;
                         }
                     }
@@ -147,14 +155,14 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 if (filter.Length > fname.Length && filter.Substring(0, fname.Length) == fname)
                 {
                     bool added = false;
-                    List<Tag> tempList = new List<Tag>();
+                    List<Tag> tempList = new List<Tag>(filteredTags);
                     string name = filter.Substring(fname.Length);
                     foreach (var tag in filteredTags)
                     {
-                        if (tag.Name != name)
+                        if (tag.Name == name)
                         {
-                            if (!tempList.Contains(tag))
-                                tempList.Add(tag);
+                            if (tempList.Contains(tag))
+                                tempList.Remove(tag);
                             added = true;
                         }
                     }
@@ -169,6 +177,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                 if (!parseSuccessfull)
                     return tags;
+            }
+
+            if (filters.Any(x => x.Substring(0, 3) == "-nf") && filteredTags.Count == oldCount)
+            {
+                parseSuccessfull = false;
+                return tags;
             }
 
             return filteredTags;

@@ -7,71 +7,76 @@ namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class TaskCommandParser
     {
-        public bool Parse(ref List<string> filters, List<string> argsList,
-        ref bool showDescription,
-        ref bool showTags,
-        ref bool showStatus,
-        ref bool showParent,
-        ref bool showChildren,
-        ref bool showStatusQueue,
-        ref bool showStartTime,
-        ref bool showDeadline,
-        ref bool showRepeatPeriod,
-        ref bool showArchivedTasks,
-        ref bool showOnlyArchivedTasks,
-        ref bool showOverdueTasks,
-        ref bool showTodayTasks,
-        ref bool showNotOverdueTasks)
+        public bool Parse(ref List<string> filters, List<string> argsList, ref Dictionary<string, bool> boolParams, string command)
         {
             FilterGetter filterGetter = new FilterGetter();
+            string[] filterStrings =
+            {
+                "-f",
+                "-nf",
+                "-sr",
+                "-nsr",
+                "-"
+            };
+
             for (int i = 0; i < argsList.Count; i++)
             {
-                if (argsList[i] == "-all")
+                if (command == "show")
                 {
-                    showDescription = true;
-                    showTags = true;
-                    showStatus = true;
-                    showParent = true;
-                    showChildren = true;
-                    showStatusQueue = true;
-                    showStartTime = true;
-                    showDeadline = true;
-                    showRepeatPeriod = true;
-                }
-                else if (argsList[i] == "-d" && !showDescription)
-                    showDescription = true;
-                else if (argsList[i] == "-t" && !showTags)
-                    showTags = true;
-                else if (argsList[i] == "-s" && !showStatus)
-                    showStatus = true;
-                else if (argsList[i] == "-p" && !showParent)
-                    showParent = true;
-                else if (argsList[i] == "-c" && !showChildren)
-                    showChildren = true;
-                else if (argsList[i] == "-sq" && !showStatusQueue)
-                    showStatusQueue = true;
-                else if (argsList[i] == "-st" && !showStartTime)
-                    showStartTime = true;
-                else if (argsList[i] == "-dl" && !showDeadline)
-                    showDeadline = true;
-                else if (argsList[i] == "-rp" && !showRepeatPeriod)
-                    showRepeatPeriod = true;
-                else if (argsList[i] == "-rp" && !showRepeatPeriod)
-                    showRepeatPeriod = true;
-                else if (argsList[i] == "-a" && !showArchivedTasks)
-                    showArchivedTasks = true;
-                else if (argsList[i] == "-ao" && !showOnlyArchivedTasks)
-                    showOnlyArchivedTasks = true;
-                else if (argsList[i] == "-od" && !showOverdueTasks)
-                    showOverdueTasks = true;
-                else if (argsList[i] == "-tt" && !showTodayTasks)
-                    showTodayTasks = true;
-                else if (argsList[i] == "-nod" && !showNotOverdueTasks)
-                    showNotOverdueTasks = true;
-                else if (argsList[i].Length > 3 && (argsList[i].Substring(0, 2) == "-f" || argsList[i].Substring(0, 3) == "-sr"))
-                {
-                    string[] intFilters =
+                    if (argsList[i] == "-all")
                     {
+                        boolParams["showDescription"] = true;
+                        boolParams["showTags"] = true;
+                        boolParams["showStatus"] = true;
+                        boolParams["showParent"] = true;
+                        boolParams["showChildren"] = true;
+                        boolParams["showStatusQueue"] = true;
+                        boolParams["showStartTime"] = true;
+                        boolParams["showDeadline"] = true;
+                        boolParams["showRepeatPeriod"] = true;
+                    }
+                    else if (argsList[i] == "-d" && !boolParams["showDescription"])
+                        boolParams["showDescription"] = true;
+                    else if (argsList[i] == "-t" && !boolParams["showTags"])
+                        boolParams["showTags"] = true;
+                    else if (argsList[i] == "-s" && !boolParams["showStatus"])
+                        boolParams["showStatus"] = true;
+                    else if (argsList[i] == "-p" && !boolParams["showParent"])
+                        boolParams["showParent"] = true;
+                    else if (argsList[i] == "-c" && !boolParams["showChildren"])
+                        boolParams["showChildren"] = true;
+                    else if (argsList[i] == "-sq" && !boolParams["showStatusQueue"])
+                        boolParams["showStatusQueue"] = true;
+                    else if (argsList[i] == "-st" && !boolParams["showStartTime"])
+                        boolParams["showStartTime"] = true;
+                    else if (argsList[i] == "-dl" && !boolParams["showDeadline"])
+                        boolParams["showDeadline"] = true;
+                    else if (argsList[i] == "-rp" && !boolParams["showRepeatPeriod"])
+                        boolParams["showRepeatPeriod"] = true;
+                    else if (argsList[i] == "-rp" && !boolParams["showRepeatPeriod"])
+                        boolParams["showRepeatPeriod"] = true;
+                    else if (argsList[i] == "-a" && !boolParams["showArchivedTasks"])
+                        boolParams["showArchivedTasks"] = true;
+                    else if (argsList[i] == "-ao" && !boolParams["showOnlyArchivedTasks"])
+                        boolParams["showOnlyArchivedTasks"] = true;
+                    else if (argsList[i] == "-od" && !boolParams["showOverdueTasks"])
+                        boolParams["showOverdueTasks"] = true;
+                    else if (argsList[i] == "-tt" && !boolParams["showTodayTasks"])
+                        boolParams["showTodayTasks"] = true;
+                    else if (argsList[i] == "-nod" && !boolParams["showNotOverdueTask"])
+                        boolParams["showNotOverdueTasks"] = true;
+                    else if (argsList[i] == "-np" && !boolParams["showNoParent"])
+                        boolParams["showNoParent"] = true;
+                    else if (argsList[i] == "-nc" && !boolParams["showNoChildren"])
+                        boolParams["showNoChildren"] = true;
+                    else if (argsList[i] == "-nsq" && !boolParams["showNoStatuses"])
+                        boolParams["showNoStatuses"] = true;
+                    else if (argsList[i] == "-nt" && !boolParams["showNoTags"])
+                        boolParams["showNoTags"] = true;
+                    else if (argsList[i].Length > 3 && filterStrings.Any(x => x == (argsList[i].Substring(0, x.Length))))
+                    {
+                        string[] intFilters =
+                        {
                             "-f-i",
                             "-f-csi",
                             "-f-ti",
@@ -95,8 +100,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
                             "-nsr-ci"
                         };
 
-                    string[] stringFilters =
-                    {
+                        string[] stringFilters =
+                        {
                             "-f-n",
                             "-f-csn",
                             "-f-tn",
@@ -120,45 +125,408 @@ namespace Planum.ConsoleUI.ConsoleCommands
                             "-nsr-cn"
                         };
 
-                    if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
-                        !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
+                        if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
+                            !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
+                        {
+                            return false;
+                        }
+
+                        bool needBreak = false;
+                        foreach (string filter in intFilters)
+                        {
+                            int rc = filterGetter.TryGetIdFilter(filter, argsList[i], ref filters);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+
+                        foreach (string filter in stringFilters)
+                        {
+                            int rc = filterGetter.TryGetStringFilter(filter, ref argsList, ref filters, ref i);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                            else if (rc == -2)
+                            {
+                                needBreak = true;
+                                break;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+                    }
+                    else
                     {
                         return false;
                     }
-
-                    bool needBreak = false;
-                    foreach (string filter in intFilters)
-                    {
-                        int rc = filterGetter.TryGetIdFilter(filter, argsList[i], ref filters);
-                        if (rc == -1)
-                        {
-                            return false;
-                        }
-                    }
-
-                    if (needBreak)
-                        break;
-
-                    foreach (string filter in stringFilters)
-                    {
-                        int rc = filterGetter.TryGetStringFilter(filter, ref argsList, ref filters, ref i);
-                        if (rc == -1)
-                        {
-                            return false;
-                        }
-                        else if (rc == -2)
-                        {
-                            needBreak = true;
-                            break;
-                        }
-                    }
-
-                    if (needBreak)
-                        break;
                 }
-                else
+                else if (command == "update")
                 {
-                    return false;
+                    if (argsList[i] == "-n" && !boolParams["updateName"])
+                        boolParams["updateName"] = true;
+                    else if (argsList[i] == "-d" && !boolParams["updateDescription"])
+                        boolParams["updateDescription"] = true;
+                    else if (argsList[i] == "-t" && !boolParams["updateTags"])
+                        boolParams["updateTags"] = true;
+                    else if (argsList[i] == "-s" && !boolParams["updateStatus"])
+                        boolParams["updateStatus"] = true;
+                    else if (argsList[i] == "-p" && !boolParams["updateParent"])
+                        boolParams["updateParent"] = true;
+                    else if (argsList[i] == "-c" && !boolParams["updateChild"])
+                        boolParams["updateChild"] = true;
+                    else if (argsList[i] == "-st" && !boolParams["updateStartTime"])
+                        boolParams["updateStartTime"] = true;
+                    else if (argsList[i] == "-dl" && !boolParams["updateDeadline"])
+                        boolParams["updateDeadline"] = true;
+                    else if (argsList[i] == "-r" && !boolParams["updateRepeatPeriod"])
+                        boolParams["updateRepeatPeriod"] = true;
+                    else if (argsList[i] == "-tm" && !boolParams["updateTimed"])
+                        boolParams["updateTimed"] = true;
+                    else if (argsList[i].Length > 3 && filterStrings.Any(x => x == (argsList[i].Substring(0, x.Length))))
+                    {
+                        string[] intFilters =
+                        {
+                            "-i",
+                        };
+
+                        string[] stringFilters =
+                        {
+                           
+                        };
+
+                        if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
+                            !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
+                        {
+                            return false;
+                        }
+
+                        bool needBreak = false;
+                        foreach (string filter in intFilters)
+                        {
+                            int rc = filterGetter.TryGetIdFilter(filter, argsList[i], ref filters);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                            if (filters.FindAll(x => x.Substring(0, 2) == "-i").Count > 1)
+                                return false;
+                        }
+
+                        if (needBreak)
+                            break;
+
+                        foreach (string filter in stringFilters)
+                        {
+                            int rc = filterGetter.TryGetStringFilter(filter, ref argsList, ref filters, ref i);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                            else if (rc == -2)
+                            {
+                                needBreak = true;
+                                break;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (command == "archive")
+                {
+                   if (argsList[i].Length > 3 && filterStrings.Any(x => x == (argsList[i].Substring(0, x.Length))))
+                    {
+                        string[] intFilters =
+                        {
+                            "-f-i",
+                            "-f-csi",
+                            "-f-ti",
+                            "-f-pi",
+                            "-f-ci",
+                            "-sr-i",
+                            "-sr-csi",
+                            "-sr-ti",
+                            "-sr-pi",
+                            "-sr-ci",
+
+                            "-nf-i",
+                            "-nf-csi",
+                            "-nf-ti",
+                            "-nf-pi",
+                            "-nf-ci",
+                            "-nsr-i",
+                            "-nsr-csi",
+                            "-nsr-ti",
+                            "-nsr-pi",
+                            "-nsr-ci"
+                        };
+
+                        string[] stringFilters =
+                        {
+                            "-f-n",
+                            "-f-csn",
+                            "-f-tn",
+                            "-f-pn",
+                            "-f-cn",
+                            "-sr-n",
+                            "-sr-csn",
+                            "-sr-tn",
+                            "-sr-pn",
+                            "-sr-cn",
+
+                            "-nf-n",
+                            "-nf-csn",
+                            "-nf-tn",
+                            "-nf-pn",
+                            "-nf-cn",
+                            "-nsr-n",
+                            "-nsr-csn",
+                            "-nsr-tn",
+                            "-nsr-pn",
+                            "-nsr-cn"
+                        };
+
+                        if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
+                            !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
+                        {
+                            return false;
+                        }
+
+                        bool needBreak = false;
+                        foreach (string filter in intFilters)
+                        {
+                            int rc = filterGetter.TryGetIdFilter(filter, argsList[i], ref filters);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+
+                        foreach (string filter in stringFilters)
+                        {
+                            int rc = filterGetter.TryGetStringFilter(filter, ref argsList, ref filters, ref i);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                            else if (rc == -2)
+                            {
+                                needBreak = true;
+                                break;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (command == "unarchive")
+                {
+                    if (argsList[i].Length > 3 && filterStrings.Any(x => x == (argsList[i].Substring(0, x.Length))))
+                    {
+                        string[] intFilters =
+                        {
+                            "-f-i",
+                            "-f-csi",
+                            "-f-ti",
+                            "-f-pi",
+                            "-f-ci",
+                            "-sr-i",
+                            "-sr-csi",
+                            "-sr-ti",
+                            "-sr-pi",
+                            "-sr-ci",
+
+                            "-nf-i",
+                            "-nf-csi",
+                            "-nf-ti",
+                            "-nf-pi",
+                            "-nf-ci",
+                            "-nsr-i",
+                            "-nsr-csi",
+                            "-nsr-ti",
+                            "-nsr-pi",
+                            "-nsr-ci"
+                        };
+
+                        string[] stringFilters =
+                        {
+                            "-f-n",
+                            "-f-csn",
+                            "-f-tn",
+                            "-f-pn",
+                            "-f-cn",
+                            "-sr-n",
+                            "-sr-csn",
+                            "-sr-tn",
+                            "-sr-pn",
+                            "-sr-cn",
+
+                            "-nf-n",
+                            "-nf-csn",
+                            "-nf-tn",
+                            "-nf-pn",
+                            "-nf-cn",
+                            "-nsr-n",
+                            "-nsr-csn",
+                            "-nsr-tn",
+                            "-nsr-pn",
+                            "-nsr-cn"
+                        };
+
+                        if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
+                            !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
+                        {
+                            return false;
+                        }
+
+                        bool needBreak = false;
+                        foreach (string filter in intFilters)
+                        {
+                            int rc = filterGetter.TryGetIdFilter(filter, argsList[i], ref filters);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+
+                        foreach (string filter in stringFilters)
+                        {
+                            int rc = filterGetter.TryGetStringFilter(filter, ref argsList, ref filters, ref i);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                            else if (rc == -2)
+                            {
+                                needBreak = true;
+                                break;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (command == "complete")
+                {
+                    if (argsList[i].Length > 3 && filterStrings.Any(x => x == (argsList[i].Substring(0, x.Length))))
+                    {
+                        string[] intFilters =
+                        {
+                            "-f-i",
+                            "-f-csi",
+                            "-f-ti",
+                            "-f-pi",
+                            "-f-ci",
+                            "-sr-i",
+                            "-sr-csi",
+                            "-sr-ti",
+                            "-sr-pi",
+                            "-sr-ci",
+
+                            "-nf-i",
+                            "-nf-csi",
+                            "-nf-ti",
+                            "-nf-pi",
+                            "-nf-ci",
+                            "-nsr-i",
+                            "-nsr-csi",
+                            "-nsr-ti",
+                            "-nsr-pi",
+                            "-nsr-ci"
+                        };
+
+                        string[] stringFilters =
+                        {
+                            "-f-n",
+                            "-f-csn",
+                            "-f-tn",
+                            "-f-pn",
+                            "-f-cn",
+                            "-sr-n",
+                            "-sr-csn",
+                            "-sr-tn",
+                            "-sr-pn",
+                            "-sr-cn",
+
+                            "-nf-n",
+                            "-nf-csn",
+                            "-nf-tn",
+                            "-nf-pn",
+                            "-nf-cn",
+                            "-nsr-n",
+                            "-nsr-csn",
+                            "-nsr-tn",
+                            "-nsr-pn",
+                            "-nsr-cn"
+                        };
+
+                        if (!intFilters.Any(x => x == argsList[i].Split('=')[0]) &&
+                            !stringFilters.Any(x => x == argsList[i].Split('=')[0]))
+                        {
+                            return false;
+                        }
+
+                        bool needBreak = false;
+                        foreach (string filter in intFilters)
+                        {
+                            int rc = filterGetter.TryGetIdFilter(filter, argsList[i], ref filters);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+
+                        foreach (string filter in stringFilters)
+                        {
+                            int rc = filterGetter.TryGetStringFilter(filter, ref argsList, ref filters, ref i);
+                            if (rc == -1)
+                            {
+                                return false;
+                            }
+                            else if (rc == -2)
+                            {
+                                needBreak = true;
+                                break;
+                            }
+                        }
+
+                        if (needBreak)
+                            break;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
