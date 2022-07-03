@@ -21,6 +21,7 @@ namespace Planum
     // fixed double show bug for -f-i show filter for tag
     // added parameters for update (opportunity to change selected fields like -d - description, -s - status and ect)
     // removed status id update when status index list wasn't changed
+    // fix child/parent updating problem
 
     internal class Program
     {

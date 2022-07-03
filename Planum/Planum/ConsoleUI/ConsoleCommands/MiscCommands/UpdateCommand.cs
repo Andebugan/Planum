@@ -694,7 +694,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                 foreach (int parentId in parentIds)
                 {
-                    if (_tagManager.FindTag(parentId) == null)
+                    if (_taskManager.FindTask(parentId) == null)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("incorrect parent id\n");
@@ -767,7 +767,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                     foreach (int parentId in parentIds)
                     {
-                        if (_tagManager.FindTag(parentId) == null)
+                        if (_taskManager.FindTask(parentId) == null)
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("incorrect parent id\n");
@@ -828,7 +828,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                 foreach (int childId in childIds)
                 {
-                    if (_tagManager.FindTag(childId) == null)
+                    if (_taskManager.FindTask(childId) == null)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("incorrect child id\n");
@@ -901,7 +901,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                     foreach (int childId in childIds)
                     {
-                        if (_tagManager.FindTag(childId) == null)
+                        if (_taskManager.FindTask(childId) == null)
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("incorrect child id\n");
