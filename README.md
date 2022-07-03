@@ -17,7 +17,7 @@ The console version of the application is on the branch *console_ui*.
 
 ## Coming soon
 - new commands
-- new views for tasks (mind map, task tree, calendar)
+- new views for tasks (mind map, task tree, calendar, flag view)
 - GUI
 
 ## Contributing
