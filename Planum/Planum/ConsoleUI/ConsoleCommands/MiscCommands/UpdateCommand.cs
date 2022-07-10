@@ -355,7 +355,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             _tagManager.UpdateTag(new Tag(tag.Id, tag.UserId, category, name, description));
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("successfully updated tag\n");
+            Console.WriteLine($"successfully updated tag with id={tag.Id}\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -1319,11 +1319,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         + task.RepeatPeriod.Minutes.ToString() + "m");
 
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write("enter task repeat period as yyyy-mm-dd hh:mm : ");
+                    Console.Write("enter task repeat period as d:hh:mm : ");
                     Console.ForegroundColor = ConsoleColor.White;
 
                     input = Console.ReadLine();
-                    if (!TimeSpan.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
+                    if (!TimeSpan.TryParseExact(input, @"d\:hh\:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("incorrect input\n");
@@ -1509,7 +1509,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     _taskManager.UpdateTask(newTask);
 
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("succsessfully updated task\n");
+                    Console.WriteLine($"succsessfully updated task with id={task.Id}\n");
                     Console.ForegroundColor = ConsoleColor.White;
                     return;
                 }
@@ -1539,11 +1539,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 if (input == "y")
                 {
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write("enter task repeat period as yyyy-mm-dd hh:mm : ");
+                    Console.Write("enter task repeat period d:mm:hh : ");
                     Console.ForegroundColor = ConsoleColor.White;
 
                     input = Console.ReadLine();
-                    if (!TimeSpan.TryParseExact(input, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
+                    if (!TimeSpan.TryParseExact(input, @"d\:hh\:mm", CultureInfo.InvariantCulture, TimeSpanStyles.None, out repeatPeriod))
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("incorrect input\n");
@@ -1574,7 +1574,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
             newTask_.SetStatusIndex(currentStatusIndex);
             _taskManager.UpdateTask(newTask_);
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("succsessfully updated task\n");
+            Console.WriteLine($"succsessfully updated task with id={task.Id}\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 

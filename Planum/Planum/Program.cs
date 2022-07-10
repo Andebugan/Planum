@@ -11,8 +11,11 @@ namespace Planum
     // add range selection for ids
     // add task queue object
     // replace filter for standart filter in update, next, previous commands
-    // upgrade help command (add stuff like help [name] and ect)
-    // add commands for "no children", "no parents", "no tags", "no status" filters
+    // upgrade help command (add stuff like help [name] and ect.
+    // add leveled display (horizontal layers of the tree)
+    // add task id for update command (when created/updated shows id)
+    // add filters to update command, if more then one - give choice (which task do you wish to update)
+    // add calendar
 
     // IN PROGRESS:
 
@@ -21,7 +24,9 @@ namespace Planum
     // fixed double show bug for -f-i show filter for tag
     // added parameters for update (opportunity to change selected fields like -d - description, -s - status and ect)
     // removed status id update when status index list wasn't changed
-    // fix child/parent updating problem
+    // fixed child/parent updating problem
+    // added id display when creating task
+    // added id display when updating task
 
     internal class Program
     {

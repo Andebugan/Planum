@@ -80,10 +80,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 if (category == null)
                     category = "";
 
-                _tagManager.CreateTag(category, name, description);
+                int id = _tagManager.CreateTag(category, name, description);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("successfully created new tag\n");
+                Console.WriteLine($"new tag with id={id} created successfully\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -264,10 +264,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (input == "n")
             {
-                _taskManager.CreateTask(DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name,
+                int id = _taskManager.CreateTask(DateTime.MinValue, DateTime.MinValue, TimeSpan.Zero, tagIds, parentIds, childIds, name,
                 false, description, false, statusIds);
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("task created successfully\n");
+                Console.WriteLine($"new task with id={id} created successfully\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -327,11 +327,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     return;
                 }
 
-                _taskManager.CreateTask(startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
+                int id = _taskManager.CreateTask(startTime, deadline, TimeSpan.Zero, tagIds, parentIds, childIds, name,
                 true, description, false, statusIds);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("task created successfully\n");
+                Console.WriteLine($"task with id={id} created successfully\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -351,11 +351,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
-            int newTaskId = _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
+            int id_ = _taskManager.CreateTask(startTime, deadline, repeatPeriod, tagIds, parentIds, childIds, name,
                 true, description, true, statusIds);
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("task created successfully\n");
+            Console.WriteLine($"task with id={id_} created successfully\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
