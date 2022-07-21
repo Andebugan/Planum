@@ -18,18 +18,6 @@ namespace Planum
     // IN PROGRESS:
     // add calendar
 
-    // 1.0.2
-    // added active task filter for start time parameter
-    // added help command variation for single commands
-    // added task id for update command (when created/updated shows id)
-    // added -np, -nc, -nt, -nsq flags
-    // fixed double show bug for -f-i show filter for tag
-    // added parameters for update (opportunity to change selected fields like -d - description, -s - status and ect)
-    // removed status id update when status index list wasn't changed
-    // fixed child/parent updating problem
-    // added id display when creating task
-    // added id display when updating task
-
     internal class Program
     {
         public static void Main(string[] args)
