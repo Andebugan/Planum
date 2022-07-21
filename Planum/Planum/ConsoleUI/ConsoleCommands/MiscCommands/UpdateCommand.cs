@@ -1653,13 +1653,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "updates specified object|objects";
-        }
-
-        public string GetName()
-        {
-            return "update -i={value} [-n] [-d] [-t] [-p] [-c] [-s] [-tp] task\n" +
-                "   flags:\n" +
+            return "update [options] task\n" +
+                "   options:\n" +
                 "       -n - update name\n" +
                 "       -d - update description\n" +
                 "       -t - update tags\n" +
@@ -1672,12 +1667,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 "       -tm - update timed (has task time limitations, or not)\n" +
                 "       note: if you use time options with timed==false, time info for task\n" +
                 "       will be changed, but not displayed\n" +
-                "update -i={value} [-n] [-c] [-d] tag\n" +
+                "update -i={value} [options] tag\n" +
                 "   flags:\n" +
                 "       -n - update name\n" +
                 "       -c - update category\n" +
                 "       -d - update description\n" +
                 "update user";
+        }
+
+        public string GetName()
+        {
+
+            return "updates specified object|objects";
         }
 
         public bool IsCommand(string command)

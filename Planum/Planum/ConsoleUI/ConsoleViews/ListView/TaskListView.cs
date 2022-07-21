@@ -31,12 +31,13 @@ namespace Planum.ConsoleUI.ConsoleViews
             bool showRepeatPeriod = boolParams["showRepeatPeriod"];
             bool showOverdueTasks = boolParams["showOverdueTasks"];
             bool showTodayTasks = boolParams["showTodayTasks"];
-            bool showNotOverdueTasks = boolParams["showNotOverdueTasks"];
-
+            bool showNotCurrentTasks = boolParams["showNotCurrentTasks"];
+            bool showCurrentTasks = boolParams["showCurrentTasks"];
             bool showNoParent = boolParams["showNoParent"];
             bool showNoChildren = boolParams["showNoChildren"];
             bool showNoStatuses = boolParams["showNoStatuses"];
             bool showNoTags = boolParams["showNoTags"];
+
 
             if (!showStatus)
                 NameWidth = 70;
@@ -47,13 +48,15 @@ namespace Planum.ConsoleUI.ConsoleViews
             if (showStatus)
                 grid.Columns.Add(StatusWidth);
 
-            bool hasTimeFilters = showTodayTasks || showOverdueTasks || showNotOverdueTasks;
+            bool hasTimeFilters = showTodayTasks || showOverdueTasks
+                || showCurrentTasks || showNotCurrentTasks;
 
             foreach (var task in tasks)
             {
                 bool today = false;
-                bool notOverdue = false;
+                bool current = false;
                 bool overdue = false;
+                bool notCurrent = false;
 
                 if (task.ParentIds.Count > 0 && showNoParent)
                     continue;
@@ -69,14 +72,20 @@ namespace Planum.ConsoleUI.ConsoleViews
                     if (Math.Abs((DateTime.Now - task.Deadline).TotalDays) < 1 && DateTime.Now <= task.Deadline)
                         today = true;
 
-                    if (Math.Abs((DateTime.Now - task.Deadline).TotalDays) > 1 && DateTime.Now < task.Deadline)
-                        notOverdue = true;
+                    if (Math.Abs((DateTime.Now - task.Deadline).TotalDays) > 1 && DateTime.Now < task.Deadline &&
+                        DateTime.Now > task.StartTime)
+                        current = true;
 
                     if (DateTime.Now > task.Deadline)
                         overdue = true;
+
+                    if (DateTime.Now < task.StartTime)
+                        notCurrent = true;
                 }
 
-                if (hasTimeFilters && !(today == showTodayTasks && notOverdue == showNotOverdueTasks && overdue == showOverdueTasks))
+                if (hasTimeFilters && !(today == showTodayTasks && current == showCurrentTasks &&
+                    overdue == showOverdueTasks && notCurrent == showNotCurrentTasks
+                    ))
                     continue;
 
                 if (!task.Timed && hasTimeFilters)
@@ -96,8 +105,31 @@ namespace Planum.ConsoleUI.ConsoleViews
                     DateTime currentDate = DateTime.Now;
                     if (task.Timed && task.Deadline != DateTime.MinValue)
                     {
-                        // days left before deadline
-                        if (Math.Abs((currentDate - task.Deadline).TotalDays) > 1 && currentDate < task.Deadline)
+                        // time before task is activated
+                        if (Math.Abs((currentDate - task.Deadline).TotalDays) > 1 && currentDate < task.Deadline &&
+                            currentDate < task.StartTime && task.StartTime != DateTime.MinValue)
+                        {
+                            TimeSpan timeSpan = task.StartTime - currentDate;
+
+                            if (showStatus)
+                                grid.Children.Add(new Cell("+ time before start time: " + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
+                                {
+                                    ColumnSpan = 3,
+                                    Align = Align.Left,
+                                    Color = Cyan
+                                });
+                            else
+                                grid.Children.Add(new Cell($"+ time before start time: " + timeSpan.Days.ToString() + "d " +
+                                    timeSpan.Hours.ToString() + "h " + timeSpan.Minutes.ToString() + "m")
+                                {
+                                    ColumnSpan = 2,
+                                    Align = Align.Left,
+                                    Color = Cyan
+                                });
+                        }
+                        // task is active
+                        else if (Math.Abs((currentDate - task.Deadline).TotalDays) > 1 && currentDate < task.Deadline)
                         {
                             TimeSpan timeSpan = task.Deadline - currentDate;
 
@@ -140,6 +172,7 @@ namespace Planum.ConsoleUI.ConsoleViews
                                     Color = Yellow
                                 });
                         }
+                        // overdue
                         else if (currentDate > task.Deadline)
                         {
                             TimeSpan timeSpan = currentDate - task.Deadline;

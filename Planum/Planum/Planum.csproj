@@ -35,7 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\" />
-    <Folder Include="ConsoleUI\ConsoleViews\CalendarView\" />
     <Folder Include="ConsoleUI\ConsoleViews\MindMapView\" />
   </ItemGroup>
 </Project>

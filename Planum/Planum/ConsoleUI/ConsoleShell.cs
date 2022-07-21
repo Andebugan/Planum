@@ -91,6 +91,34 @@ namespace Planum.ConsoleUI
                     }
                     continue;
                 }
+                else if (input.Split()[0] == "help" && input.Split().Length > 1)
+                {
+                    bool foundMatch = false;
+                    foreach (ICommand command in avaliableCommands)
+                    {
+                        if (command.IsCommand(input.Replace("help ", "")))
+                        {
+                            foundMatch = true;
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("name: ");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine(command.GetName());
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("description: ");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine(command.GetDescription());
+                            Console.WriteLine();
+                        }
+                    }
+
+                    if (!foundMatch)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("incorrect command\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    continue;
+                }
 
                 bool executed = false;
                 foreach (ICommand command in avaliableCommands)

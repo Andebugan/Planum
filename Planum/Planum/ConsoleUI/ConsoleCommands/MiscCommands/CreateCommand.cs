@@ -361,12 +361,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetDescription()
         {
-            return "Creates specified object";
+            return "creates specified object";
         }
 
         public string GetName()
         {
-            return "create tag|task";
+            return "create tag\n" +
+                "create tag";
         }
 
         public bool IsAvaliable()

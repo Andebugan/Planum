@@ -133,9 +133,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                 foreach (var arg in argsList)
                 {
-                    if (arg.Substring(0, 4) == "-id=" && deleteAll)
+                    if (arg.Substring(0, 3) == "-i=" && deleteAll)
                     {
-                        if (!int.TryParse(arg.Substring(4), out id) || id < 0)
+                        if (!int.TryParse(arg.Substring(3), out id) || id < 0)
                         {
                             parseSuccessfull = false;
                             break;
@@ -171,9 +171,9 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                 foreach (var arg in argsList)
                 {
-                    if (arg.Substring(0, 4) == "-id=" && deleteAll)
+                    if (arg.Substring(0, 3) == "-i=" && deleteAll)
                     {
-                        if (!int.TryParse(arg.Substring(4), out id) || id < 0)
+                        if (!int.TryParse(arg.Substring(3), out id) || id < 0)
                         {
                             parseSuccessfull = false;
                             break;
@@ -206,12 +206,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
         {
             return "deletes specified object|objects, deletes all by default\n" +
                 "flags:\n" + 
-                "-id=[value] - specify id of deleted object, value of said id must be signed integer";
+                "   -i=[value] - specify id of deleted object, value of said id must be signed integer";
         }
 
         public string GetName()
         {
-            return "delete [-id={value}] task|tag\n" +
+            return "delete [-i={value}] task|tag\n" +
                 "delete user";
         }
 

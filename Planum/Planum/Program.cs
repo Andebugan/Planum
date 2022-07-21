@@ -8,18 +8,20 @@ using Serilog;
 namespace Planum
 {
     // TODO:
-    // add range selection for ids
-    // add task queue object
-    // replace filter for standart filter in update, next, previous commands
-    // upgrade help command (add stuff like help [name] and ect.
-    // add leveled display (horizontal layers of the tree)
-    // add task id for update command (when created/updated shows id)
     // add filters to update command, if more then one - give choice (which task do you wish to update)
-    // add calendar
+    // replace filter for standart filter in update, next, previous commands
+    // add range selection for ids
+    // add mindmap
+    // add dedicated static classes for different type of messages to ease programming and add general functions
+    // add task/tag name for filters
 
     // IN PROGRESS:
+    // add calendar
 
     // 1.0.2
+    // added active task filter for start time parameter
+    // added help command variation for single commands
+    // added task id for update command (when created/updated shows id)
     // added -np, -nc, -nt, -nsq flags
     // fixed double show bug for -f-i show filter for tag
     // added parameters for update (opportunity to change selected fields like -d - description, -s - status and ect)

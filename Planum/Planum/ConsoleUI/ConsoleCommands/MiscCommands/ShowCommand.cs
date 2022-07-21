@@ -251,11 +251,12 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     { "showOnlyArchivedTasks", false },
                     { "showTodayTasks", false },
                     { "showOverdueTasks", false },
-                    { "showNotOverdueTasks", false },
                     { "showNoParent", false },
                     { "showNoChildren", false },
                     { "showNoTags", false },
                     { "showNoStatuses", false },
+                    { "showCurrentTasks", false },
+                    { "showNotCurrentTasks", false },
                 };
 
                 List<string> filters = new List<string>();
@@ -287,16 +288,16 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return "displays objects, shows all existing by default\n" +
                     "flags:\n" +
                     "   tag:\n" +
-                    "   -c - show category\n" +
-                    "   -d - show description\n" +
-                    "   -f[options] - filter, filters tags by some criterion (set subtraction)\n" +
-                    "   -sr[options] - selector, selects from tags according to a given criterion (set addition)\n" +
-                    "   -nf[options] - \"not\" filter, removes tags matching the filter from result\n" +
-                    "   -nsr[options] - \"not\" selector, removes tags matching the selector from result\n" +
-                    "   filter (-f/-nf) and selector (-sr/-nsr) options:\n" +
-                    "       -c={value} - filter by category\n" +
-                    "       -n={value} - filter by name\n" +
-                    "       -i={value} - filter by id\n" +
+                    "       -c - show category\n" +
+                    "       -d - show description\n" +
+                    "       -f[options] - filter, filters tags by some criterion (set subtraction)\n" +
+                    "       -sr[options] - selector, selects from tags according to a given criterion (set addition)\n" +
+                    "       -nf[options] - \"not\" filter, removes tags matching the filter from result\n" +
+                    "       -nsr[options] - \"not\" selector, removes tags matching the selector from result\n" +
+                    "       filter (-f/-nf) and selector (-sr/-nsr) options:\n" +
+                    "          -c={value} - filter by category\n" +
+                    "          -n={value} - filter by name\n" +
+                    "          -i={value} - filter by id\n" +
                     "   task:\n" +
                     "       -all - show full info about task\n" +
                     "       -d - show description\n" +
@@ -315,7 +316,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     "       -a - show archived tasks\n" +
                     "       -ao - show only archived tasks\n" +
                     "       -od - show overdue tasks\n" +
-                    "       -nod - show not overdue tasks\n" +
+                    "       -ct - show current tasks\n" +
+                    "       -nct - show not current tasks\n" +
                     "       -tt - show today tasks\n" +
                     "       -f[option] - filter, filters tasks by some criterion(set subtraction), can be used multiple times\n" +
                     "       -sr[option] - selector, selects from tasks according to a given criterion\n" +
@@ -340,8 +342,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (_userManager.CurrentUser == null)
                 return "show user";
             else
-                return "show [-l] [-d] [-a] task\n" +
-                    "show [-c] [-d] [-f[options]] [-sr[options]] tag\n" +
+                return "show [options] [-f[filter]] [-s[selector]] task\n" +
+                    "show [options] [-f[filter]] [-s[selector]] tag\n" +
                     "show user";
         }
 

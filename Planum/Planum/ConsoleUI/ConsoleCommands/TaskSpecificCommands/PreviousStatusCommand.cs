@@ -27,10 +27,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (args[args.Length - 1] == "task" && args.Length == 3)
             {
-                if (args[1].Substring(0, 4) == "-id=")
+                if (args[1].Substring(0, 3) == "-i=")
                 {
                     int id = -1;
-                    if (int.TryParse(args[1].Substring(4), out id) && id >= 0)
+                    if (int.TryParse(args[1].Substring(3), out id) && id >= 0)
                     {
                         _taskManager.PreviousStatus(id);
                         Console.ForegroundColor = ConsoleColor.Green;
@@ -53,7 +53,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
         public string GetName()
         {
-            return "previous -id={value} task";
+            return "previous -i={value} task";
         }
 
         public bool IsCommand(string command)

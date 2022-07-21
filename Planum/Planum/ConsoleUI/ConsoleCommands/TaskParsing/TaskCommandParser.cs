@@ -63,8 +63,6 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         boolParams["showOverdueTasks"] = true;
                     else if (argsList[i] == "-tt" && !boolParams["showTodayTasks"])
                         boolParams["showTodayTasks"] = true;
-                    else if (argsList[i] == "-nod" && !boolParams["showNotOverdueTask"])
-                        boolParams["showNotOverdueTasks"] = true;
                     else if (argsList[i] == "-np" && !boolParams["showNoParent"])
                         boolParams["showNoParent"] = true;
                     else if (argsList[i] == "-nc" && !boolParams["showNoChildren"])
@@ -73,6 +71,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         boolParams["showNoStatuses"] = true;
                     else if (argsList[i] == "-nt" && !boolParams["showNoTags"])
                         boolParams["showNoTags"] = true;
+                    else if (argsList[i] == "-ct" && !boolParams["showCurrentTasks"])
+                        boolParams["showCurrentTasks"] = true;
+                    else if (argsList[i] == "-nct" && !boolParams["showNotCurrentTasks"])
+                        boolParams["showNotCurrentTasks"] = true;
                     else if (argsList[i].Length > 3 && filterStrings.Any(x => x == (argsList[i].Substring(0, x.Length))))
                     {
                         string[] intFilters =
