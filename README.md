@@ -6,7 +6,7 @@
 │ │    │ ╰──╮ │ ╭╮ │ │ ││ │ │ ╰╯ │ │ ││ ││ │
 ╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯
 ```
-Simple app for self-organization.
+Simple console app for self-organization.
 
 The console version of the application is on the branch *console_ui*.
 
