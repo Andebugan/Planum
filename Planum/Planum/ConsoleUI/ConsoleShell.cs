@@ -1,0 +1,144 @@
+﻿using Planum.ConsoleUI.ConsoleCommands;
+using Planum.Models.BuisnessLogic.Managers;
+using System;
+using System.Collections.Generic;
+
+namespace Planum.ConsoleUI
+{
+    public class ConsoleShell
+    {
+        protected List<ICommand> Commands;
+        public ConsoleShell(IUserManager userManager, ITaskManager taskManager, ITagManager tagManager)
+        {
+            List<ICommand> commands = new List<ICommand>() {
+                new ExitCommand(),
+                new LogInCommand(userManager),
+                new LogOutCommand(userManager),
+                new SignUpCommand(userManager),
+                new CreateCommand(tagManager, userManager, taskManager),
+                new DeleteCommand(userManager, taskManager, tagManager),
+                new ShowCommand(userManager, taskManager, tagManager),
+                new UpdateCommand(userManager, taskManager, tagManager),
+                new ArchiveTaskCommand(taskManager, tagManager, userManager),
+                new CompleteTaskCommand(taskManager, tagManager, userManager),
+                new NextStatusCommand(taskManager, tagManager, userManager),
+                new PreviousStatusCommand(taskManager, tagManager, userManager),
+                new UnarchiveTaskCommand(taskManager, tagManager, userManager),
+                new FixTaskRelationsCommand(taskManager, tagManager, userManager)
+            };
+
+            Commands = commands;
+        }
+
+        protected void WriteGreeting()
+        {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.ForegroundColor = ConsoleColor.Blue;
+            string text = "╭────╮                                      \n" +
+                          "│ ╭╮ │ ╭─╮    ╭────╮ ╭────╮ ╭─╮╭─╮ ╭───────╮\n" +
+                          "│ ╰╯ │ │ │    │ ╭╮ │ │ ╭╮ │ │ ││ │ │ ╭╮ ╭╮ │\n" +
+                          "│ ╭──╯ │ │    │ ╰╯ │ │ ││ │ │ ││ │ │ ││ ││ │\n" +
+                          "│ │    │ ╰──╮ │ ╭╮ │ │ ││ │ │ ╰╯ │ │ ││ ││ │\n" +
+                          "╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯";
+            Console.Write(text);
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(" " + Config.ConfigData.LoadConfig().version + "\n");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public void MainLoop()
+        {
+            WriteGreeting();
+            while (true)
+            {
+                Console.Write("> ");
+                string? input = Console.ReadLine();
+                if (string.IsNullOrEmpty(input))
+                {
+                    Console.WriteLine();
+                    continue;
+                }
+
+                List<ICommand> avaliableCommands = new List<ICommand>();
+                foreach (ICommand command in Commands)
+                {
+                    if (command.IsAvaliable())
+                        avaliableCommands.Add(command);
+                }
+
+                if (input == "help")
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("general tips:");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("[] - stands for optional parameter\n" +
+                        "{} - mandatory parameter, in input used to signal multiword string\n" +
+                        ", for example: -name={some long name with spaces}");
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("avalible commands:");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    foreach (ICommand command in avaliableCommands)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("name: ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine(command.GetName());
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("description: ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine(command.GetDescription());
+                        Console.WriteLine();
+                    }
+                    continue;
+                }
+                else if (input.Split()[0] == "help" && input.Split().Length > 1)
+                {
+                    bool foundMatch = false;
+                    foreach (ICommand command in avaliableCommands)
+                    {
+                        if (command.IsCommand(input.Replace("help ", "")))
+                        {
+                            foundMatch = true;
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("name: ");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine(command.GetName());
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("description: ");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine(command.GetDescription());
+                            Console.WriteLine();
+                        }
+                    }
+
+                    if (!foundMatch)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("incorrect command\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    continue;
+                }
+
+                bool executed = false;
+                foreach (ICommand command in avaliableCommands)
+                {
+                    if (command.IsCommand(input))
+                    {
+                        command.Execute(input);
+                        executed = true;
+                        break;
+                    }
+                }
+                
+                if (!executed)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("incorrect command\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+            }
+        }
+    }
+}
