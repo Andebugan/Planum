@@ -12,6 +12,12 @@ using System.Text;
 
 namespace Planum.ConsoleUI
 {
+    /*
+     * day view
+     * week view
+     * month view - done
+     * year view
+     */
     public class TaskCalendarView
     {
         public void RenderTasks(List<Task> tasks,
@@ -29,11 +35,10 @@ namespace Planum.ConsoleUI
                 { "showNotCurrentTasks", false },
                 filter those here
              */
-            TaskMonthView taskMonthView = new TaskMonthView(tasks, tagManager, taskManager);
+            TaskMonthView taskMonthView = new TaskMonthView(tasks);
             taskMonthView.RenderTasks(new DateTime(DateTime.Now.Year, DateTime.Now.Month - 1, DateTime.Now.Day));
             taskMonthView.RenderTasks(DateTime.Now);
             taskMonthView.RenderTasks(new DateTime(DateTime.Now.Year, DateTime.Now.Month + 1, DateTime.Now.Day));
-            taskMonthView.RenderTasks(new DateTime(DateTime.Now.Year, DateTime.Now.Month + 2, DateTime.Now.Day));
         }
     }
 }

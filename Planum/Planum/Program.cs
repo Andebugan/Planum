@@ -20,6 +20,7 @@ namespace Planum
     // find what cases strange error with archived tasks
     // implement backups
     // add parameters for create for default value
+    // fix create does not checking for ids bug
 
     // IN PROGRESS:
     // add calendar
@@ -28,6 +29,7 @@ namespace Planum
     // added fix command for tasks
     // added mandatory task validation for task in order to fix doubles deletion
     // added the ability to create task only with start time and default deadline
+    // fixed incorrect usage of show command when user is null
 
     internal class Program
     {

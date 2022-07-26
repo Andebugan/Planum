@@ -215,7 +215,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 }
             }
 
-            if (args[args.Length - 1] == "tag")
+            if (args[args.Length - 1] == "tag" && _userManager.CurrentUser != null)
             {
                 bool parseSuccessfull = true;
 
@@ -240,7 +240,7 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 }
             }
 
-            if (args[args.Length - 1] == "task")
+            if (args[args.Length - 1] == "task" && _userManager.CurrentUser != null)
             {
                 bool parseSuccessfull = true;
 

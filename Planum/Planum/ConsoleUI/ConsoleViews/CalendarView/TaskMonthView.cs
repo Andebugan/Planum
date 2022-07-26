@@ -11,8 +11,6 @@ namespace Planum.ConsoleUI
     public class TaskMonthView
     {
         List<Task> tasks;
-        ITagManager tagManager;
-        ITaskManager taskManager;
         Dictionary<string, bool> boolParams;
         DateTime renderedMonth;
         int columnWidth;
@@ -36,12 +34,9 @@ namespace Planum.ConsoleUI
         Document doc;
         Grid grid;
 
-        public TaskMonthView(List<Task> tasks,
-            ITagManager tagManager, ITaskManager taskManager)
+        public TaskMonthView(List<Task> tasks)
         {
             this.tasks = tasks;
-            this.tagManager = tagManager;
-            this.taskManager = taskManager;
             this.boolParams = boolParams;
         }
 
@@ -283,6 +278,29 @@ namespace Planum.ConsoleUI
             }
         }
 
+        protected void AddTodayDeadlinessCell(Task task, ConsoleColor cellColor)
+        {
+            string cellText = "";
+            float increment = columnWidth / 24.0f;
+            float hourCount = 0;
+            while ((int)hourCount < task.Deadline.Hour && cellText.Length < columnWidth - 1)
+            {
+                hourCount += increment;
+                if ((int)hourCount > cellText.Length)
+                    cellText += "━";
+            }
+            cellText += "○";
+            if (!cells.Any(x => x.taskId == task.Id))
+                cells.Add(new CellInformation(task.Id, cellText, cellColor));
+            else
+            {
+                var cell = cells.Find(x => x.taskId == task.Id);
+                cell.cellText = cellText;
+                cell.cellColor = cellColor;
+                cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
+            }
+        }
+
         protected void AddDay(DateTime day)
         {
             ConsoleColor color = DarkGray;
@@ -306,7 +324,10 @@ namespace Planum.ConsoleUI
             // ═════════ - red
             // ━━━━━━━━━ - yellow
             // ╌╌╌╌╌╌╌╌╌ - dark yellow
-            // # - deadline
+            // # - deadline - shows relative deadline time
+            // ○ - today - shows relative today time
+            // ━━╌╌ - shows time as well
+            // <!> - current deadline overdue
             // start time - task itself
             // today - line roughly at center
             // |today|        |start time|╌╌╌╌╌╌╌╌|deadline|
@@ -317,42 +338,86 @@ namespace Planum.ConsoleUI
             {
                 if (task.StartTime == DateTime.MinValue && task.Deadline != DateTime.MinValue)
                 {
-                    // day == today
-                    if (IsSameDay(day, DateTime.Now))
-                    {
-                        AddTaskNameCell(task, Yellow, "╌");
-                    }
-                    // today < day < deadline
-                    else if (!IsSameDay(day, DateTime.Now) &&
-                        !IsSameDay(day, task.Deadline) &&
-                        DateTime.Now < day &&
-                        day < task.Deadline)
-                    {
-                        AddBetweenStartAndDeadlineCell(task, Yellow);
-                    }
-                    // day == deadline but today < deadline
-                    else if (IsSameDay(day, task.Deadline) &&
-                        !IsSameDay(task.Deadline, DateTime.Now) &&
+                    // today < deadline
+                    if (!IsSameDay(DateTime.Now, task.Deadline) &&
                         DateTime.Now < task.Deadline)
                     {
-                        AddDeadlineCell(task, Yellow);
+                        // day == today
+                        if (IsSameDay(day, DateTime.Now))
+                        {
+                            AddTaskNameCell(task, Yellow, "╌");
+                        }
+                        // today < day < deadline
+                        else if (!IsSameDay(day, DateTime.Now) &&
+                            !IsSameDay(day, task.Deadline) &&
+                            DateTime.Now < day &&
+                            day < task.Deadline)
+                        {
+                            AddBetweenStartAndDeadlineCell(task, Yellow);
+                        }
+                        // day == deadline
+                        else if (IsSameDay(day, task.Deadline))
+                        {
+                            AddDeadlineCell(task, Yellow);
+                        }
+                        else
+                        {
+                            if (cells.Any(x => x.taskId == task.Id))
+                            {
+                                var cell = cells.Find(x => x.taskId == task.Id);
+                                cell.taskId = -1;
+                                cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
+                            }
+                        }
                     }
-                    // day == deadline but today < deadline
-                    else if (IsSameDay(day, task.Deadline) &&
-                        !IsSameDay(task.Deadline, DateTime.Now) &&
+                    // today == deadline
+                    else if (IsSameDay(DateTime.Now, task.Deadline))
+                    {
+                        // day == today
+                        if (IsSameDay(day, DateTime.Now))
+                        {
+                            AddTaskNameCell(task, Yellow, " ");
+                        }
+                        else
+                        {
+                            if (cells.Any(x => x.taskId == task.Id))
+                            {
+                                var cell = cells.Find(x => x.taskId == task.Id);
+                                cell.taskId = -1;
+                                cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
+                            }
+                        }
+                    }
+                    // today > deadline
+                    else if (!IsSameDay(DateTime.Now, task.Deadline) &&
                         DateTime.Now > task.Deadline)
                     {
-                        AddStartOverdueDeadlineCell(task, Red);
-                    }
-                    // today > deadline, day > deadline
-                    else if (!IsSameDay(day, task.Deadline) &&
-                        !IsSameDay(DateTime.Now, task.Deadline) &&
-                        !IsSameDay(DateTime.Now, day) &&
-                        day > task.Deadline &&
-                        DateTime.Now > task.Deadline &&
-                        day < DateTime.Now)
-                    {
-                        AddOverdueCell(task, Red);
+                        // day == today
+                        if (IsSameDay(day, DateTime.Now))
+                        {
+                            AddTaskNameCell(task, Red, " ");
+                        }
+                        // today < day < deadline
+                        else if (!IsSameDay(day, DateTime.Now) &&
+                            !IsSameDay(day, task.Deadline) &&
+                            day > task.Deadline && day < DateTime.Now)
+                        {
+                            AddOverdueCell(task, Red);
+                        }
+                        // day == deadline
+                        else if (IsSameDay(day, task.Deadline))
+                        {
+                            AddStartOverdueDeadlineCell(task, Red);
+                        }
+                        else
+                        {
+                            if (cells.Any(x => x.taskId == task.Id))
+                            {
+                                var cell = cells.Find(x => x.taskId == task.Id);
+                                cell.taskId = -1;
+                                cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
+                            }
+                        }
                     }
                     else
                     {
@@ -362,26 +427,78 @@ namespace Planum.ConsoleUI
                             cell.taskId = -1;
                             cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
                         }
-                    }
+                    }                    
                 }
                 else if (task.StartTime != DateTime.MinValue && task.Deadline == DateTime.MinValue)
                 {
-                    // day == start time
-                    if (IsSameDay(day, task.StartTime))
+                    // today < start time
+                    if (!IsSameDay(task.StartTime, DateTime.Now) &&
+                        DateTime.Now < task.StartTime)
                     {
-                        if (!IsSameDay(DateTime.Now, task.StartTime) &&
-                            DateTime.Now < task.StartTime)
+                        // day == start time
+                        if (IsSameDay(day, task.StartTime))
+                        {
                             AddTaskNameCell(task, DarkYellow, " ");
+                        }
                         else
-                            AddTaskNameCell(task, Yellow, "━");
+                        {
+                            if (cells.Any(x => x.taskId == task.Id))
+                            {
+                                var cell = cells.Find(x => x.taskId == task.Id);
+                                cell.taskId = -1;
+                                cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
+                            }
+                        }
                     }
-                    // day > start time and day < today
-                    else if (!IsSameDay(task.StartTime, day) &&
-                        day > task.StartTime &&
-                        !IsSameDay(day, DateTime.Now) &&
-                        day < DateTime.Now)
+                    // today == start time
+                    else if (IsSameDay(task.StartTime, DateTime.Now))
                     {
-                        AddProgressCell(task, Yellow);
+                        // day == start time
+                        if (IsSameDay(day, task.StartTime))
+                        {
+                            AddTaskNameCell(task, Yellow, " ");
+                        }
+                        else
+                        {
+                            if (cells.Any(x => x.taskId == task.Id))
+                            {
+                                var cell = cells.Find(x => x.taskId == task.Id);
+                                cell.taskId = -1;
+                                cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
+                            }
+                        }
+                    }
+                    // today > start time
+                    else if (!IsSameDay(task.StartTime, DateTime.Now) &&
+                        DateTime.Now > task.StartTime)
+                    {
+                        // day == start time
+                        if (IsSameDay(day, task.StartTime))
+                        {
+                            AddTaskNameCell(task, Yellow, "━");
+                        }
+                        // day < today
+                        else if (!IsSameDay(day, DateTime.Now) &&
+                            day < DateTime.Now && 
+                            !IsSameDay(day, task.StartTime) &&
+                            day > task.StartTime)
+                        {
+                            AddProgressCell(task, Yellow);
+                        }
+                        // day == today
+                        else if (IsSameDay(day, DateTime.Now))
+                        {
+                            AddTodayDeadlinessCell(task, Yellow);
+                        }
+                        else
+                        {
+                            if (cells.Any(x => x.taskId == task.Id))
+                            {
+                                var cell = cells.Find(x => x.taskId == task.Id);
+                                cell.taskId = -1;
+                                cells[cells.IndexOf(cells.Find(x => x.taskId == task.Id))] = cell;
+                            }
+                        }
                     }
                     else
                     {
