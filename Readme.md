@@ -9,7 +9,7 @@ Compiled app archive located in windows folder
 - To use as console command - add path to Planum to your Path variable
 
 ### Usage
-To use - launch Planum.exe or type in Planum, "help" command should get you started with the app
+To use - launch Planum.exe or type in Planum, "help" command should get you started with the app, for futher help, check project wiki
 
 ## Linux
 Compiled app archive located in windows folder
