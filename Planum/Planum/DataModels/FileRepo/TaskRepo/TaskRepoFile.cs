@@ -116,8 +116,40 @@ namespace Planum.Models.DataModels
             return Path.Combine(systemPath, filename);
         }
 
+        // check for errors
+        public void ValidateSaveFile()
+        {
+            List<TaskDTO> tasks = new List<TaskDTO>();
+
+            using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
+            {
+                using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
+                {
+                    while (reader.BaseStream.Position != reader.BaseStream.Length)
+                    {
+                        TaskDTO temp = ReadIntoDTO(reader);
+
+                        if (!tasks.Any(x => temp.Id == x.Id))
+                            tasks.Add(temp);
+                    }
+                }
+            }
+
+            using (var stream = File.Open(_taskRepoPath, FileMode.Create))
+            {
+                using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
+                {
+                    foreach (var taskDTO in tasks)
+                    {
+                        WriteFromDTO(taskDTO, taskDTO.Id, writer);
+                    }
+                }
+            }
+        }
+
         public int AddTask(TaskDTO taskDTO)
         {
+            ValidateSaveFile();
             bool alreadyExists = false;
             int id = 0;
             using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
@@ -156,6 +188,7 @@ namespace Planum.Models.DataModels
 
         public void DeleteTask(int id)
         {
+            ValidateSaveFile();
             List<TaskDTO> tasks = new List<TaskDTO>();
 
             using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
@@ -186,6 +219,7 @@ namespace Planum.Models.DataModels
 
         public TaskDTO GetTask(int id)
         {
+            ValidateSaveFile();
             using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
             {
                 using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
@@ -207,6 +241,7 @@ namespace Planum.Models.DataModels
 
         public List<TaskDTO> GetAllTasks()
         {
+            ValidateSaveFile();
             List<TaskDTO> tasks = new List<TaskDTO>();
 
             using (var stream = File.Open(_taskRepoPath, FileMode.OpenOrCreate))
@@ -220,6 +255,7 @@ namespace Planum.Models.DataModels
                     }
                 }
             }
+
             return tasks;
         }
 

@@ -1495,10 +1495,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
                 if (input == "n")
                 {
-                    if (startTime > deadline)
+                    if (startTime > deadline && deadline != DateTime.MinValue)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("start time can't be after deadline\n");
+                        Console.WriteLine("start time can't be earlier than deadline\n");
                         Console.ForegroundColor = ConsoleColor.White;
                         return;
                     }
@@ -1561,10 +1561,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
-            if (startTime > deadline)
+            if (startTime > deadline && deadline != DateTime.MinValue)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("start time can't be after deadline\n");
+                Console.WriteLine("start time can't be earlier than deadline\n");
                 Console.ForegroundColor = ConsoleColor.White;
                 return;
             }
@@ -1631,13 +1631,18 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     { "updateTimed", false },
                 };
 
+                Dictionary<string, string> stringParams = new Dictionary<string, string>()
+                {
+
+                };
+
                 List<string> filters = new List<string>();
 
                 List<string> argsList = new List<string>(args);
                 argsList.Remove("update");
                 argsList.Remove("task");
                 TaskCommandParser parser = new TaskCommandParser();
-                parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, "update");
+                parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, ref stringParams, "update");
 
                 if (parseSuccessfull)
                 {

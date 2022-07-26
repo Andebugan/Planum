@@ -319,10 +319,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             if (input == "n")
             {
-                if (startTime > deadline)
+                if (startTime > deadline && deadline != DateTime.MinValue)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("start time can't be after deadline\n");
+                    Console.WriteLine("start time can't be earlier than deadline\n");
                     Console.ForegroundColor = ConsoleColor.White;
                     return;
                 }

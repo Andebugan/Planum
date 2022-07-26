@@ -111,7 +111,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
             tagListView.RenderTags(filteredTags, boolParams);
         }
 
-        public void ShowAllTasks(Dictionary<string, bool> boolParams, List<string>? filters = null)
+        public void ShowAllTasks(Dictionary<string, bool> boolParams, Dictionary<string, string> stringParams,
+            List<string>? filters = null)
         {
             Serilog.Log.Information("show all tasks command was called");
 
@@ -183,8 +184,16 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 return;
             }
 
-            TaskListView taskListView = new TaskListView();
-            taskListView.RenderTasks(filteredTasks, _tagManager, _taskManager, boolParams);
+            if (boolParams["list"] == true)
+            {
+                TaskListView taskListView = new TaskListView();
+                taskListView.RenderTasks(filteredTasks, _tagManager, _taskManager, boolParams);
+            }
+            else if (boolParams["calendar"] == true)
+            {
+                TaskCalendarView taskCalendarView = new TaskCalendarView();
+                taskCalendarView.RenderTasks(filteredTasks, _tagManager, _taskManager, boolParams, stringParams);
+            }
         }
 
         public void Execute(string command)
@@ -234,10 +243,10 @@ namespace Planum.ConsoleUI.ConsoleCommands
             if (args[args.Length - 1] == "task")
             {
                 bool parseSuccessfull = true;
-                string displayType = "l";
 
                 Dictionary<string, bool> boolParams = new Dictionary<string, bool>()
                 {
+                    // list display settings
                     { "showDescription", false },
                     { "showTags", false },
                     { "showStatus", false },
@@ -249,6 +258,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     { "showRepeatPeriod", false },
                     { "showArchivedTasks", false },
                     { "showOnlyArchivedTasks", false },
+
+                    // overall settings
                     { "showTodayTasks", false },
                     { "showOverdueTasks", false },
                     { "showNoParent", false },
@@ -257,6 +268,17 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     { "showNoStatuses", false },
                     { "showCurrentTasks", false },
                     { "showNotCurrentTasks", false },
+
+                    // display type
+                    { "list", false },
+                    { "calendar", false },
+                };
+
+                Dictionary<string, string> stringParams = new Dictionary<string, string>()
+                {
+                    // calendar
+                    { "displayPeriod", "" },
+                    { "displayType", "m" }
                 };
 
                 List<string> filters = new List<string>();
@@ -266,11 +288,11 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 argsList.Remove("task");
 
                 TaskCommandParser parser = new TaskCommandParser();
-                parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, "show");
+                parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams,  ref stringParams, "show");
 
                 if (parseSuccessfull)
                 {
-                    ShowAllTasks(boolParams, filters);
+                    ShowAllTasks(boolParams, stringParams, filters);
                     return;
                 }
             }
@@ -299,22 +321,35 @@ namespace Planum.ConsoleUI.ConsoleCommands
                     "          -n={value} - filter by name\n" +
                     "          -i={value} - filter by id\n" +
                     "   task:\n" +
-                    "       -all - show full info about task\n" +
-                    "       -d - show description\n" +
-                    "       -t - show tags\n" +
-                    "       -nt - show with no tags\n" +
-                    "       -s - show status\n" +
-                    "       -p - show parents\n" +
-                    "       -np - show with no parents\n" +
-                    "       -c - show children\n" +
-                    "       -nc - show with no children\n" +
-                    "       -sq - show status queue\n" +
-                    "       -nsq - show with no status queue\n" +
-                    "       -st - show start time\n" +
-                    "       -dl - show deadline\n" +
-                    "       -r - show repeat period\n" +
-                    "       -a - show archived tasks\n" +
-                    "       -ao - show only archived tasks\n" +
+                    "       -cr - set display type - calendar\n" +
+                    "       calendar options:\n" +
+                    "           -m - month display\n" +
+                    "           -y - year display\n" +
+                    "           -w - week display\n" +
+                    "           -dp - display period, by default displays current week/month/year\n" +
+                    "               -dp-yyyy-yyyy - display period for years\n" +
+                    "               -dp-yyyy:mm-yyyy:mm - display period for months\n" +
+                    "               -dp-yyyy:mm:dd-yyyy:mm:dd - display period for weeks\n" +
+                    "               -dp-yyyy - dipslay year\n" +
+                    "               -dp-yyyy:mm - display month\n" +
+                    "               -dp-yyyy:mm:dd - display week that contains specified day" +
+                    "       default display options (list):\n" +
+                    "           -all - show full info about task\n" +
+                    "           -d - show description\n" +
+                    "           -t - show tags\n" +
+                    "           -nt - show with no tags\n" +
+                    "           -s - show status\n" +
+                    "           -p - show parents\n" +
+                    "           -np - show with no parents\n" +
+                    "           -c - show children\n" +
+                    "           -nc - show with no children\n" +
+                    "           -sq - show status queue\n" +
+                    "           -nsq - show with no status queue\n" +
+                    "           -st - show start time\n" +
+                    "           -dl - show deadline\n" +
+                    "           -r - show repeat period\n" +
+                    "           -a - show archived tasks\n" +
+                    "           -ao - show only archived tasks\n" +
                     "       -od - show overdue tasks\n" +
                     "       -ct - show current tasks\n" +
                     "       -nct - show not current tasks\n" +

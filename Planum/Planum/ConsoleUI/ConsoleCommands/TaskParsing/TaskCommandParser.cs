@@ -7,7 +7,8 @@ namespace Planum.ConsoleUI.ConsoleCommands
 {
     public class TaskCommandParser
     {
-        public bool Parse(ref List<string> filters, List<string> argsList, ref Dictionary<string, bool> boolParams, string command)
+        public bool Parse(ref List<string> filters, List<string> argsList, ref Dictionary<string,
+            bool> boolParams, ref Dictionary<string, string> stringParams, string command)
         {
             FilterGetter filterGetter = new FilterGetter();
             string[] filterStrings =
@@ -16,14 +17,26 @@ namespace Planum.ConsoleUI.ConsoleCommands
                 "-nf",
                 "-sr",
                 "-nsr",
+                "-dp",
                 "-"
             };
+
+            if (argsList.Any(x => x == "-cr"))
+            {
+                boolParams["calendar"] = true;
+                if (argsList.Count(x => x == "-cr") > 1)
+                    return false;
+                argsList.Remove("-cr");
+            }
+            else
+                boolParams["list"] = true;
+           
 
             for (int i = 0; i < argsList.Count; i++)
             {
                 if (command == "show")
                 {
-                    if (argsList[i] == "-all")
+                    if (argsList[i] == "-all" && boolParams["list"])
                     {
                         boolParams["showDescription"] = true;
                         boolParams["showTags"] = true;
@@ -35,30 +48,36 @@ namespace Planum.ConsoleUI.ConsoleCommands
                         boolParams["showDeadline"] = true;
                         boolParams["showRepeatPeriod"] = true;
                     }
-                    else if (argsList[i] == "-d" && !boolParams["showDescription"])
+                    else if (argsList[i] == "-d" && !boolParams["showDescription"] && boolParams["list"])
                         boolParams["showDescription"] = true;
-                    else if (argsList[i] == "-t" && !boolParams["showTags"])
+                    else if (argsList[i] == "-t" && !boolParams["showTags"] && boolParams["list"])
                         boolParams["showTags"] = true;
-                    else if (argsList[i] == "-s" && !boolParams["showStatus"])
+                    else if (argsList[i] == "-s" && !boolParams["showStatus"] && boolParams["list"])
                         boolParams["showStatus"] = true;
-                    else if (argsList[i] == "-p" && !boolParams["showParent"])
+                    else if (argsList[i] == "-p" && !boolParams["showParent"] && boolParams["list"])
                         boolParams["showParent"] = true;
-                    else if (argsList[i] == "-c" && !boolParams["showChildren"])
+                    else if (argsList[i] == "-c" && !boolParams["showChildren"] && boolParams["list"])
                         boolParams["showChildren"] = true;
-                    else if (argsList[i] == "-sq" && !boolParams["showStatusQueue"])
+                    else if (argsList[i] == "-sq" && !boolParams["showStatusQueue"] && boolParams["list"])
                         boolParams["showStatusQueue"] = true;
-                    else if (argsList[i] == "-st" && !boolParams["showStartTime"])
+                    else if (argsList[i] == "-st" && !boolParams["showStartTime"] && boolParams["list"])
                         boolParams["showStartTime"] = true;
-                    else if (argsList[i] == "-dl" && !boolParams["showDeadline"])
+                    else if (argsList[i] == "-dl" && !boolParams["showDeadline"] && boolParams["list"])
                         boolParams["showDeadline"] = true;
-                    else if (argsList[i] == "-rp" && !boolParams["showRepeatPeriod"])
+                    else if (argsList[i] == "-rp" && !boolParams["showRepeatPeriod"] && boolParams["list"])
                         boolParams["showRepeatPeriod"] = true;
-                    else if (argsList[i] == "-rp" && !boolParams["showRepeatPeriod"])
-                        boolParams["showRepeatPeriod"] = true;
-                    else if (argsList[i] == "-a" && !boolParams["showArchivedTasks"])
+                    else if (argsList[i] == "-a" && !boolParams["showArchivedTasks"] && boolParams["list"])
                         boolParams["showArchivedTasks"] = true;
-                    else if (argsList[i] == "-ao" && !boolParams["showOnlyArchivedTasks"])
+                    else if (argsList[i] == "-ao" && !boolParams["showOnlyArchivedTasks"] && boolParams["list"])
                         boolParams["showOnlyArchivedTasks"] = true;
+                    else if (argsList[i] == "-m" && boolParams["calendar"])
+                        stringParams["displayType"] = "m";
+                    else if (argsList[i] == "-w" && boolParams["calendar"])
+                        stringParams["displayType"] = "w";
+                    else if (argsList[i] == "-y" && boolParams["calendar"])
+                        stringParams["displayType"] = "y";
+                    else if (argsList[i].Contains("-dp-") && boolParams["calendar"])
+                        stringParams["displayPeriod"] = argsList[i].Substring(4);
                     else if (argsList[i] == "-od" && !boolParams["showOverdueTasks"])
                         boolParams["showOverdueTasks"] = true;
                     else if (argsList[i] == "-tt" && !boolParams["showTodayTasks"])

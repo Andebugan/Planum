@@ -80,40 +80,37 @@ namespace Planum.Models.BuisnessLogic.Managers
             _taskRepo.UpdateTask(taskDTO);
         }
 
-        public void DeleteTask(int taskId)
+        public void DeleteTask(int id)
         {
-            Log.Debug($"delete task with id={taskId}");
+            Log.Debug($"delete task with id={id}");
             if (_userManager.CurrentUser == null)
                 throw new CurrentUserIsNullException("can't delete task while current user is null");
 
-            Task? deletedTask = FindTask(taskId, null);
+            Task? deletedTask = FindTask(id, null);
 
-            if (deletedTask == null) return;
-            List<int> addedParents = (List<int>)deletedTask.ParentIds;
-            foreach(int id in deletedTask.ChildIds)
+            if (FindTask(deletedTask.Id, null) == null) return;
+
+            foreach (int taskId in deletedTask.ParentIds)
             {
-                Task task = FindTask(id);
-                if (task != null)
-                {
-                    List<int> newParentList = (List<int>)task.ParentIds;
-                    newParentList.AddRange(addedParents);
-                    UpdateTask(task);
-                }
+                RemoveChildFromTask(taskId, deletedTask.Id);
             }
 
-            List<int> addedChildren = (List<int>)deletedTask.ChildIds;
-            foreach (int id in deletedTask.ParentIds)
+            foreach (int taskId in deletedTask.ChildIds)
             {
-                Task task = FindTask(id);
-                if (task != null)
-                {
-                    List<int> newChildList = (List<int>)task.ChildIds;
-                    newChildList.AddRange(addedChildren);
-                    UpdateTask(task);
-                }
+                RemoveParentFromTask(taskId, deletedTask.Id);
             }
 
-            _taskRepo.DeleteTask(taskId);
+            foreach (int taskId in deletedTask.ParentIds)
+            {
+                AddChildToTask(taskId, deletedTask.Id);
+            }
+
+            foreach (int taskId in deletedTask.ChildIds)
+            {
+                AddParentToTask(taskId, deletedTask.Id);
+            }
+
+            _taskRepo.DeleteTask(id);
         }
 
         public void ArchiveTask(int taskId)
@@ -123,25 +120,27 @@ namespace Planum.Models.BuisnessLogic.Managers
                 throw new CurrentUserIsNullException("Can't archive task while current user is null");
             Task? deletedTask = FindTask(taskId);
             if (deletedTask == null) return;
-            List<int> addedParents = (List<int>)deletedTask.ParentIds;
-            foreach (int id in deletedTask.ChildIds)
-            {
-                Task task = GetTask(id);
-                List<int> newParentList = (List<int>)task.ParentIds;
-                newParentList.AddRange(addedParents);
-                newParentList.Remove(taskId);
-                UpdateTask(task);
-            }
 
-            List<int> addedChildren = (List<int>)deletedTask.ChildIds;
             foreach (int id in deletedTask.ParentIds)
             {
-                Task task = GetTask(id);
-                List<int> newChildList = (List<int>)task.ChildIds;
-                newChildList.AddRange(addedChildren);
-                newChildList.Remove(taskId);
-                UpdateTask(task);
+                RemoveChildFromTask(id, deletedTask.Id);
             }
+
+            foreach (int id in deletedTask.ChildIds)
+            {
+                RemoveParentFromTask(id, deletedTask.Id);
+            }
+
+            foreach (int id in deletedTask.ParentIds)
+            {
+                AddChildToTask(id, deletedTask.Id);
+            }
+
+            foreach (int id in deletedTask.ChildIds)
+            {
+                AddParentToTask(id, deletedTask.Id);
+            }
+
             deletedTask.Archived = true;
             _taskRepo.UpdateTask(_taskConverter.ConvertToDTO(deletedTask));
         }
@@ -153,21 +152,7 @@ namespace Planum.Models.BuisnessLogic.Managers
                 throw new CurrentUserIsNullException("Can't unarchive task while current user is null");
             Task? archivedTask = FindTask(taskId, true);
             if (archivedTask == null) return;
-            foreach (int id in archivedTask.ChildIds)
-            {
-                Task task = GetTask(id);
-                List<int> newParentList = (List<int>)task.ParentIds;
-                newParentList.Add(taskId);
-                UpdateTask(task);
-            }
 
-            foreach (int id in archivedTask.ParentIds)
-            {
-                Task task = GetTask(id);
-                List<int> newChildList = (List<int>)task.ChildIds;
-                newChildList.Add(archivedTask.Id);
-                UpdateTask(task);
-            }
 
             archivedTask.Archived = false;
             _taskRepo.UpdateTask(_taskConverter.ConvertToDTO(archivedTask));

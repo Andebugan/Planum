@@ -93,8 +93,13 @@ namespace Planum.ConsoleUI.ConsoleCommands
 
             };
 
+            Dictionary<string, string> stringParams = new Dictionary<string, string>()
+            {
+
+            };
+
             TaskCommandParser parser = new TaskCommandParser();
-            parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, "unarchive");
+            parseSuccessfull = parser.Parse(ref filters, argsList, ref boolParams, ref stringParams, "unarchive");
 
             if (parseSuccessfull)
             {

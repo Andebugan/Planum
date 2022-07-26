@@ -23,7 +23,8 @@ namespace Planum.ConsoleUI
                 new CompleteTaskCommand(taskManager, tagManager, userManager),
                 new NextStatusCommand(taskManager, tagManager, userManager),
                 new PreviousStatusCommand(taskManager, tagManager, userManager),
-                new UnarchiveTaskCommand(taskManager, tagManager, userManager)
+                new UnarchiveTaskCommand(taskManager, tagManager, userManager),
+                new FixTaskRelationsCommand(taskManager, tagManager, userManager)
             };
 
             Commands = commands;

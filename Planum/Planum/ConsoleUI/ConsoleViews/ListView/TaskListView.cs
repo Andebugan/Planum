@@ -319,7 +319,7 @@ namespace Planum.ConsoleUI.ConsoleViews
                         if (child == null)
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("error: child task does not exist!");
+                            Console.WriteLine($"error: (task id={task.Id}) child task with id={id} does not exist!\n");
                             Console.ForegroundColor = ConsoleColor.White;
                             return;
                         }

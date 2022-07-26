@@ -7,16 +7,27 @@ using Serilog;
 
 namespace Planum
 {
+    // NOTES:
+    // maybe switch to spectre console package in the future
+
     // TODO:
-    // add filters to update command, if more then one - give choice (which task do you wish to update)
-    // replace filter for standart filter in update, next, previous commands
+    // add filters to update command - update selected with shown parameters
+    // replace filter for standart filter in update, next, previous, delete commands
     // add range selection for ids
     // add mindmap
     // add dedicated static classes for different type of messages to ease programming and add general functions
     // add task/tag name for filters
+    // find what cases strange error with archived tasks
+    // implement backups
+    // add parameters for create for default value
 
     // IN PROGRESS:
     // add calendar
+
+    // 1.1.0 (calendar update)
+    // added fix command for tasks
+    // added mandatory task validation for task in order to fix doubles deletion
+    // added the ability to create task only with start time and default deadline
 
     internal class Program
     {
