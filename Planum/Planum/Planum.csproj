@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <TrimMode>copyused</TrimMode>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <Platforms>AnyCPU</Platforms>
+    <StartupObject>Planum.Program</StartupObject>
+	<!--lower config for single file app-->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	<!--win-x64/linux-x64-->
+	<ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="ConsoleUI\ConsoleCommands\Getters\**" />
+    <Compile Remove="ConsoleUI\ConsoleCommands\MiscCommands\**" />
+    <Compile Remove="ConsoleUI\ConsoleCommands\TagParsing\**" />
+    <Compile Remove="ConsoleUI\ConsoleCommands\TaskParsing\**" />
+    <Compile Remove="ConsoleUI\ConsoleCommands\TaskSpecificCommands\**" />
+    <Compile Remove="ConsoleUI\ConsoleCommands\UserSpecificCommands\**" />
+    <EmbeddedResource Remove="ConsoleUI\ConsoleCommands\Getters\**" />
+    <EmbeddedResource Remove="ConsoleUI\ConsoleCommands\MiscCommands\**" />
+    <EmbeddedResource Remove="ConsoleUI\ConsoleCommands\TagParsing\**" />
+    <EmbeddedResource Remove="ConsoleUI\ConsoleCommands\TaskParsing\**" />
+    <EmbeddedResource Remove="ConsoleUI\ConsoleCommands\TaskSpecificCommands\**" />
+    <EmbeddedResource Remove="ConsoleUI\ConsoleCommands\UserSpecificCommands\**" />
+    <None Remove="ConsoleUI\ConsoleCommands\Getters\**" />
+    <None Remove="ConsoleUI\ConsoleCommands\MiscCommands\**" />
+    <None Remove="ConsoleUI\ConsoleCommands\TagParsing\**" />
+    <None Remove="ConsoleUI\ConsoleCommands\TaskParsing\**" />
+    <None Remove="ConsoleUI\ConsoleCommands\TaskSpecificCommands\**" />
+    <None Remove="ConsoleUI\ConsoleCommands\UserSpecificCommands\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove="C:\Users\diffu\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config" />
+    <None Remove="C:\Users\diffu\.nuget\packages\nlog.schema\5.0.0\contentFiles\any\any\NLog.xsd" />
+    <None Remove="Config\repo_config.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Config\repo_config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Alba.CsConsoleFormat" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Serilog" Version="2.11.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Spectre.Console" Version="0.45.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Config\app_config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

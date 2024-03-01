@@ -1,0 +1,10 @@
+﻿{
+  // name of the metafile
+  "TaskMetafileName": "app_data\\task_meta.dat",
+  // name of the folder where task files are stored
+  "TaskDirectoryName": "app_data\\tasks\\",
+  // name of the folder for backup files
+  "TaskBackupDirectoryName": "app_data\\tasks_backup\\",
+  // max task count in each task file
+  "TaskFileTaskCount": 20
+}
