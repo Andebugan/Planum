@@ -9,11 +9,8 @@ namespace Planum.Model.Repository
     {
         List<Task> taskBuffer = new List<Task>();
 
-        TaskFileManager taskFileManager = new TaskFileManager();
-
         public Repo()
         {
-            taskBuffer = taskFileManager.ReadAll();
             taskBuffer = taskBuffer.OrderBy(x => x.Id).ToList();
         }
 
