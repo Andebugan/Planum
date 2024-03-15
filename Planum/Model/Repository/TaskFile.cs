@@ -9,24 +9,7 @@ namespace Planum.Model.Repository
 {
     public class TaskFile
     {
-        public int Id { get; set; }
         public string Path { get; set; } = string.Empty;
-        public int CurrentTaskCount { get; set; } = 0;
-        public int MaxTaskCount { get; set; }
-        public int FreeIdsCount
-        {
-            get { return MaxTaskCount - CurrentTaskCount; }
-        }
-
-        public int StartId
-        {
-            get { return Id * MaxTaskCount; }
-
-        }
-        public int EndId
-        {
-            get { return (Id + 1) * MaxTaskCount; }
-        }
 
         // Read & Write
         protected Task ReadIntoObject(BinaryReader reader)
