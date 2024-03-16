@@ -1,14 +1,12 @@
 ﻿using Planum.ConsoleUI.UI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Planum.Model.Entities
 {
-  public class Checklist
+    public class Checklist
   {
     public class Item
     {
@@ -399,8 +397,8 @@ namespace Planum.Model.Entities
     public string Name { get; set; }
     public string Description { get; set; }
 
-    private List<int> parentIds = new List<int>();
-    public List<int> ParentIds
+    private IEnumerable<int> parentIds = new List<int>();
+    public IEnumerable<int> ParentIds
     {
       get
       {
@@ -409,14 +407,12 @@ namespace Planum.Model.Entities
 
       set
       {
-        if (value.Contains(Id))
-          value.Remove(Id);
-        parentIds = value;
+        parentIds = value.Except(new int[] { Id });
       }
     }
 
-    private List<int> childIds = new List<int>();
-    public List<int> ChildIds
+    private IEnumerable<int> childIds = new List<int>();
+    public IEnumerable<int> ChildIds
     {
       get
       {
@@ -425,9 +421,7 @@ namespace Planum.Model.Entities
 
       set
       {
-        if (value.Contains(Id))
-          value.Remove(Id);
-        childIds = value;
+        childIds = value.Except(new int[] { Id });
       }
     }
 
@@ -449,12 +443,12 @@ namespace Planum.Model.Entities
 
     public bool HasChildren()
     {
-      return ChildIds.Count > 0;
+      return ChildIds.Count() > 0;
     }
 
     public bool HasParents()
     {
-      return ParentIds.Count > 0;
+      return ParentIds.Count() > 0;
     }
 
     public bool Timed()

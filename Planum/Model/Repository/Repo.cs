@@ -88,7 +88,5 @@ namespace Planum.Model.Repository
     {
       taskFileManager.Restore();
     }
-
-
   }
 }
