@@ -1,22 +1,18 @@
-﻿using Planum.Config;
-using Planum.ConsoleUI;
+﻿using Planum.ConsoleUI;
 using Planum.Model.Managers;
 
 
 namespace Planum
 {
-  internal class Program
-  {
-    static void Main(string[] args)
+    internal class Program
     {
-      AppConfig appConfig = new AppConfig();
-      appConfig.LoadConfig();
+        static void Main(string[] args)
+        {
+            TaskManager taskManager = new TaskManager();
+            taskManager.Backup();
 
-      TaskManager taskManager = new TaskManager();
-      taskManager.Backup();
-
-      ConsoleShell consoleShell = new ConsoleShell(taskManager, appConfig);
-      consoleShell.MainLoop(args);
+            ConsoleShell consoleShell = new ConsoleShell(taskManager);
+            consoleShell.MainLoop(args);
+        }
     }
-  }
 }

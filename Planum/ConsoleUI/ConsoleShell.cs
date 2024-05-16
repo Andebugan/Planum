@@ -16,14 +16,12 @@ namespace Planum.ConsoleUI
         ExitCommand exitCommand = new ExitCommand();
         HelpCommand helpCommand = new HelpCommand();
         ConfigCommand configCommand = new ConfigCommand();
-        public AppConfig appConfig;
         CommandsConfig commandsConfig;
 
         TaskManager taskManager;
 
-        public ConsoleShell(TaskManager taskManager, AppConfig appConfig)
+        public ConsoleShell(TaskManager taskManager)
         {
-            this.appConfig = appConfig;
             this.commandsConfig = new CommandsConfig(); 
             this.taskManager = taskManager;
 
@@ -71,7 +69,7 @@ namespace Planum.ConsoleUI
                           "╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯";
             Console.Write(text);
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(" " + appConfig.config.version);
+            Console.WriteLine(" " + "1.2");
             Console.ForegroundColor = ConsoleColor.White;
         }
 

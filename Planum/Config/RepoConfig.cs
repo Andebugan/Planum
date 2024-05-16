@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
-using System.IO;
-using System.Runtime.InteropServices;
-using Planum.Config;
 using System;
 
 namespace Planum.Config
@@ -18,6 +14,9 @@ namespace Planum.Config
         public void LoadConfig()
         {
             var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+            if (exeName is null)
+                throw new Exception("Couldn't open config file");
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 configPath = configPath.Replace("\\", "/");
@@ -32,13 +31,17 @@ namespace Planum.Config
 
 
             var systemPath = Path.GetDirectoryName(exeName);
+            if (systemPath is null)
+                throw new Exception("Couldn't open config file");
+
             using StreamReader r = new StreamReader(Path.Combine(systemPath, configPath));
             string json = r.ReadToEnd();
-            config = JsonConvert.DeserializeObject<RepoConfigJson>(json);
+            var result = JsonConvert.DeserializeObject<RepoConfigJson>(json);
+            if (result is null)
+                throw new Exception("Couldn't open config file");
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                config.TaskMetafileName = config.TaskMetafileName.Replace("\\", "/");
                 config.TaskDirectoryName = config.TaskDirectoryName.Replace("\\", "/");
                 config.TaskBackupDirectoryName = config.TaskBackupDirectoryName.Replace("\\", "/");
             }
@@ -48,17 +51,13 @@ namespace Planum.Config
 
     public class RepoConfigJson
     {
-        public string TaskMetafileName { get; set; }
         public string TaskDirectoryName { get; set; }
         public string TaskBackupDirectoryName { get; set; }
-        public int TaskFileTaskCount { get; set; }
 
         public RepoConfigJson()
         {
-            TaskMetafileName = string.Empty;
             TaskDirectoryName = string.Empty;
             TaskBackupDirectoryName = string.Empty;
-            TaskFileTaskCount = 0;
         }
     }
 }

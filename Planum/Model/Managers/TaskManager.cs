@@ -1,5 +1,4 @@
-﻿using Planum.ConsoleUI.UI;
-using Planum.Model.Entities;
+﻿using Planum.Model.Entities;
 using Planum.Model.Repository;
 using System;
 using System.Collections.Generic;
@@ -26,11 +25,8 @@ namespace Planum.Model.Managers
             return newTaskId;
         }
 
-        public void UpdateRelations(Task task, int taskId = -1, bool remove = false)
+        public void UpdateRelations(Task task)
         {
-            if (taskId == -1)
-                taskId = task.Id;
-            
             // update children
             List<Task> children = saveRepo.Find(task.ChildIds);
             
