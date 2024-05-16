@@ -66,19 +66,19 @@ namespace Planum.Model.Repository
         }
 
         /*
-         * i[d]: {Guid} 
+         * i[d]: {guid} 
          * n[ame]: {string}
          * d[escription]: {string} 
-         * p[arent]: {Guid}
+         * p[arent]: {guid}
          * ...
-         * c[hildre]: {Guid}
+         * c[hildre]: {guid}
          * ...
-         * d[eadline]:
-         * - e[nabled]: {true\false}
-         * - de[adline]: {hh:mm dd.mm.yyyy}
+         * de[eadline]:
+         * - e[nabled]
+         * - ded[adline]: {hh:mm dd.mm.yyyy}
          * - w[arning]: {dd.hh.mm}
          * - du[ration]: {dd.hh.mm}
-         * - r[peated]: {true\false}
+         * - r[peated]
          * - s[pan]: {dd.hh.mm}
          * - y[ears]: {int}
          * - m[onths]: {int}
@@ -100,31 +100,46 @@ namespace Planum.Model.Repository
                 var tmpline = line.TrimStart(new char[] { ' ', '-' });
                 if (deadline is not null)
                 {
-                    if (tmpline.StartsWith("e: ")) {
-                        tmpline = tmpline.Remove(0, 3);
-                        deadline.enabled = bool.Parse(tmpline);
-                    } else if (tmpline.StartsWith("de: ")) {
-                        tmpline = tmpline.Remove(0, 4);
+                    if (tmpline.StartsWith("e: "))
+                    {
+                        deadline.enabled = true;
+                    }
+                    else if (tmpline.StartsWith("ded: "))
+                    {
+                        tmpline = tmpline.Remove(0, 5);
                         deadline.deadline = DateTime.ParseExact(tmpline, "H:m d.M.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
-                    } else if (tmpline.StartsWith("w: ")) {
+                    }
+                    else if (tmpline.StartsWith("w: "))
+                    {
                         tmpline = tmpline.Remove(0, 3);
                         deadline.warningTime = TimeSpan.ParseExact(tmpline, @"d\.h\:m", CultureInfo.InvariantCulture, TimeSpanStyles.None);
-                    } else if (tmpline.StartsWith("du: ")) {
+                    }
+                    else if (tmpline.StartsWith("du: "))
+                    {
                         tmpline = tmpline.Remove(0, 4);
                         deadline.duration = TimeSpan.ParseExact(tmpline, @"d\.h\:m", CultureInfo.InvariantCulture, TimeSpanStyles.None);
-                    } else if (tmpline.StartsWith("r: ")) {
-                        tmpline = tmpline.Remove(0, 3);
-                        deadline.enabled = bool.Parse(tmpline);
-                    } else if (tmpline.StartsWith("s: ")) {
+                    }
+                    else if (tmpline.StartsWith("r: "))
+                    {
+                        deadline.enabled = true;
+                    }
+                    else if (tmpline.StartsWith("s: "))
+                    {
                         tmpline = tmpline.Remove(0, 3);
                         deadline.repeatSpan = TimeSpan.ParseExact(tmpline, @"d\.h\:m", CultureInfo.InvariantCulture, TimeSpanStyles.None);
-                    } else if (tmpline.StartsWith("y: ")) {
+                    }
+                    else if (tmpline.StartsWith("y: "))
+                    {
                         tmpline = tmpline.Remove(0, 3);
                         deadline.repeatYears = int.Parse(tmpline);
-                    } else if (tmpline.StartsWith("m: ")) {
+                    }
+                    else if (tmpline.StartsWith("m: "))
+                    {
                         tmpline = tmpline.Remove(0, 3);
                         deadline.repeatMonths = int.Parse(tmpline);
-                    } else {
+                    }
+                    else
+                    {
                         deadlines.Append(deadline);
                         deadline = null;
                     }
@@ -171,9 +186,10 @@ namespace Planum.Model.Repository
                 {
                     children.Append(Guid.Parse(tmpline.Remove(0, 3)));
                 }
-                else if (tmpline.StartsWith("d: "))
+                else if (tmpline.StartsWith("de: "))
                 {
-                    deadlines.Append(deadline);
+                    if (deadline is not null)
+                        deadlines.Append(deadline);
                     deadline = new Deadline();
                 }
             }
@@ -193,9 +209,76 @@ namespace Planum.Model.Repository
             return tasks;
         }
 
+        /*
+         * i[d]: {guid} 
+         * n[ame]: {string}
+         * d[escription]: {string} 
+         * p[arent]: {guid}
+         * ...
+         * c[hildre]: {guid}
+         * ...
+         * de[adline]:
+         * - e[nabled]
+         * - ded[adline]: {hh:mm dd.mm.yyyy}
+         * - w[arning]: {dd.hh.mm}
+         * - du[ration]: {dd.hh.mm}
+         * - r[peated] {true\false}
+         * - s[pan]: {dd.hh.mm}
+         * - y[ears]: {int}
+         * - m[onths]: {int}
+        */
         public void Write(IEnumerable<Task> tasks)
         {
-            throw new NotImplementedException();
+            List<string> lines = new List<string>();
+            foreach (var task in tasks)
+            {
+                lines.Append("i: " + task.Id.ToString());
+                if (task.Name != string.Empty)
+                {
+                    lines.Append("n: " + task.Name);
+                }
+                if (task.Description != string.Empty)
+                {
+                    lines.Append("d: " + task.Description);
+                }
+                if (task.Parents.Count() > 0)
+                {
+                    foreach (var parent in task.Parents)
+                    {
+                        lines.Append("p:" + parent.ToString());
+                    }
+                }
+                if (task.Children.Count() > 0)
+                {
+                    foreach (var child in task.Children)
+                    {
+                        lines.Append("c:" + child.ToString());
+                    }
+                }
+                if (task.Deadlines.Count() > 0)
+                {
+                    foreach (var deadline in task.Deadlines)
+                    {
+                        lines.Append("de:");
+                        if (deadline.enabled) 
+                            lines.Append("- e");
+
+                        lines.Append("- ded:" + deadline.deadline.ToString("H:m d.M.yyyy"));
+                        if (deadline.warningTime != TimeSpan.Zero)
+                            lines.Append("- w:" + deadline.warningTime.ToString(@"d\.h\:m"));
+                        if (deadline.duration != TimeSpan.Zero)
+                            lines.Append("- du:" + deadline.duration.ToString(@"d\.h\:m"));
+                        if (deadline.repeated)
+                            lines.Append("- r");
+                        if (deadline.repeatSpan != TimeSpan.Zero)
+                            lines.Append("- s:" + deadline.repeatSpan.ToString(@"d\.h\:m"));
+                        if (deadline.repeatYears > 0)
+                            lines.Append("- y:" + deadline.repeatYears.ToString());
+                        if (deadline.repeatMonths > 0)
+                            lines.Append("- m:" + deadline.repeatMonths.ToString());
+                    }
+                }
+            }
         }
     }
 }
