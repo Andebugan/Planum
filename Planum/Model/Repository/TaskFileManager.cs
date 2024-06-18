@@ -10,7 +10,7 @@ namespace Planum.Model.Repository
 {
     public class TaskFileManager : ITaskFileManager
     {
-        RepoConfig repoConfig = new RepoConfig();
+        ConfigLoader config = new ConfigLoader();
 
         public TaskFileManager()
         {
@@ -66,6 +66,7 @@ namespace Planum.Model.Repository
         }
 
         /*
+         * <planum.task>
          * i[d]: {guid} 
          * n[ame]: {string}
          * d[escription]: {string} 
@@ -82,6 +83,7 @@ namespace Planum.Model.Repository
          * - s[pan]: {dd.hh.mm}
          * - y[ears]: {int}
          * - m[onths]: {int}
+         * ...
         */
 
         public IEnumerable<Task> Read()

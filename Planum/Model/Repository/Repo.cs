@@ -26,7 +26,8 @@ namespace Planum.Model.Repository
             return result.First();
         }
 
-        public void Sync() {
+        public void Sync()
+        {
             taskBuffer = taskFileManager.Read();
         }
 
