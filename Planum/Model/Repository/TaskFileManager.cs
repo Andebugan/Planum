@@ -10,11 +10,11 @@ namespace Planum.Model.Repository
 {
     public class TaskFileManager : ITaskFileManager
     {
-        ConfigLoader config = new ConfigLoader();
+        RepoConfig repoConfig = new RepoConfig();
 
         public TaskFileManager()
         {
-            repoConfig.LoadConfig();
+            repoConfig = ConfigLoader.LoadConfig<RepoConfig>(ConfigLoader.repoConfigPath);
             CreateTaskFiles();
         }
 
@@ -23,7 +23,7 @@ namespace Planum.Model.Repository
 
         protected void GetSavePath()
         {
-            string dirName = repoConfig.config.TaskDirectoryName;
+            string dirName = repoConfig.TaskDirectoryName;
             string savePath = AppContext.BaseDirectory;
 
             string dirPath = Path.Combine(savePath, dirName);
@@ -35,7 +35,7 @@ namespace Planum.Model.Repository
 
         protected void GetBackupPath()
         {
-            string dirName = repoConfig.config.TaskBackupDirectoryName;
+            string dirName = repoConfig.TaskBackupDirectoryName;
             string savePath = AppContext.BaseDirectory;
 
             string dirPath = Path.Combine(savePath, dirName);

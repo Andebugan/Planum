@@ -5,9 +5,12 @@ using System;
 
 namespace Planum.Config
 {
-    public class ConfigLoader
+    public static class ConfigLoader
     {
-        public T LoadConfig<T>(string configPath) {
+        public static string commandConfigPath = "Config\\command_config.json";
+        public static string repoConfigPath = "Config\\repo_config.json";
+
+        public static T LoadConfig<T>(string configPath) {
             var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
             if (exeName is null)
                 throw new Exception("Couldn't open config file");
@@ -39,7 +42,7 @@ namespace Planum.Config
             return result; 
         }
 
-        public void SaveConfig<T>(string configPath, T config) {
+        public static void SaveConfig<T>(string configPath, T config) {
             var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
             if (exeName is null)
                 throw new Exception("Couldn't open config file");
