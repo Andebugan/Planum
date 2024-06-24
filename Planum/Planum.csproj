@@ -23,17 +23,9 @@
   <ItemGroup>
     <PackageReference Include="Alba.CsConsoleFormat" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Serilog" Version="2.11.0" />
-    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Spectre.Console" Version="0.45.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Config\app_config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>
