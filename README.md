@@ -42,23 +42,6 @@ sudo ./Planum
 ```
 from app folder or add path to folder to PATH to use as command
 
-## Development tools
-What I used:
-
-System:
-- Windows 10
-
-IDE:
-- Visual Studio 2022
-
-NuGet packages:
-- Alba.CsConsoleFormat
-- Newtonsoft.Json
-- Serilog
-- Serilog.Sinks.Debug
-- Serilog.Sinks.File
-
-
 ## Contributing
 Feel free to fork and contribute by submitting a pull request to enhance the functionalities.
 

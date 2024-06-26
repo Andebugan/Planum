@@ -38,6 +38,7 @@ namespace Planum.Model.Entities
         }
     }
 
+    #nullable enable
     public class Task
     {
         public Guid Id { get; set; }

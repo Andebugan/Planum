@@ -5,12 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+#nullable enable
 
 namespace Planum.Model.Repository
 {
     public class FileParsingException : Exception
     {
         public FileParsingException(string message) : base(message) { }
+    }
+
+    public class FileWritingException : Exception
+    {
+        public FileWritingException(string message) : base(message) { }
     }
 
     public static class TaskSaveFormat
@@ -107,7 +113,7 @@ namespace Planum.Model.Repository
          * - y[ears]: {int}
          * - m[onths]: {int}
          * ...
-         * 
+         * <planum.task>
         */
 
         // NOTE: user can specify several children or parents with one name because of parsing features, but must be carefull to not accidentally add more tasks than needed
@@ -143,15 +149,31 @@ namespace Planum.Model.Repository
         {
             List<Task> tasks = new List<Task>();
             if (!File.Exists(filePath))
-                throw new ($"Task file at path: {filePath}, doesn't exist");
+            {
+                throw new($"Task file at path {filePath} doesn't exist");
+            }
 
             Task? task = null;
             IEnumerable<Deadline> deadlines = new List<Deadline>();
             Deadline? deadline = null;
+            bool taskZone = false;
 
             foreach (var line in File.ReadLines(filePath))
             {
                 var tmpline = line.TrimStart(new char[] { ' ', '-' }).TrimEnd();
+                if (tmpline.StartsWith("<planum.task>"))
+                {
+                    taskZone = !taskZone;
+                }
+
+                if (!taskZone)
+                {
+                    if (task is not null)
+                        tasks.Add(task);
+                    else
+                        task = new Task();
+                }
+
                 var parsingError = false;
 
                 if (deadline is not null)
@@ -179,11 +201,10 @@ namespace Planum.Model.Repository
                     }
                 }
 
-                if (TaskSaveFormat.deadlineStart.Where(x => tmpline.StartsWith(x)).Any())
+                if (TaskSaveFormat.id.Where(x => tmpline.StartsWith(x)).Any())
                 {
-                    if (task is not null)
-                        tasks.Add(task);
-                    task = new Task();
+                    if (task is null)
+                        throw new FileParsingException($"Unresolved task exception at path: {filePath}, at line: {line}");
                     tmpline = tmpline.Remove(0, TaskSaveFormat.deadline.Where(x => tmpline.StartsWith(x)).First().Length);
                     if (tmpline.Length == 0)
                         task.Id = Guid.NewGuid();
@@ -265,6 +286,10 @@ namespace Planum.Model.Repository
             return tasks;
         }
 
+        public void Write(IEnumerable<Task> tasks)
+        {
+        }
+
         /*
          * <planum.task>
          * i[d]: {guid} 
@@ -283,62 +308,76 @@ namespace Planum.Model.Repository
          * - s[pan]: {dd.hh.mm}
          * - y[ears]: {int}
          * - m[onths]: {int}
+         * <planum.task>
         */
-        public void WriteToFile(string filePath, IEnumerable<Task> tasks)
+        protected void WriteToFile(string filePath, ref IEnumerable<Task> tasks)
         {
-               
+            if (!File.Exists(filePath))
+                throw new FileWritingException($"Unable to open file at path: {filePath}"); 
+
+            var lines = File.ReadLines(filePath);
+            IEnumerable<string> newLines = new List<string>();
+
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("<planum.task>")) 
+                {
+                }
+                else
+                {
+                    newLines.Append(line);
+                }
+            }
         }
 
-        public void Write(IEnumerable<Task> tasks)
+        protected void WriteTask(ref IEnumerable<string> lines, Task task)
         {
-            List<string> lines = new List<string>();
-            foreach (var task in tasks)
+            lines.Append("<planum.task>");
+            lines.Append(TaskSaveFormat.id.First() + task.Id.ToString());
+            if (task.Name != string.Empty)
             {
-                lines.Append("i: " + task.Id.ToString());
-                if (task.Name != string.Empty)
+                lines.Append(TaskSaveFormat.name.First() + task.Name);
+            }
+            if (task.Description != string.Empty)
+            {
+                lines.Append(TaskSaveFormat.description.First() + task.Description);
+            }
+            if (task.Parents.Count() > 0)
+            {
+                foreach (var parent in task.Parents)
                 {
-                    lines.Append("n: " + task.Name);
+                    lines.Append(TaskSaveFormat.parent.First() + parent.ToString());
                 }
-                if (task.Description != string.Empty)
+            }
+            if (task.Children.Count() > 0)
+            {
+                foreach (var child in task.Children)
                 {
-                    lines.Append("d: " + task.Description);
+                    lines.Append(TaskSaveFormat.children.First() + child.ToString());
                 }
-                if (task.Parents.Count() > 0)
+            }
+            if (task.Deadlines.Count() > 0)
+            {
+                task.Deadlines.ToList().Sort((x, y) => DateTime.Compare(x.deadline, y.deadline));
+                foreach (var deadline in task.Deadlines)
                 {
-                    foreach (var parent in task.Parents)
-                    {
-                        lines.Append("p:" + parent.ToString());
-                    }
-                }
-                if (task.Children.Count() > 0)
-                {
-                    foreach (var child in task.Children)
-                    {
-                        lines.Append("c:" + child.ToString());
-                    }
-                }
-                if (task.Deadlines.Count() > 0)
-                {
-                    foreach (var deadline in task.Deadlines)
-                    {
-                        lines.Append("de:");
-                        if (deadline.enabled)
-                            lines.Append("- e");
+                    lines.Append(TaskSaveFormat.deadline.First());
+                    if (deadline.enabled)
+                        lines.Append(TaskSaveFormat.enabled.First());
 
-                        lines.Append("- ded:" + deadline.deadline.ToString("H:m d.M.yyyy"));
-                        if (deadline.warningTime != TimeSpan.Zero)
-                            lines.Append("- w:" + deadline.warningTime.ToString(@"d\.h\:m"));
-                        if (deadline.duration != TimeSpan.Zero)
-                            lines.Append("- du:" + deadline.duration.ToString(@"d\.h\:m"));
-                        if (deadline.repeated)
-                            lines.Append("- r");
-                        if (deadline.repeatSpan != TimeSpan.Zero)
-                            lines.Append("- s:" + deadline.repeatSpan.ToString(@"d\.h\:m"));
-                        if (deadline.repeatYears > 0)
-                            lines.Append("- y:" + deadline.repeatYears.ToString());
-                        if (deadline.repeatMonths > 0)
-                            lines.Append("- m:" + deadline.repeatMonths.ToString());
-                    }
+                    lines.Append("- " + TaskSaveFormat.deadline.First() + deadline.deadline.ToString("H:m d.M.yyyy"));
+                    if (deadline.warningTime != TimeSpan.Zero)
+                        lines.Append("- " + TaskSaveFormat.deadline.First() + deadline.warningTime.ToString(@"d\.h\:m"));
+                    if (deadline.duration != TimeSpan.Zero)
+                        lines.Append("- " + TaskSaveFormat.duration.First() + deadline.duration.ToString(@"d\.h\:m"));
+                    if (deadline.repeated)
+                        lines.Append("- " + TaskSaveFormat.repeated.First());
+                    if (deadline.repeatSpan != TimeSpan.Zero)
+                        lines.Append("- " + TaskSaveFormat.span.First() + deadline.repeatSpan.ToString(@"d\.h\:m"));
+                    if (deadline.repeatYears > 0)
+                        lines.Append("- " + TaskSaveFormat.years.First() + deadline.repeatYears.ToString());
+                    if (deadline.repeatMonths > 0)
+                        lines.Append("- " + TaskSaveFormat.months.First() + deadline.repeatMonths.ToString());
                 }
             }
         }

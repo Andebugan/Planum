@@ -20,7 +20,6 @@ namespace Planum.Model.Managers
             repo.Restore();
         }
 
-        // TODO
         public void Undo()
         {
             
