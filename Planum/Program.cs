@@ -1,5 +1,4 @@
-﻿using Planum.ConsoleUI;
-using Planum.Model.Managers;
+﻿using Planum.Model.Managers;
 
 namespace Planum
 {
@@ -10,8 +9,8 @@ namespace Planum
             TaskManager taskManager = new TaskManager();
             taskManager.Backup();
 
-            ConsoleShell consoleShell = new ConsoleShell(taskManager);
-            consoleShell.MainLoop(args);
+            //ConsoleShell consoleShell = new ConsoleShell(taskManager);
+            //consoleShell.MainLoop(args);
         }
     }
 }

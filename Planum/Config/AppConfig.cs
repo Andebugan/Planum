@@ -1,11 +1,12 @@
-using System.Collections.Generic;
-
 namespace Planum.Config
 {
-    public class AppData
+    public class AppConfig
     {
-        public static string NewLineSymbol = "~";
-        public static string CommandDelimeter = "-";
-        public static string NameSeparator = "|";
+        public string NewLineSymbol = "~";
+        public string CommandDelimeter = "-";
+        public string NameSeparator = "|";
+
+        public string RepoConfigPath = "RepoConfig.json";
+        public string AppConfigPath = "AppConfig.json";
     }
 }

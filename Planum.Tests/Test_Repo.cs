@@ -1,9 +1,9 @@
 namespace Planum.Tests;
 
-public class UnitTest1
+public class Test_Repo 
 {
     [Fact]
-    public void Test1()
+    public void Test()
     {
         // Arrange
         

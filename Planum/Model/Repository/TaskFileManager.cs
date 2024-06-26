@@ -40,10 +40,12 @@ namespace Planum.Model.Repository
     public class TaskFileManager : ITaskFileManager
     {
         RepoConfig repoConfig = new RepoConfig();
+        AppConfig appConfig = new AppConfig();
 
         public TaskFileManager()
         {
-            repoConfig = ConfigLoader.LoadConfig<RepoConfig>(ConfigLoader.repoConfigPath);
+            appConfig = ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath);
+            repoConfig = ConfigLoader.LoadConfig<RepoConfig>(appConfig.RepoConfigPath);
             CreateTaskFiles();
         }
 
@@ -52,26 +54,14 @@ namespace Planum.Model.Repository
 
         protected void GetSavePath()
         {
-            string dirName = repoConfig.TaskDirectoryName;
             string savePath = AppContext.BaseDirectory;
-
-            string dirPath = Path.Combine(savePath, dirName);
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
-
-            FilePath = dirPath + "tasks";
+            FilePath = Path.Combine(savePath, repoConfig.TaskFilename);
         }
 
         protected void GetBackupPath()
         {
-            string dirName = repoConfig.TaskBackupDirectoryName;
             string savePath = AppContext.BaseDirectory;
-
-            string dirPath = Path.Combine(savePath, dirName);
-            if (!Directory.Exists(dirPath))
-                Directory.CreateDirectory(dirPath);
-
-            BackupPath = dirPath + "backup";
+            string backupPath = Path.Combine(savePath, repoConfig.TaskBackupFilename);
         }
 
         public void CreateTaskFiles()
@@ -252,6 +242,7 @@ namespace Planum.Model.Repository
             return tasks;
         }
 
+        // TODO: add config update for new tasks (id get's added to lookup paths)
         public IEnumerable<Task> Read()
         {
             IEnumerable<Task> tasks = new List<Task>();
@@ -310,23 +301,57 @@ namespace Planum.Model.Repository
          * - m[onths]: {int}
          * <planum.task>
         */
+        // here tasks are from lookup dictionary specificaly for this file
         protected void WriteToFile(string filePath, ref IEnumerable<Task> tasks)
         {
             if (!File.Exists(filePath))
-                throw new FileWritingException($"Unable to open file at path: {filePath}"); 
+                throw new FileWritingException($"Unable to open file at path: {filePath}");
 
             var lines = File.ReadLines(filePath);
             IEnumerable<string> newLines = new List<string>();
 
+            bool taskZone = false;
+            string name = string.Empty;
+            Guid id = Guid.Empty;
+
             foreach (var line in lines)
             {
-                if (line.StartsWith("<planum.task>")) 
+                // find <planum.task> marker
+                if (line.StartsWith("<planum.task>"))
                 {
+                    if (taskZone) 
+                    {
+                        // if task exists - add it to lines, else throw error
+                        if (id == Guid.Empty)
+                        {
+                            if (tasks.Where(x => x.Name == name).Count() > 1)
+                                throw new FileWritingException($"Unable to identify uniqie tasks due to id and name ambiguity at path: {filePath}, line: {line}, task name: {name}");
+                            if (tasks.Where(x => x.Name == name).Count() < 1)
+                                throw new FileWritingException($"Unable to identify task by id or name at path: {filePath}, line: {line}, task name: {name}");
+                            WriteTask(ref newLines, tasks.Where(x => x.Name == name).First());
+                        }
+                        else 
+                            WriteTask(ref newLines, tasks.Where(x => x.Id == id).First());
+                    }
+                    taskZone = !taskZone;
+                }
+                else if (taskZone)
+                {
+                    // find id inside task and find it in task buffer
+                    // if id is empty -> new task, search by name, if same names in one file, throw exception (TODO: find better way to track new task positions in file)
+                    var tmpline = line.TrimStart(new char[] { ' ', '-' }).TrimEnd();
+                    if (TaskSaveFormat.id.Where(x => tmpline.StartsWith(x)).Any())
+                    {
+                        tmpline = tmpline.Remove(0, TaskSaveFormat.deadline.Where(x => tmpline.StartsWith(x)).First().Length);
+                        if (tmpline.Length > 0)
+                            if (!ValueParser.Parse(ref id, tmpline))
+                                throw new FileWritingException($"Couldn't parse task id at path: {filePath}, line: {line}");
+                    }
+                    if (TaskSaveFormat.name.Where(x => tmpline.StartsWith(x)).Any())
+                        name = tmpline.Remove(0, TaskSaveFormat.name.Where(x => tmpline.StartsWith(x)).First().Length);
                 }
                 else
-                {
                     newLines.Append(line);
-                }
             }
         }
 
@@ -380,6 +405,7 @@ namespace Planum.Model.Repository
                         lines.Append("- " + TaskSaveFormat.months.First() + deadline.repeatMonths.ToString());
                 }
             }
+            lines.Append("<planum.task>");
         }
     }
 }

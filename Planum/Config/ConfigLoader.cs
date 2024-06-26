@@ -11,11 +11,10 @@ namespace Planum.Config
 
     public static class ConfigLoader
     {
-        public static string commandConfigPath = "Config\\command_config.json";
-        public static string repoConfigPath = "Config\\repo_config.json";
+        public static string AppConfigPath = "Config\\Config.json";
 
         public static T LoadConfig<T>(string configPath) {
-            var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+            var exeName = System.AppDomain.CurrentDomain.BaseDirectory;
             if (exeName is null)
                 throw new ConfigException("Unable to get path to executable");
 
@@ -35,7 +34,11 @@ namespace Planum.Config
             if (systemPath is null)
                 throw new ConfigException("Couldn't open config file");
 
-            using StreamReader r = new StreamReader(Path.Combine(systemPath, configPath));
+            var filepath = Path.Combine(systemPath, configPath);
+            if (!File.Exists(filepath))
+                File.Create(filepath);
+
+            using StreamReader r = new StreamReader(filepath);
             string json = r.ReadToEnd();
 
             var result = JsonConvert.DeserializeObject<T>(json);
@@ -47,7 +50,7 @@ namespace Planum.Config
         }
 
         public static void SaveConfig<T>(string configPath, T config) {
-            var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+            var exeName = System.AppDomain.CurrentDomain.BaseDirectory;
             if (exeName is null)
                 throw new ConfigException("Couldn't open config file");
 
@@ -68,7 +71,12 @@ namespace Planum.Config
             if (systemPath is null)
                 throw new ConfigException("Couldn't open config directory");
             string json = JsonConvert.SerializeObject(config);
-            File.WriteAllText(Path.Combine(systemPath, configPath), json);
+
+            var filepath = Path.Combine(systemPath, configPath);
+            if (!File.Exists(filepath))
+                File.Create(filepath);
+
+            File.WriteAllText(filepath, json);
         }
     }
 }
