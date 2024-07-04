@@ -1,26 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <!--
-    <Platforms>AnyCPU</Platforms>
-    <StartupObject>Planum.Program</StartupObject>
-    <OutputType>Exe</OutputType>
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>true</SelfContained>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
-    -->
+    <Nullable>enable</Nullable>
   </PropertyGroup>
    <ItemGroup>
     <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Alba.CsConsoleFormat" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Spectre.Console" Version="0.45.0" />
-    <PackageReference Include="xunit" Version="2.8.1" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\" />

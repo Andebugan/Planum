@@ -5,15 +5,17 @@ using System;
 
 namespace Planum.Config
 {
-    public class ConfigException: Exception {
-        public ConfigException(string message): base(message) { }
+    public class ConfigException : Exception
+    {
+        public ConfigException(string message) : base(message) { }
     }
 
     public static class ConfigLoader
     {
         public static string AppConfigPath = "Config\\Config.json";
 
-        public static T LoadConfig<T>(string configPath) {
+        public static T LoadConfig<T>(string configPath)
+        {
             var exeName = System.AppDomain.CurrentDomain.BaseDirectory;
             if (exeName is null)
                 throw new ConfigException("Unable to get path to executable");
@@ -38,18 +40,21 @@ namespace Planum.Config
             if (!File.Exists(filepath))
                 File.Create(filepath);
 
-            using StreamReader r = new StreamReader(filepath);
-            string json = r.ReadToEnd();
+            T result;
 
-            var result = JsonConvert.DeserializeObject<T>(json);
-            if (result is null)
-                throw new ConfigException("Couldn't open config file");
-            r.Close();
+            using (var r = new StreamReader(filepath))
+            {
+                string json = r.ReadToEnd();
 
-            return result; 
+                result = JsonConvert.DeserializeObject<T>(json);
+                if (result is null)
+                    throw new ConfigException("Couldn't read json from config file");
+            }
+            return result;
         }
 
-        public static void SaveConfig<T>(string configPath, T config) {
+        public static void SaveConfig<T>(string configPath, T config)
+        {
             var exeName = System.AppDomain.CurrentDomain.BaseDirectory;
             if (exeName is null)
                 throw new ConfigException("Couldn't open config file");
