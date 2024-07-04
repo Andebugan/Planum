@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -38,8 +40,7 @@ namespace Planum.Model.Entities
         }
     }
 
-    #nullable enable
-    public class Task
+    public class PlanumTask
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -51,7 +52,7 @@ namespace Planum.Model.Entities
 
         public IEnumerable<Guid> Parents { get; set; } = new List<Guid>();
 
-        public Task(Guid? id = null,
+        public PlanumTask(Guid? id = null,
                 string name = "",
                 string description = "",
                 IEnumerable<Deadline>? deadlines = null,

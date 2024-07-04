@@ -44,44 +44,48 @@ namespace Planum.Model.Repository
 
         public TaskFileManager()
         {
-            appConfig = ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath);
-            repoConfig = ConfigLoader.LoadConfig<RepoConfig>(appConfig.RepoConfigPath);
+            appConfig = ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath, appConfig);
+            repoConfig = ConfigLoader.LoadConfig<RepoConfig>(appConfig.RepoConfigPath, repoConfig);
             CreateTaskFiles();
         }
 
-        string FilePath { get; set; } = string.Empty;
-        string BackupPath { get; set; } = string.Empty;
+        string filePath = string.Empty;
+        public string FilePath { get => filePath; }
+        string backupPath = string.Empty;
+        public string BackupPath { get => backupPath; }
 
         protected void GetSavePath()
         {
             string savePath = AppContext.BaseDirectory;
-            FilePath = Path.Combine(savePath, repoConfig.TaskFilename);
+            filePath = Path.Combine(savePath, repoConfig.TaskFilename);
         }
 
         protected void GetBackupPath()
         {
             string savePath = AppContext.BaseDirectory;
-            string backupPath = Path.Combine(savePath, repoConfig.TaskBackupFilename);
+            backupPath = Path.Combine(savePath, repoConfig.TaskBackupFilename);
         }
 
         public void CreateTaskFiles()
         {
+            GetBackupPath();
+            GetSavePath();
             if (!File.Exists(FilePath))
-                File.Create(FilePath);
+                File.Create(FilePath).Close();
             if (!File.Exists(BackupPath))
-                File.Create(BackupPath);
+                File.Create(BackupPath).Close();
         }
 
         public void Backup()
         {
             // copy main file to backup file
-            File.Copy(FilePath, BackupPath);
+            File.Copy(FilePath, BackupPath, true);
         }
 
         public void Restore()
         {
             // copy backup file to main file
-            File.Copy(BackupPath, FilePath);
+            File.Copy(BackupPath, FilePath, true);
         }
 
         /*
@@ -107,13 +111,13 @@ namespace Planum.Model.Repository
         */
 
         // NOTE: user can specify several children or parents with one name because of parsing features, but must be carefull to not accidentally add more tasks than needed
-        public void ReadReferencePass(string filePath, ref IEnumerable<Task> tasks, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
+        public void ReadReferencePass(string filePath, ref IEnumerable<PlanumTask> tasks, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
         {
             foreach (var task in tasks)
             {
                 foreach (var child in children[task.Id])
                 {
-                    IEnumerable<Task> identifiedTasks = new List<Task>();
+                    IEnumerable<PlanumTask> identifiedTasks = new List<PlanumTask>();
                     TaskValueParser.ParseIdentity(ref identifiedTasks, child, tasks);
                     if (identifiedTasks.Count() == 0)
                     {
@@ -124,7 +128,7 @@ namespace Planum.Model.Repository
 
                 foreach (var parent in parents[task.Id])
                 {
-                    IEnumerable<Task> identifiedTasks = new List<Task>();
+                    IEnumerable<PlanumTask> identifiedTasks = new List<PlanumTask>();
                     TaskValueParser.ParseIdentity(ref identifiedTasks, parent, tasks);
                     if (identifiedTasks.Count() == 0)
                     {
@@ -135,15 +139,15 @@ namespace Planum.Model.Repository
             }
         }
 
-        public IEnumerable<Task> ReadMainPass(string filePath, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
+        public IEnumerable<PlanumTask> ReadMainPass(string filePath, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
         {
-            List<Task> tasks = new List<Task>();
+            List<PlanumTask> tasks = new List<PlanumTask>();
             if (!File.Exists(filePath))
             {
                 throw new($"Task file at path {filePath} doesn't exist");
             }
 
-            Task? task = null;
+            PlanumTask? task = null;
             IEnumerable<Deadline> deadlines = new List<Deadline>();
             Deadline? deadline = null;
             bool taskZone = false;
@@ -161,7 +165,7 @@ namespace Planum.Model.Repository
                     if (task is not null)
                         tasks.Add(task);
                     else
-                        task = new Task();
+                        task = new PlanumTask();
                 }
 
                 var parsingError = false;
@@ -243,9 +247,9 @@ namespace Planum.Model.Repository
         }
 
         // TODO: add config update for new tasks (id get's added to lookup paths)
-        public IEnumerable<Task> Read()
+        public IEnumerable<PlanumTask> Read()
         {
-            IEnumerable<Task> tasks = new List<Task>();
+            IEnumerable<PlanumTask> tasks = new List<PlanumTask>();
 
             Dictionary<Guid, List<string>> children = new Dictionary<Guid, List<string>>();
             Dictionary<Guid, List<string>> parents = new Dictionary<Guid, List<string>>();
@@ -277,7 +281,7 @@ namespace Planum.Model.Repository
             return tasks;
         }
 
-        public void Write(IEnumerable<Task> tasks)
+        public void Write(IEnumerable<PlanumTask> tasks)
         {
         }
 
@@ -302,7 +306,7 @@ namespace Planum.Model.Repository
          * <planum.task>
         */
         // here tasks are from lookup dictionary specificaly for this file
-        protected void WriteToFile(string filePath, ref IEnumerable<Task> tasks)
+        protected void WriteToFile(string filePath, ref IEnumerable<PlanumTask> tasks)
         {
             if (!File.Exists(filePath))
                 throw new FileWritingException($"Unable to open file at path: {filePath}");
@@ -355,7 +359,7 @@ namespace Planum.Model.Repository
             }
         }
 
-        protected void WriteTask(ref IEnumerable<string> lines, Task task)
+        protected void WriteTask(ref IEnumerable<string> lines, PlanumTask task)
         {
             lines.Append("<planum.task>");
             lines.Append(TaskSaveFormat.id.First() + task.Id.ToString());

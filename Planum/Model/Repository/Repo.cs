@@ -9,7 +9,7 @@ namespace Planum.Model.Repository
 
     public class Repo : IRepo
     {
-        private IEnumerable<Task> taskBuffer = new List<Task>();
+        private IEnumerable<PlanumTask> taskBuffer = new List<PlanumTask>();
 
         ITaskFileManager taskFileManager;
 
@@ -19,7 +19,7 @@ namespace Planum.Model.Repository
             Sync();
         }
 
-        public Task? Find(Guid id)
+        public PlanumTask? Find(Guid id)
         {
             var result = taskBuffer.Where(x => x.Id == id);
             if (result.Count() == 0)
@@ -32,23 +32,23 @@ namespace Planum.Model.Repository
             taskBuffer = taskFileManager.Read();
         }
 
-        public IEnumerable<Task> Find(IEnumerable<Guid>? ids = null)
+        public IEnumerable<PlanumTask> Find(IEnumerable<Guid>? ids = null)
         {
             return ids == null ? taskBuffer.ToList() : taskBuffer.Where(x => ids.Contains(x.Id)).ToList();
         }
 
-        public void Add(Task task)
+        public void Add(PlanumTask task)
         {
             taskBuffer.Append(task);
             taskFileManager.Write(taskBuffer);
         }
 
-        public void Update(Task task)
+        public void Update(PlanumTask task)
         {
-            Update(new Task[] { task });
+            Update(new PlanumTask[] { task });
         }
 
-        public void Update(IEnumerable<Task> tasks)
+        public void Update(IEnumerable<PlanumTask> tasks)
         {
             var ids = tasks.Select(x => x.Id);
             taskBuffer = taskBuffer.Where(x => !ids.Contains(x.Id)).Concat(tasks);

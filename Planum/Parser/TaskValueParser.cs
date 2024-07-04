@@ -5,7 +5,7 @@ using Planum.Model.Entities;
 
 namespace Planum.Parser {
     public static class TaskValueParser {
-        public static bool ParseIdentity(ref IEnumerable<Task> value, string data, IEnumerable<Task> taskBuffer) {
+        public static bool ParseIdentity(ref IEnumerable<PlanumTask> value, string data, IEnumerable<PlanumTask> taskBuffer) {
             Guid guid = new Guid();
             // try parse guid
             if (ValueParser.Parse(ref guid, data)) {

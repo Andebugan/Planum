@@ -14,7 +14,7 @@ namespace Planum.Config
     {
         public static string AppConfigPath = "Config\\Config.json";
 
-        public static T LoadConfig<T>(string configPath)
+        public static T LoadConfig<T>(string configPath, T defaultConfig)
         {
             var exeName = System.AppDomain.CurrentDomain.BaseDirectory;
             if (exeName is null)
@@ -26,29 +26,30 @@ namespace Planum.Config
                 exeName = exeName.Replace("file://", "");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
                 exeName = exeName.Replace("file:///", "");
-            }
             else
                 throw new ConfigException("Unknown operating system, can't load config files");
 
             var systemPath = Path.GetDirectoryName(exeName);
             if (systemPath is null)
-                throw new ConfigException("Couldn't open config file");
+                throw new ConfigException("Couldn't find executable directory");
 
             var filepath = Path.Combine(systemPath, configPath);
             if (!File.Exists(filepath))
-                File.Create(filepath);
+            {
+                SaveConfig<T>(configPath, defaultConfig);
+                return defaultConfig;
+            }
 
             T result;
-
             using (var r = new StreamReader(filepath))
             {
                 string json = r.ReadToEnd();
 
-                result = JsonConvert.DeserializeObject<T>(json);
-                if (result is null)
-                    throw new ConfigException("Couldn't read json from config file");
+                var jsonResult = JsonConvert.DeserializeObject<T>(json);
+                if (jsonResult is null)
+                    throw new ConfigException($"Couldn't read json from config file {filepath}");
+                result = jsonResult;
             }
             return result;
         }
@@ -65,9 +66,7 @@ namespace Planum.Config
                 exeName = exeName.Replace("file://", "");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
                 exeName = exeName.Replace("file:///", "");
-            }
             else
                 throw new ConfigException("Unknown operating system, can't load config files");
 
@@ -78,9 +77,6 @@ namespace Planum.Config
             string json = JsonConvert.SerializeObject(config);
 
             var filepath = Path.Combine(systemPath, configPath);
-            if (!File.Exists(filepath))
-                File.Create(filepath);
-
             File.WriteAllText(filepath, json);
         }
     }
