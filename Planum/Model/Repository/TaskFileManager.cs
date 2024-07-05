@@ -148,7 +148,7 @@ namespace Planum.Model.Repository
             }
 
             PlanumTask? task = null;
-            IEnumerable<Deadline> deadlines = new List<Deadline>();
+            List<Deadline> deadlines = new List<Deadline>();
             Deadline? deadline = null;
             bool taskZone = false;
 
@@ -190,7 +190,7 @@ namespace Planum.Model.Repository
                         parsingError = ValueParser.Parse(ref deadline.repeatMonths, tmpline.Remove(0, TaskSaveFormat.months.Where(x => tmpline.StartsWith(x)).First().Length));
                     else
                     {
-                        deadlines.Append(deadline);
+                        deadlines.Add(deadline);
                         deadline = null;
                     }
                 }
@@ -219,13 +219,13 @@ namespace Planum.Model.Repository
                 else if (TaskSaveFormat.description.Where(x => tmpline.StartsWith(x)).Any())
                     task.Description = tmpline.Remove(0, TaskSaveFormat.description.Where(x => tmpline.StartsWith(x)).First().Length);
                 else if (TaskSaveFormat.children.Where(x => tmpline.StartsWith(x)).Any())
-                    children[task.Id].Append(tmpline.Remove(0, TaskSaveFormat.children.Where(x => tmpline.StartsWith(x)).First().Length));
+                    children[task.Id].Add(tmpline.Remove(0, TaskSaveFormat.children.Where(x => tmpline.StartsWith(x)).First().Length));
                 else if (TaskSaveFormat.parent.Where(x => tmpline.StartsWith(x)).Any())
-                    parents[task.Id].Append(tmpline.Remove(0, TaskSaveFormat.parent.Where(x => tmpline.StartsWith(x)).First().Length));
+                    parents[task.Id].Add(tmpline.Remove(0, TaskSaveFormat.parent.Where(x => tmpline.StartsWith(x)).First().Length));
                 else if (TaskSaveFormat.deadlineStart.Where(x => tmpline.StartsWith(x)).Any())
                 {
                     if (deadline is not null)
-                        deadlines.Append(deadline);
+                        deadlines.Add(deadline);
                     deadline = new Deadline();
                 }
 
@@ -238,7 +238,7 @@ namespace Planum.Model.Repository
             if (task is not null)
             {
                 if (deadline is not null)
-                    deadlines.Append(deadline);
+                    deadlines.Add(deadline);
                 task.Deadlines = deadlines.ToList();
                 tasks.Add(task);
             }
@@ -312,6 +312,7 @@ namespace Planum.Model.Repository
                 throw new FileWritingException($"Unable to open file at path: {filePath}");
 
             var lines = File.ReadLines(filePath);
+            var tasksList = tasks.ToList();
             IEnumerable<string> newLines = new List<string>();
 
             bool taskZone = false;
@@ -328,14 +329,14 @@ namespace Planum.Model.Repository
                         // if task exists - add it to lines, else throw error
                         if (id == Guid.Empty)
                         {
-                            if (tasks.Where(x => x.Name == name).Count() > 1)
-                                throw new FileWritingException($"Unable to identify uniqie tasks due to id and name ambiguity at path: {filePath}, line: {line}, task name: {name}");
-                            if (tasks.Where(x => x.Name == name).Count() < 1)
+                            if (tasksList.Where(x => x.Name == name).Count() > 1)
+                                throw new FileWritingException($"Unable to identify uniqie tasksList due to id and name ambiguity at path: {filePath}, line: {line}, task name: {name}");
+                            if (tasksList.Where(x => x.Name == name).Count() < 1)
                                 throw new FileWritingException($"Unable to identify task by id or name at path: {filePath}, line: {line}, task name: {name}");
-                            WriteTask(ref newLines, tasks.Where(x => x.Name == name).First());
+                            WriteTask(ref newLines, tasksList.Where(x => x.Name == name).First());
                         }
                         else 
-                            WriteTask(ref newLines, tasks.Where(x => x.Id == id).First());
+                            WriteTask(ref newLines, tasksList.Where(x => x.Id == id).First());
                     }
                     taskZone = !taskZone;
                 }
@@ -355,34 +356,37 @@ namespace Planum.Model.Repository
                         name = tmpline.Remove(0, TaskSaveFormat.name.Where(x => tmpline.StartsWith(x)).First().Length);
                 }
                 else
-                    newLines.Append(line);
+                    newLines = newLines.Append(line);
             }
+
+            File.WriteAllLines(filePath, newLines);
         }
 
         protected void WriteTask(ref IEnumerable<string> lines, PlanumTask task)
         {
-            lines.Append("<planum.task>");
-            lines.Append(TaskSaveFormat.id.First() + task.Id.ToString());
+            var linesList = lines.ToList();
+            linesList.Add("<planum.task>");
+            linesList.Add(TaskSaveFormat.id.First() + task.Id.ToString());
             if (task.Name != string.Empty)
             {
-                lines.Append(TaskSaveFormat.name.First() + task.Name);
+                linesList.Add(TaskSaveFormat.name.First() + task.Name);
             }
             if (task.Description != string.Empty)
             {
-                lines.Append(TaskSaveFormat.description.First() + task.Description);
+                linesList.Add(TaskSaveFormat.description.First() + task.Description);
             }
             if (task.Parents.Count() > 0)
             {
                 foreach (var parent in task.Parents)
                 {
-                    lines.Append(TaskSaveFormat.parent.First() + parent.ToString());
+                    linesList.Add(TaskSaveFormat.parent.First() + parent.ToString());
                 }
             }
             if (task.Children.Count() > 0)
             {
                 foreach (var child in task.Children)
                 {
-                    lines.Append(TaskSaveFormat.children.First() + child.ToString());
+                    linesList.Add(TaskSaveFormat.children.First() + child.ToString());
                 }
             }
             if (task.Deadlines.Count() > 0)
@@ -390,26 +394,26 @@ namespace Planum.Model.Repository
                 task.Deadlines.ToList().Sort((x, y) => DateTime.Compare(x.deadline, y.deadline));
                 foreach (var deadline in task.Deadlines)
                 {
-                    lines.Append(TaskSaveFormat.deadline.First());
+                    linesList.Add(TaskSaveFormat.deadline.First());
                     if (deadline.enabled)
-                        lines.Append(TaskSaveFormat.enabled.First());
+                        linesList.Add(TaskSaveFormat.enabled.First());
 
-                    lines.Append("- " + TaskSaveFormat.deadline.First() + deadline.deadline.ToString("H:m d.M.yyyy"));
+                    linesList.Add("- " + TaskSaveFormat.deadline.First() + deadline.deadline.ToString("H:m d.M.yyyy"));
                     if (deadline.warningTime != TimeSpan.Zero)
-                        lines.Append("- " + TaskSaveFormat.deadline.First() + deadline.warningTime.ToString(@"d\.h\:m"));
+                        linesList.Add("- " + TaskSaveFormat.deadline.First() + deadline.warningTime.ToString(@"d\.h\:m"));
                     if (deadline.duration != TimeSpan.Zero)
-                        lines.Append("- " + TaskSaveFormat.duration.First() + deadline.duration.ToString(@"d\.h\:m"));
+                        linesList.Add("- " + TaskSaveFormat.duration.First() + deadline.duration.ToString(@"d\.h\:m"));
                     if (deadline.repeated)
-                        lines.Append("- " + TaskSaveFormat.repeated.First());
+                        linesList.Add("- " + TaskSaveFormat.repeated.First());
                     if (deadline.repeatSpan != TimeSpan.Zero)
-                        lines.Append("- " + TaskSaveFormat.span.First() + deadline.repeatSpan.ToString(@"d\.h\:m"));
+                        linesList.Add("- " + TaskSaveFormat.span.First() + deadline.repeatSpan.ToString(@"d\.h\:m"));
                     if (deadline.repeatYears > 0)
-                        lines.Append("- " + TaskSaveFormat.years.First() + deadline.repeatYears.ToString());
+                        linesList.Add("- " + TaskSaveFormat.years.First() + deadline.repeatYears.ToString());
                     if (deadline.repeatMonths > 0)
-                        lines.Append("- " + TaskSaveFormat.months.First() + deadline.repeatMonths.ToString());
+                        linesList.Add("- " + TaskSaveFormat.months.First() + deadline.repeatMonths.ToString());
                 }
             }
-            lines.Append("<planum.task>");
+            linesList.Add("<planum.task>");
         }
     }
 }
