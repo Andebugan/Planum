@@ -37,6 +37,13 @@ namespace Planum.Config
             var filepath = Path.Combine(systemPath, configPath);
             if (!File.Exists(filepath))
             {
+                if (!Directory.Exists(Path.GetDirectoryName(filepath)))
+                {
+                    var path = Path.GetDirectoryName(filepath);
+                    if (path is null)
+                        throw new ConfigException("Unable to get name of the config directory");
+                    Directory.CreateDirectory(path);
+                }
                 SaveConfig<T>(configPath, defaultConfig);
                 return defaultConfig;
             }

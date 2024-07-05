@@ -5,23 +5,45 @@ namespace Planum.Tests;
 
 public class Test_TaskFileManager
 {
-    int relationTasks = 3;
-    int relatedTasks = 3;
-
-    List<PlanumTask> testEmptyPlanumTaskCollection;
-    List<PlanumTask> testOnePlanumTaskCollection;
-    List<PlanumTask> testPlanumTaskCollection;
-
-    public Test_TaskFileManager()
+    public static IEnumerable<object[]> TaskTestData()
     {
+        int relationTasks = 3;
+        int relatedTasks = 3;
+        int deadlineCnt = 3;
+
+        List<PlanumTask> testEmptyPlanumTaskCollection;
+        List<PlanumTask> testOnePlanumTaskCollection;
+        List<PlanumTask> testPlanumTaskCollection;
+
         testEmptyPlanumTaskCollection = new List<PlanumTask>();
         testOnePlanumTaskCollection = new List<PlanumTask> { new PlanumTask(Guid.NewGuid()) };
 
         testPlanumTaskCollection = new List<PlanumTask>();
 
         // add empty task
-        // add task no deadline
+        testPlanumTaskCollection.Add(new PlanumTask(Guid.NewGuid()));
         // add tasks with multiple deadlines
+        List<Deadline> deadlines = new List<Deadline>();
+        for (int i = 0; i < deadlineCnt; i++)
+        {
+            deadlines.Clear();
+            for (int j = 0; j < deadlineCnt; j++)
+            {
+                deadlines.Add(new Deadline(
+                            enabled: i % 2 == 0,
+                            deadline: DateTime.Now,
+                            warningTime: new TimeSpan(1, 0, 0),
+                            duration: new TimeSpan(1, 1, 0),
+                            repeated: i % 2 == 0,
+                            repeatSpan: new TimeSpan(1, 1, 1),
+                            repeatYears: i % 2,
+                            repeatMonths: i % 2));
+            }
+            testPlanumTaskCollection.Add(new PlanumTask(Guid.NewGuid(),
+                    name: Guid.NewGuid().ToString(),
+                    description: Guid.NewGuid().ToString(),
+                    deadlines: deadlines.ToList()));
+        }
 
         List<PlanumTask> testRelationsTaskCollection = new List<PlanumTask>();
         for (int i = 0; i < relationTasks; i++)
@@ -39,8 +61,14 @@ public class Test_TaskFileManager
                 testRelationsTaskCollection.Add(parentTask);
             }
         }
-
         testPlanumTaskCollection.Concat(testRelationsTaskCollection);
+
+        return new List<object[]>
+        {
+            new object[] { testEmptyPlanumTaskCollection.ToArray() },
+            new object[] { testPlanumTaskCollection.ToArray() },
+            new object[] { testRelationsTaskCollection.ToArray() }
+        };
     }
 
     bool FileComparator(string pathFirst, string pathSecond)
@@ -99,17 +127,20 @@ public class Test_TaskFileManager
         File.Delete(taskFileManager.BackupPath);
     }
 
-    [Fact]
-    [InlineData()]
-    public void TestDefaultTaskFileWrite(PlanumTask[] tasks)
+    [Theory]
+    [MemberData(nameof(TaskTestData))]
+    public void TestDefaultTaskFileWrite(IEnumerable<PlanumTask> planumTasks)
     {
         // Arrange
         TaskFileManager taskFileManager = new TaskFileManager();
+        taskFileManager.Clear();
 
         // Act
-        taskFileManager.Restore();
+        taskFileManager.Write(planumTasks);
 
         // Assert
+
+        // Cleanup
     }
 
     [Fact]
@@ -123,7 +154,8 @@ public class Test_TaskFileManager
         // Assert
     }
 
-    [Fact] void TestUserTaskFileWrite()
+    [Fact]
+    void TestUserTaskFileWrite()
     {
         // Arrange
 
@@ -132,7 +164,8 @@ public class Test_TaskFileManager
         // Assert
     }
 
-    [Fact] void TestUserTaskFileRead()
+    [Fact]
+    void TestUserTaskFileRead()
     {
         // Arrange
 

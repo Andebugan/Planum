@@ -5,29 +5,26 @@ using Planum.Model.Entities;
 
 namespace Planum.Parser {
     public static class TaskValueParser {
-        public static bool ParseIdentity(ref IEnumerable<PlanumTask> value, string data, IEnumerable<PlanumTask> taskBuffer) {
+        public static IEnumerable<PlanumTask> ParseIdentity(string id, string name, IEnumerable<PlanumTask> taskBuffer) {
             Guid guid = new Guid();
             // try parse guid
-            if (ValueParser.Parse(ref guid, data)) {
-                value = taskBuffer.Where(x => x.Id == guid);
-                if (value.Any())
-                    return true;
-                return false;
+            if (ValueParser.Parse(ref guid, id)) {
+                return taskBuffer.Where(x => x.Id == guid);
             }
 
-            value = taskBuffer.Where(x => x.Id.ToString().StartsWith(data));
-            if (value.Any())
-                return true;
+            var tasks = taskBuffer.Where(x => x.Id.ToString().StartsWith(id));
+            if (tasks.Any())
+                return tasks;
 
-            value = taskBuffer.Where(x => x.Name == data);
-            if (value.Any())
-                return true;
+            tasks = taskBuffer.Where(x => x.Name == name);
+            if (tasks.Any())
+                return tasks;
 
-            value = taskBuffer.Where(x => x.Name.StartsWith(data));
-            if (value.Any())
-                return true;
+            tasks = taskBuffer.Where(x => x.Name.StartsWith(name));
+            if (tasks.Any())
+                return tasks;
 
-            return false;
+            return tasks;
         }
     }
 }

@@ -19,22 +19,125 @@ namespace Planum.Model.Repository
         public FileWritingException(string message) : base(message) { }
     }
 
-    public static class TaskSaveFormat
+    public enum ValueHeaderType
     {
-        public static string[] id = { "i: ", "id: " };
-        public static string[] name = { "n: ", "name: " };
-        public static string[] description = { "d: ", "description: " };
-        public static string[] parent = { "p: ", "parent: " };
-        public static string[] children = { "c: ", "children: " };
-        public static string[] deadlineStart = { "de: ", "deadline: " };
-        public static string[] enabled = { "e", "enabled" };
-        public static string[] deadline = { "ded: ", "deadline: " };
-        public static string[] warning = { "w: ", "warning: " };
-        public static string[] duration = { "du: ", "duration: " };
-        public static string[] repeated = { "r ", "repeated" };
-        public static string[] span = { "s: ", "span: " };
-        public static string[] years = { "y: ", "years: " };
-        public static string[] months = { "m: ", "months: " };
+        EMPTY,
+        UNKNOWN,
+        TASK_MARKER,
+        ID,
+        NAME,
+        DESCRIPTION,
+        PARENT,
+        CHILD,
+        DEADLINE_HEAD,
+        ENABLED,
+        DEADLINE,
+        WARNING,
+        DURATION,
+        REPEATED,
+        SPAN,
+        YEARS,
+        MONTHS
+    }
+
+    public static class TaskValueHeaderFormat
+    {
+        public static string taskItemSymbol = "- ";
+        public static string taskItemTab = "  ";
+
+        public static Dictionary<string, ValueHeaderType> stringToValueTypeDict = new Dictionary<string, ValueHeaderType>()
+        {
+            // task marker
+            { "<planum>", ValueHeaderType.TASK_MARKER },
+            // id
+            { taskItemSymbol + "i:", ValueHeaderType.ID },
+            // name
+            { taskItemSymbol + "n:", ValueHeaderType.NAME },
+            // description 
+            { taskItemSymbol + "d:", ValueHeaderType.DESCRIPTION },
+            // parent
+            { taskItemSymbol + "p:", ValueHeaderType.PARENT },
+            // children
+            { taskItemSymbol + "c:", ValueHeaderType.CHILD },
+            // deadline header
+            { taskItemSymbol + "D:", ValueHeaderType.DEADLINE_HEAD },
+            // enabled
+            { taskItemTab + taskItemSymbol + "e:", ValueHeaderType.ENABLED },
+            // deadline
+            { taskItemTab + taskItemSymbol + "d:", ValueHeaderType.DEADLINE },
+            // warning
+            { taskItemTab + taskItemSymbol + "w:", ValueHeaderType.WARNING },
+            // duration
+            { taskItemTab + taskItemSymbol + "du:", ValueHeaderType.DURATION },
+            // repeated
+            { taskItemTab + taskItemSymbol + "r:", ValueHeaderType.REPEATED },
+            // repeat span
+            { taskItemTab + taskItemSymbol + "s:", ValueHeaderType.SPAN },
+            // repeat years
+            { taskItemTab + taskItemSymbol + "y:", ValueHeaderType.YEARS },
+            // repeat months
+            { taskItemTab + taskItemSymbol + "m:", ValueHeaderType.MONTHS },
+        };
+
+        public static Dictionary<ValueHeaderType, string> valueTypeToStringDict = new Dictionary<ValueHeaderType, string>()
+        {
+            // task marker
+            { ValueHeaderType.TASK_MARKER, "<planum>" },
+            // id
+            { ValueHeaderType.ID, taskItemSymbol + "i:" },
+            // name
+            { ValueHeaderType.NAME, taskItemSymbol + "n:" },
+            // description 
+            { ValueHeaderType.DESCRIPTION, taskItemSymbol + "d:" },
+            // parent
+            { ValueHeaderType.PARENT, taskItemSymbol + "p:" },
+            // children
+            { ValueHeaderType.CHILD, taskItemSymbol + "c:" },
+            // deadline header
+            { ValueHeaderType.DEADLINE_HEAD, taskItemSymbol + "D:" },
+            // enabled
+            { ValueHeaderType.ENABLED, taskItemTab + taskItemSymbol + "e:" },
+            // deadline
+            { ValueHeaderType.DEADLINE, taskItemTab + taskItemSymbol + "d:" },
+            // warning
+            { ValueHeaderType.WARNING, taskItemTab + taskItemSymbol + "w:" },
+            // duration
+            { ValueHeaderType.DURATION, taskItemTab + taskItemSymbol + "du:" },
+            // repeated
+            { ValueHeaderType.REPEATED, taskItemTab + taskItemSymbol + "r:" },
+            // repeat span
+            { ValueHeaderType.SPAN, taskItemTab + taskItemSymbol + "s:" },
+            // repeat years
+            { ValueHeaderType.YEARS, taskItemTab + taskItemSymbol + "y:" },
+            // repeat months
+            { ValueHeaderType.MONTHS, taskItemTab + taskItemSymbol + "m:" }
+        };
+
+        public static ValueHeaderType GetLineHeaderType(string line)
+        {
+            if (line.Trim().Replace("\n", "").Length == 0)
+                return ValueHeaderType.EMPTY;
+            var tmpline = line.TrimStart(new char[] { ' ', '-' }).TrimEnd();
+            var formatMatches = stringToValueTypeDict.Keys.ToList().Where(x => tmpline.StartsWith(x));
+            if (formatMatches.Any())
+                return stringToValueTypeDict[formatMatches.First()];
+            else
+                return ValueHeaderType.UNKNOWN;
+        }
+
+        public static string GetLineValueType(string line, ValueHeaderType valueHeaderType)
+        {
+            if (valueHeaderType == ValueHeaderType.UNKNOWN || valueHeaderType == ValueHeaderType.EMPTY || valueHeaderType == ValueHeaderType.TASK_MARKER)
+                throw new Exception("Incorrect task value header type, can't get value from string");
+            return line.Remove(0, valueTypeToStringDict[valueHeaderType].Length).Trim();
+        }
+
+        public static string AddLineValueType(string line, ValueHeaderType valueHeaderType)
+        {
+            if (valueHeaderType == ValueHeaderType.UNKNOWN || valueHeaderType == ValueHeaderType.EMPTY)
+                throw new Exception("Incorrect task value header type, can't add value type to string");
+            return valueTypeToStringDict[valueHeaderType] + " " + line;
+        }
     }
 
     public class TaskFileManager : ITaskFileManager
@@ -76,6 +179,11 @@ namespace Planum.Model.Repository
                 File.Create(BackupPath).Close();
         }
 
+        public void Clear()
+        {
+            File.WriteAllLines(FilePath, new string[] { });
+        }
+
         public void Backup()
         {
             // copy main file to backup file
@@ -88,151 +196,175 @@ namespace Planum.Model.Repository
             File.Copy(BackupPath, FilePath, true);
         }
 
-        /*
-         * <planum.task>
-         * i[d]: {guid} 
-         * n[ame]: {string}
-         * d[escription]: {string} 
-         * p[arent]: {guid}
-         * ...
-         * c[hildre]: {guid}
-         * ...
-         * de[eadline]:
-         * - e[nabled]
-         * - ded[adline]: {hh:mm dd.mm.yyyy}
-         * - w[arning]: {dd.hh.mm}
-         * - du[ration]: {dd.hh.mm}
-         * - r[peated]
-         * - s[pan]: {dd.hh.mm}
-         * - y[ears]: {int}
-         * - m[onths]: {int}
-         * ...
-         * <planum.task>
-        */
-
         // NOTE: user can specify several children or parents with one name because of parsing features, but must be carefull to not accidentally add more tasks than needed
-        public void ReadReferencePass(string filePath, ref IEnumerable<PlanumTask> tasks, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
+        public void ReadReferencePass(string path, ref IEnumerable<PlanumTask> tasks, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
         {
             foreach (var task in tasks)
             {
                 foreach (var child in children[task.Id])
                 {
-                    IEnumerable<PlanumTask> identifiedTasks = new List<PlanumTask>();
-                    TaskValueParser.ParseIdentity(ref identifiedTasks, child, tasks);
+                    IEnumerable<PlanumTask> identifiedTasks = TaskValueParser.ParseIdentity(child, child, tasks);
                     if (identifiedTasks.Count() == 0)
-                    {
-                        throw new FileParsingException($"Unable to find child: {child}, for task id:{task.Id.ToString()}, name:{task.Name}, at path: {filePath}");
-                    }
+                        throw new FileParsingException($"Unable to find child: {child}, for task id:{task.Id.ToString()}, name:{task.Name}, at path: {path}");
                     task.Children.Concat(identifiedTasks.Select(x => x.Id));
                 }
 
                 foreach (var parent in parents[task.Id])
                 {
-                    IEnumerable<PlanumTask> identifiedTasks = new List<PlanumTask>();
-                    TaskValueParser.ParseIdentity(ref identifiedTasks, parent, tasks);
+                    IEnumerable<PlanumTask> identifiedTasks = TaskValueParser.ParseIdentity(parent, parent, tasks);
                     if (identifiedTasks.Count() == 0)
-                    {
-                        throw new FileParsingException($"Unable to find parent: {parent}, for task id:{task.Id.ToString()}, name:{task.Name}, at path: {filePath}");
-                    }
+                        throw new FileParsingException($"Unable to find parent: {parent}, for task id:{task.Id.ToString()}, name:{task.Name}, at path: {path}");
                     task.Children.Concat(identifiedTasks.Select(x => x.Id));
                 }
             }
         }
 
-        public IEnumerable<PlanumTask> ReadMainPass(string filePath, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
+        /*
+         * <planum>
+         * - i[d]: {guid}
+         * - n[ame]: {string}
+         * - d[escription]: {string}
+         * - p[arent]: {guid}
+         * ...
+         * - c[hildre]: {guid}
+         * ...
+         * - de[adline]:
+         *     - e[nabled]
+         *     - ded[adline]: {hh:mm dd.mm.yyyy}
+         *     - w[arning]: {dd.hh.mm}
+         *     - du[ration]: {dd.hh.mm}
+         *     - r[peated] {true\false}
+         *     - s[pan]: {dd.hh.mm}
+         *     - y[ears]: {int}
+         *     - m[onths]: {int}
+         * <- ends with empty line/<planum> for next task after it
+        */
+        public IEnumerable<PlanumTask> ReadMainPass(string path, ref Dictionary<Guid, List<string>> children, ref Dictionary<Guid, List<string>> parents)
         {
             List<PlanumTask> tasks = new List<PlanumTask>();
-            if (!File.Exists(filePath))
-            {
-                throw new($"Task file at path {filePath} doesn't exist");
-            }
+            if (!File.Exists(path))
+                throw new($"Task file at path {path} doesn't exist");
 
             PlanumTask? task = null;
             List<Deadline> deadlines = new List<Deadline>();
             Deadline? deadline = null;
-            bool taskZone = false;
 
-            foreach (var line in File.ReadLines(filePath))
+            foreach (var line in File.ReadAllLines(path))
             {
-                var tmpline = line.TrimStart(new char[] { ' ', '-' }).TrimEnd();
-                if (tmpline.StartsWith("<planum.task>"))
-                {
-                    taskZone = !taskZone;
-                }
-
-                if (!taskZone)
+                var lineHeader = TaskValueHeaderFormat.GetLineHeaderType(line);
+                if (lineHeader == ValueHeaderType.TASK_MARKER)
                 {
                     if (task is not null)
+                    {
+                        task.Deadlines = deadlines.ToList();
+                        deadlines.Clear();
                         tasks.Add(task);
+                    }
                     else
+                    {
                         task = new PlanumTask();
-                }
-
-                var parsingError = false;
-
-                if (deadline is not null)
-                {
-                    if (TaskSaveFormat.enabled.Where(x => tmpline.StartsWith(x)).Any())
-                        deadline.enabled = true;
-                    else if (TaskSaveFormat.deadline.Where(x => tmpline.StartsWith(x)).Any())
-                        parsingError = ValueParser.Parse(ref deadline.deadline, tmpline.Remove(0, TaskSaveFormat.deadline.Where(x => tmpline.StartsWith(x)).First().Length));
-                    else if (TaskSaveFormat.warning.Where(x => tmpline.StartsWith(x)).Any())
-                        parsingError = ValueParser.Parse(ref deadline.warningTime, tmpline.Remove(0, TaskSaveFormat.warning.Where(x => tmpline.StartsWith(x)).First().Length));
-                    else if (TaskSaveFormat.duration.Where(x => tmpline.StartsWith(x)).Any())
-                        parsingError = ValueParser.Parse(ref deadline.duration, tmpline.Remove(0, TaskSaveFormat.duration.Where(x => tmpline.StartsWith(x)).First().Length));
-                    else if (TaskSaveFormat.repeated.Where(x => tmpline.StartsWith(x)).Any())
-                        deadline.repeated = true;
-                    else if (TaskSaveFormat.span.Where(x => tmpline.StartsWith(x)).Any())
-                        parsingError = ValueParser.Parse(ref deadline.repeatSpan, tmpline.Remove(0, TaskSaveFormat.span.Where(x => tmpline.StartsWith(x)).First().Length));
-                    else if (TaskSaveFormat.years.Where(x => tmpline.StartsWith(x)).Any())
-                        parsingError = ValueParser.Parse(ref deadline.repeatYears, tmpline.Remove(0, TaskSaveFormat.years.Where(x => tmpline.StartsWith(x)).First().Length));
-                    else if (TaskSaveFormat.months.Where(x => tmpline.StartsWith(x)).Any())
-                        parsingError = ValueParser.Parse(ref deadline.repeatMonths, tmpline.Remove(0, TaskSaveFormat.months.Where(x => tmpline.StartsWith(x)).First().Length));
-                    else
-                    {
-                        deadlines.Add(deadline);
-                        deadline = null;
-                    }
-                }
-
-                if (TaskSaveFormat.id.Where(x => tmpline.StartsWith(x)).Any())
-                {
-                    if (task is null)
-                        throw new FileParsingException($"Unresolved task exception at path: {filePath}, at line: {line}");
-                    tmpline = tmpline.Remove(0, TaskSaveFormat.deadline.Where(x => tmpline.StartsWith(x)).First().Length);
-                    if (tmpline.Length == 0)
                         task.Id = Guid.NewGuid();
-                    else
-                    {
-                        Guid value = new Guid();
-                        parsingError = ValueParser.Parse(ref value, tmpline);
-                        task.Id = value;
+                        children[task.Id] = new List<string>();
+                        parents[task.Id] = new List<string>();
                     }
-
-                    if (tasks.Exists(x => x.Id == task.Id))
-                        throw new FileParsingException($"Found duplicate task ID at path: {filePath}");
+                    continue;
                 }
-                else if (task is null)
-                    throw new FileParsingException($"Parsing error at: \"{line}\"");
-                else if (TaskSaveFormat.name.Where(x => tmpline.StartsWith(x)).Any())
-                    task.Name = tmpline.Remove(0, TaskSaveFormat.name.Where(x => tmpline.StartsWith(x)).First().Length);
-                else if (TaskSaveFormat.description.Where(x => tmpline.StartsWith(x)).Any())
-                    task.Description = tmpline.Remove(0, TaskSaveFormat.description.Where(x => tmpline.StartsWith(x)).First().Length);
-                else if (TaskSaveFormat.children.Where(x => tmpline.StartsWith(x)).Any())
-                    children[task.Id].Add(tmpline.Remove(0, TaskSaveFormat.children.Where(x => tmpline.StartsWith(x)).First().Length));
-                else if (TaskSaveFormat.parent.Where(x => tmpline.StartsWith(x)).Any())
-                    parents[task.Id].Add(tmpline.Remove(0, TaskSaveFormat.parent.Where(x => tmpline.StartsWith(x)).First().Length));
-                else if (TaskSaveFormat.deadlineStart.Where(x => tmpline.StartsWith(x)).Any())
+
+                if (task is null)
+                    continue;
+
+                // ID
+                if (lineHeader == ValueHeaderType.ID)
+                {
+                    var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                    Guid id = new Guid();
+                    if (!ValueParser.Parse(ref id, valueStr))
+                        throw new FileParsingException($"Can't parse task id at path: {path}, at line: {line}");
+                    task.Id = id;
+                    if (tasks.Exists(x => x.Id == task.Id))
+                        throw new FileParsingException($"Found duplicate task ID at path: {path}");
+                }
+                // Name
+                else if (lineHeader == ValueHeaderType.NAME)
+                    task.Name = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                // Description
+                else if (lineHeader == ValueHeaderType.DESCRIPTION)
+                    task.Description = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                // Child
+                else if (lineHeader == ValueHeaderType.CHILD)
+                    children[task.Id].Add(TaskValueHeaderFormat.GetLineValueType(line, lineHeader));
+                // Parent
+                else if (lineHeader == ValueHeaderType.PARENT)
+                    parents[task.Id].Add(TaskValueHeaderFormat.GetLineValueType(line, lineHeader));
+                // Deadline
+                else if (lineHeader == ValueHeaderType.DEADLINE_HEAD)
                 {
                     if (deadline is not null)
                         deadlines.Add(deadline);
                     deadline = new Deadline();
                 }
-
-                if (parsingError)
+                // Deadline existence check
+                else if (deadline is null)
+                    throw new FileParsingException($"Can't parse task value at path: {path}, at line {line}");
+                // Deadline enabled
+                else if (lineHeader == ValueHeaderType.ENABLED)
+                    deadline.enabled = true;
+                // Deadline deadline 
+                else if (lineHeader == ValueHeaderType.DEADLINE)
                 {
-                    throw new FileParsingException($"Unable to parse value at line: {line}\n at path: {filePath}");
+                    var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                    if (!ValueParser.Parse(ref deadline.enabled, valueStr))
+                        throw new FileParsingException($"Can't parse task value at path: {path}, at line {line}");
                 }
+                // Deadline warning 
+                else if (lineHeader == ValueHeaderType.WARNING)
+                {
+                    var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                    if (!ValueParser.Parse(ref deadline.enabled, valueStr))
+                        throw new FileParsingException($"Can't parse task value at path: {path}, at line {line}");
+                }
+                // Deadline duration 
+                else if (lineHeader == ValueHeaderType.DURATION)
+                {
+                    var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                    if (!ValueParser.Parse(ref deadline.enabled, valueStr))
+                        throw new FileParsingException($"Can't parse task value at path: {path}, at line {line}");
+                }
+                // Deadline repeated 
+                else if (lineHeader == ValueHeaderType.REPEATED)
+                    deadline.repeated = true;
+                // Deadline repeat span
+                else if (lineHeader == ValueHeaderType.SPAN)
+                {
+                    var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                    if (!ValueParser.Parse(ref deadline.enabled, valueStr))
+                        throw new FileParsingException($"Can't parse task value at path: {path}, at line {line}");
+                }
+                // Deadline repeat years
+                else if (lineHeader == ValueHeaderType.YEARS)
+                {
+                    var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                    if (!ValueParser.Parse(ref deadline.enabled, valueStr))
+                        throw new FileParsingException($"Can't parse task value at path: {path}, at line {line}");
+                }
+                // Deadline months
+                else if (lineHeader == ValueHeaderType.MONTHS)
+                {
+                    var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
+                    if (!ValueParser.Parse(ref deadline.enabled, valueStr))
+                        throw new FileParsingException($"Can't parse task value at path: {path}, at line {line}");
+                }
+                // End of task
+                else if (lineHeader == ValueHeaderType.EMPTY)
+                {
+                    if (deadline is not null)
+                        deadlines.Add(deadline);
+                    task.Deadlines = deadlines.ToList();
+                    deadlines.Clear();
+                    tasks.Add(task);
+                }
+                else if (lineHeader == ValueHeaderType.UNKNOWN)
+                    throw new FileParsingException($"Encountered unknown task value header at path: {path}, at line {line}");
             }
 
             if (task is not null)
@@ -283,18 +415,36 @@ namespace Planum.Model.Repository
 
         public void Write(IEnumerable<PlanumTask> tasks)
         {
+            Dictionary<string, List<PlanumTask>> taskPaths = new Dictionary<string, List<PlanumTask>>();
+            List<PlanumTask> orphanTasks = new List<PlanumTask>();
+
+            foreach (var task in tasks)
+            {
+                if (!repoConfig.TaskLookupPaths.ContainsKey(task.Id))
+                    orphanTasks.Add(task);
+                else
+                {
+                    if (!taskPaths.ContainsKey(repoConfig.TaskLookupPaths[task.Id]))
+                        taskPaths[repoConfig.TaskLookupPaths[task.Id]] = new List<PlanumTask>();
+                    taskPaths[repoConfig.TaskLookupPaths[task.Id]].Add(task);
+                }
+            }
+
+            foreach (var path in taskPaths.Keys)
+                orphanTasks = orphanTasks.Concat(WriteToFile(path, taskPaths[path])).ToList();
+            WriteToFile(FilePath, orphanTasks);
         }
 
         /*
-         * <planum.task>
-         * i[d]: {guid} 
-         * n[ame]: {string}
-         * d[escription]: {string} 
-         * p[arent]: {guid}
+         * <planum> 1st
+         * i[d]: {guid} 2nd
+         * n[ame]: {string} any order
+         * d[escription]: {string} any order
+         * p[arent]: {guid} any order
          * ...
-         * c[hildre]: {guid}
+         * c[hildre]: {guid}  any order
          * ...
-         * de[adline]:
+         * de[adline]: (all the items below must be after deadline)
          * - e[nabled]
          * - ded[adline]: {hh:mm dd.mm.yyyy}
          * - w[arning]: {dd.hh.mm}
@@ -303,117 +453,112 @@ namespace Planum.Model.Repository
          * - s[pan]: {dd.hh.mm}
          * - y[ears]: {int}
          * - m[onths]: {int}
-         * <planum.task>
+         * <- ends with empty line/<planum> for next task after it
         */
         // here tasks are from lookup dictionary specificaly for this file
-        protected void WriteToFile(string filePath, ref IEnumerable<PlanumTask> tasks)
+        protected List<PlanumTask> WriteToFile(string path, IEnumerable<PlanumTask> tasks)
         {
-            if (!File.Exists(filePath))
-                throw new FileWritingException($"Unable to open file at path: {filePath}");
+            if (!File.Exists(path))
+                throw new FileWritingException($"Unable to open file at path: {path}");
 
-            var lines = File.ReadLines(filePath);
+            var lines = File.ReadAllLines(path);
             var tasksList = tasks.ToList();
-            IEnumerable<string> newLines = new List<string>();
+            List<string> newLines = new List<string>();
+            var orphanTaskList = new List<PlanumTask>();
 
-            bool taskZone = false;
+            string id = string.Empty;
             string name = string.Empty;
-            Guid id = Guid.Empty;
+            bool isTaskLines = false;
+
+            var lineValueType = ValueHeaderType.UNKNOWN;
 
             foreach (var line in lines)
             {
-                // find <planum.task> marker
-                if (line.StartsWith("<planum.task>"))
+                lineValueType = TaskValueHeaderFormat.GetLineHeaderType(line);
+                // Add task to file
+                if (isTaskLines && (lineValueType == ValueHeaderType.EMPTY || lineValueType == ValueHeaderType.TASK_MARKER))
                 {
-                    if (taskZone) 
-                    {
-                        // if task exists - add it to lines, else throw error
-                        if (id == Guid.Empty)
-                        {
-                            if (tasksList.Where(x => x.Name == name).Count() > 1)
-                                throw new FileWritingException($"Unable to identify uniqie tasksList due to id and name ambiguity at path: {filePath}, line: {line}, task name: {name}");
-                            if (tasksList.Where(x => x.Name == name).Count() < 1)
-                                throw new FileWritingException($"Unable to identify task by id or name at path: {filePath}, line: {line}, task name: {name}");
-                            WriteTask(ref newLines, tasksList.Where(x => x.Name == name).First());
-                        }
-                        else 
-                            WriteTask(ref newLines, tasksList.Where(x => x.Id == id).First());
-                    }
-                    taskZone = !taskZone;
+                    var parsedTasks = TaskValueParser.ParseIdentity(id, name, tasks);
+                    if (!parsedTasks.Any())
+                        throw new FileWritingException($"Unable to find task with id: {id} or name: {name} for file at path: {path} at line {line}");
+                    if (parsedTasks.Count() > 1)
+                        throw new FileWritingException($"Unable to find unique task with id: {id} or name: {name} for file at path: {path} at line {line}");
+                    newLines = newLines.Concat(WriteTask(parsedTasks.First())).ToList();
+                    if (lineValueType != ValueHeaderType.TASK_MARKER)
+                        isTaskLines = false;
+                    id = string.Empty;
+                    name = string.Empty;
                 }
-                else if (taskZone)
+                // Start search for id/name
+                else if (lineValueType == ValueHeaderType.TASK_MARKER)
                 {
-                    // find id inside task and find it in task buffer
-                    // if id is empty -> new task, search by name, if same names in one file, throw exception (TODO: find better way to track new task positions in file)
-                    var tmpline = line.TrimStart(new char[] { ' ', '-' }).TrimEnd();
-                    if (TaskSaveFormat.id.Where(x => tmpline.StartsWith(x)).Any())
-                    {
-                        tmpline = tmpline.Remove(0, TaskSaveFormat.deadline.Where(x => tmpline.StartsWith(x)).First().Length);
-                        if (tmpline.Length > 0)
-                            if (!ValueParser.Parse(ref id, tmpline))
-                                throw new FileWritingException($"Couldn't parse task id at path: {filePath}, line: {line}");
-                    }
-                    if (TaskSaveFormat.name.Where(x => tmpline.StartsWith(x)).Any())
-                        name = tmpline.Remove(0, TaskSaveFormat.name.Where(x => tmpline.StartsWith(x)).First().Length);
+                    id = string.Empty;
+                    name = string.Empty;
+                    isTaskLines = true;
                 }
+                else if (isTaskLines && lineValueType == ValueHeaderType.ID)
+                    id = TaskValueHeaderFormat.GetLineValueType(line, ValueHeaderType.ID);
+                else if (isTaskLines && lineValueType == ValueHeaderType.NAME)
+                    name = TaskValueHeaderFormat.GetLineValueType(line, ValueHeaderType.NAME);
                 else
-                    newLines = newLines.Append(line);
+                    newLines.Add(line);
             }
 
-            File.WriteAllLines(filePath, newLines);
+            // Check isTaskLines, add last task
+            if (isTaskLines)
+            {
+                var parsedTasks = TaskValueParser.ParseIdentity(id, name, tasks);
+                if (!parsedTasks.Any())
+                    throw new FileWritingException($"Unable to find task with id: {id} or name: {name} for file at path: {path} at line {lines.Last()}");
+                if (parsedTasks.Count() > 1)
+                    throw new FileWritingException($"Unable to find unique task with id: {id} or name: {name} for file at path: {path} at line {lines.Last()}");
+                newLines = newLines.Concat(WriteTask(parsedTasks.First())).ToList();
+                if (lineValueType != ValueHeaderType.TASK_MARKER)
+                    isTaskLines = false;
+                id = string.Empty;
+                name = string.Empty;
+            }
+
+            File.WriteAllLines(path, newLines);
+
+            return orphanTaskList;
         }
 
-        protected void WriteTask(ref IEnumerable<string> lines, PlanumTask task)
+        protected IEnumerable<string> WriteTask(PlanumTask task)
         {
-            var linesList = lines.ToList();
-            linesList.Add("<planum.task>");
-            linesList.Add(TaskSaveFormat.id.First() + task.Id.ToString());
+            var linesList = new List<string>();
+            linesList.Add(TaskValueHeaderFormat.AddLineValueType("", ValueHeaderType.TASK_MARKER));
+            linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Id.ToString(), ValueHeaderType.ID));
             if (task.Name != string.Empty)
-            {
-                linesList.Add(TaskSaveFormat.name.First() + task.Name);
-            }
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Name, ValueHeaderType.NAME));
             if (task.Description != string.Empty)
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Description, ValueHeaderType.DESCRIPTION));
+            foreach (var parent in task.Parents)
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(parent.ToString(), ValueHeaderType.PARENT));
+            foreach (var child in task.Children)
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(child.ToString(), ValueHeaderType.CHILD));
+            task.Deadlines.ToList().Sort((x, y) => DateTime.Compare(x.deadline, y.deadline));
+            foreach (var deadline in task.Deadlines)
             {
-                linesList.Add(TaskSaveFormat.description.First() + task.Description);
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType("", ValueHeaderType.DEADLINE_HEAD));
+                if (deadline.enabled)
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType("", ValueHeaderType.ENABLED));
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.deadline.ToString("H:m d.M.yyyy"), ValueHeaderType.DEADLINE));
+                if (deadline.warningTime != TimeSpan.Zero)
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.warningTime.ToString(@"d\.h\:m"), ValueHeaderType.WARNING));
+                if (deadline.duration != TimeSpan.Zero)
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.duration.ToString(@"d\.h\:m"), ValueHeaderType.DURATION));
+                if (deadline.repeated)
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType("", ValueHeaderType.REPEATED));
+                if (deadline.repeatSpan != TimeSpan.Zero)
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatSpan.ToString(@"d\.h\:m"), ValueHeaderType.SPAN));
+                if (deadline.repeatYears > 0)
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatYears.ToString(), ValueHeaderType.REPEATED));
+                if (deadline.repeatMonths > 0)
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatMonths.ToString(), ValueHeaderType.REPEATED));
             }
-            if (task.Parents.Count() > 0)
-            {
-                foreach (var parent in task.Parents)
-                {
-                    linesList.Add(TaskSaveFormat.parent.First() + parent.ToString());
-                }
-            }
-            if (task.Children.Count() > 0)
-            {
-                foreach (var child in task.Children)
-                {
-                    linesList.Add(TaskSaveFormat.children.First() + child.ToString());
-                }
-            }
-            if (task.Deadlines.Count() > 0)
-            {
-                task.Deadlines.ToList().Sort((x, y) => DateTime.Compare(x.deadline, y.deadline));
-                foreach (var deadline in task.Deadlines)
-                {
-                    linesList.Add(TaskSaveFormat.deadline.First());
-                    if (deadline.enabled)
-                        linesList.Add(TaskSaveFormat.enabled.First());
-
-                    linesList.Add("- " + TaskSaveFormat.deadline.First() + deadline.deadline.ToString("H:m d.M.yyyy"));
-                    if (deadline.warningTime != TimeSpan.Zero)
-                        linesList.Add("- " + TaskSaveFormat.deadline.First() + deadline.warningTime.ToString(@"d\.h\:m"));
-                    if (deadline.duration != TimeSpan.Zero)
-                        linesList.Add("- " + TaskSaveFormat.duration.First() + deadline.duration.ToString(@"d\.h\:m"));
-                    if (deadline.repeated)
-                        linesList.Add("- " + TaskSaveFormat.repeated.First());
-                    if (deadline.repeatSpan != TimeSpan.Zero)
-                        linesList.Add("- " + TaskSaveFormat.span.First() + deadline.repeatSpan.ToString(@"d\.h\:m"));
-                    if (deadline.repeatYears > 0)
-                        linesList.Add("- " + TaskSaveFormat.years.First() + deadline.repeatYears.ToString());
-                    if (deadline.repeatMonths > 0)
-                        linesList.Add("- " + TaskSaveFormat.months.First() + deadline.repeatMonths.ToString());
-                }
-            }
-            linesList.Add("<planum.task>");
+            linesList.Add("");
+            return linesList;
         }
     }
 }
