@@ -28,7 +28,7 @@ namespace Planum.Model.Entities
                 int repeatMonths = 0)
         {
             this.enabled = enabled;
-            this.deadline = deadline is null ? DateTime.Now : (DateTime)deadline;
+            this.deadline = deadline is null ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0) : (DateTime)deadline;
             this.warningTime = warningTime is null ? TimeSpan.Zero : (TimeSpan)warningTime;
 
             this.duration = duration is null ? TimeSpan.Zero : (TimeSpan)duration;
@@ -38,6 +38,46 @@ namespace Planum.Model.Entities
             this.repeatYears = repeatYears;
             this.repeatMonths = repeatMonths;
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            return Equals((Deadline)obj);
+        }
+
+        public bool Equals(Deadline compared)
+        {
+            return enabled == compared.enabled &&
+                deadline.Year == compared.deadline.Year &&
+                deadline.Month == compared.deadline.Month &&
+                deadline.Day == compared.deadline.Day &&
+                deadline.Hour == compared.deadline.Hour &&
+                deadline.Minute == compared.deadline.Minute &&
+                TimeSpan.Equals(warningTime, compared.warningTime) &&
+                TimeSpan.Equals(duration, compared.duration) &&
+                repeated == compared.repeated &&
+                TimeSpan.Equals(repeatSpan, compared.repeatSpan) &&
+                repeatYears == compared.repeatYears &&
+                repeatMonths == compared.repeatMonths;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = deadline.GetHashCode();
+            hash ^= deadline.Year.GetHashCode();
+            hash ^= deadline.Month.GetHashCode();
+            hash ^= deadline.Day.GetHashCode();
+            hash ^= deadline.Hour.GetHashCode();
+            hash ^= deadline.Minute.GetHashCode();
+            hash ^= warningTime.GetHashCode();
+            hash ^= duration.GetHashCode();
+            hash ^= repeated.GetHashCode();
+            hash ^= repeatSpan.GetHashCode();
+            hash ^= repeatYears.GetHashCode();
+            hash ^= repeatMonths.GetHashCode();
+            return hash;
+        }
     }
 
     public class PlanumTask
@@ -46,11 +86,9 @@ namespace Planum.Model.Entities
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public IEnumerable<Deadline> Deadlines { get; set; } = new List<Deadline>();
-
-        public IEnumerable<Guid> Children { get; set; } = new List<Guid>();
-
-        public IEnumerable<Guid> Parents { get; set; } = new List<Guid>();
+        public HashSet<Deadline> Deadlines { get; set; } = new HashSet<Deadline>();
+        public HashSet<Guid> Children { get; set; } = new HashSet<Guid>();
+        public HashSet<Guid> Parents { get; set; } = new HashSet<Guid>();
 
         public PlanumTask(Guid? id = null,
                 string name = "",
@@ -63,11 +101,48 @@ namespace Planum.Model.Entities
             Name = name;
             Description = description;
             if (deadlines is not null)
-                Deadlines = deadlines.ToList();
+                Deadlines = deadlines.ToHashSet();
             if (children is not null)
-                Children = children.ToList();
+                Children = children.ToHashSet();
             if (parents is not null)
-                Parents = parents.ToList();
+                Parents = parents.ToHashSet();
+        }
+
+        public void AddChildren(IEnumerable<Guid> children) => Children = Children.Concat(children).ToHashSet();
+        public void AddChild(Guid child) => Children.Add(child);
+        public void AddParents(IEnumerable<Guid> parents) => Parents = Parents.Concat(parents).ToHashSet();
+        public void AddParent(Guid parent) => Parents.Add(parent);
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            return Equals((PlanumTask)obj);
+        }
+
+        public bool Equals(PlanumTask compared)
+        {
+            if (Id != compared.Id || Name != compared.Name || Description != compared.Description)
+                return false;
+
+            if (Deadlines.Except(compared.Deadlines).Any()) return false;
+            if (Children.Except(compared.Children).Any()) return false;
+            if (Parents.Except(compared.Parents).Any()) return false;
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = Id.GetHashCode();
+            hash ^= Name.GetHashCode();
+            hash ^= Description.GetHashCode();
+            foreach (var deadline in Deadlines)
+                hash ^= deadline.GetHashCode();
+            foreach (var parent in Parents)
+                hash ^= parent.GetHashCode();
+            foreach (var child in Children)
+                hash ^= child.GetHashCode();
+            return hash;
         }
     }
 }
