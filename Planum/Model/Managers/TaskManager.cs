@@ -43,7 +43,6 @@ namespace Planum.Model.Managers
             return tasks;
         }
 
-
         public void Backup()
         {
             repo.Backup();
@@ -52,11 +51,6 @@ namespace Planum.Model.Managers
         public void Restore()
         {
             repo.Restore();
-        }
-
-        public void Undo()
-        {
-
         }
     }
 }
