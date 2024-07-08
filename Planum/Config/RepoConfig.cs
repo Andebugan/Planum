@@ -4,58 +4,58 @@ using System.Linq;
 
 namespace Planum.Config
 {
-    public class RepoConfigDto
-    {
-        public string TaskFilename { get; set; }
-        public string TaskBackupFilename { get; set; }
-        public string TaskFileSearchPattern { get; set; }
-        public Dictionary<string, List<Guid>> TaskLookupPaths { get; set; }
-
-        public RepoConfigDto()
-        {
-            TaskFilename = "tasks.md";
-            TaskBackupFilename = "tasks_backup.md";
-            TaskFileSearchPattern = "*.md";
-            TaskLookupPaths = new Dictionary<string, List<Guid>>();
-        }
-
-        public RepoConfigDto(RepoConfig config)
-        {
-            TaskFilename = config.TaskFilename;
-            TaskBackupFilename = config.TaskBackupFilename;
-            TaskFileSearchPattern = config.TaskFileSearchPattern;
-            TaskLookupPaths = new Dictionary<string, List<Guid>>();
-
-            foreach (var key in config.TaskLookupPaths.Keys)
-                TaskLookupPaths[key] = config.TaskLookupPaths[key].ToList();
-        }
-
-        public RepoConfig FromDto()
-        {
-            RepoConfig config = new RepoConfig();
-            config.TaskFilename = TaskFilename;
-            config.TaskBackupFilename = TaskBackupFilename;
-            config.TaskFileSearchPattern = TaskFileSearchPattern;
-
-            foreach (var key in TaskLookupPaths.Keys)
-                config.TaskLookupPaths[key] = TaskLookupPaths[key].ToHashSet();
-            return config;
-        }
-    }
-
     public class RepoConfig
     {
         public string TaskFilename { get; set; }
         public string TaskBackupFilename { get; set; }
         public string TaskFileSearchPattern { get; set; }
-        public Dictionary<string, HashSet<Guid>> TaskLookupPaths { get; set; }
+
+        Dictionary<string, IEnumerable<Guid>> taskLookupPaths;
+        public Dictionary<string, IEnumerable<Guid>> TaskLookupPaths
+        {
+            get
+            {
+                return taskLookupPaths;
+            }
+
+            set
+            {
+                foreach (var key in value.Keys)
+                    value[key] = value[key].Distinct();
+                taskLookupPaths = value;
+            }
+        }
+
+        public string TaskItemSymbol { get; set; } = "- ";
+        public string TaskItemTabSymbol { get; set; } = "  ";
+        public string TaskHeaderDelimeterSymbol { get; set; } = ":";
+
+        public string TaskCompleteMarkerSymbol { get; set; } = "[x]";
+        public string TaskNotCompleteMarkerSymbol { get; set; } = "[ ]";
+        public string TaskInProgressSymbol { get; set; } = "[~]";
+        public string TaskOverdueSymbol { get; set; } = "[!]";
+
+        public string TaskMarkerSymbol { get; set; } = "<planum>";
+
+        public string TaskIdSymbol { get; set; } = "i";
+        public string TaskNameSymbol { get; set; } = "n";
+        public string TaskDescriptionSymbol { get; set; } = "d";
+        public string TaskParentSymbol { get; set; } = "p";
+        public string TaskChildSymbol { get; set; } = "c";
+        public string TaskDeadlineHeaderSymbol { get; set; } = "D";
+        public string TaskDeadlineEnabledSymbol { get; set; } = "e";
+        public string TaskDeadlineRepeatedSymbol { get; set; } = "r";
+        public string TaskDeadlineSymbol { get; set; } = "d";
+        public string TaskWarningTimeSymbol { get; set; } = "w";
+        public string TaskDurationTimeSymbol { get; set; } = "du";
+        public string TaskRepeatTimeSymbol { get; set; } = "r";
 
         public RepoConfig()
         {
             TaskFilename = "tasks.md";
             TaskBackupFilename = "tasks_backup.md";
             TaskFileSearchPattern = "*.md";
-            TaskLookupPaths = new Dictionary<string, HashSet<Guid>>();
+            taskLookupPaths = new Dictionary<string, IEnumerable<Guid>>();
         }
     }
 }

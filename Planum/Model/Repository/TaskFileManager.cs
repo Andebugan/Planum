@@ -19,118 +19,30 @@ namespace Planum.Model.Repository
         public FileWritingException(string message) : base(message) { }
     }
 
-    public enum ValueHeaderType
-    {
-        EMPTY,
-        UNKNOWN,
-        TASK_MARKER,
-        ID,
-        NAME,
-        DESCRIPTION,
-        PARENT,
-        CHILD,
-        DEADLINE_HEAD,
-        ENABLED,
-        DEADLINE,
-        WARNING,
-        DURATION,
-        REPEATED,
-        SPAN,
-        YEARS,
-        MONTHS
-    }
-
-    public static class TaskValueHeaderFormat
-    {
-        public static string taskItemSymbol = "- ";
-        public static string taskItemTab = "  ";
-
-        public static Dictionary<string, ValueHeaderType> stringToValueTypeDict = new Dictionary<string, ValueHeaderType>()
-        {
-            // task marker
-            { "<planum>", ValueHeaderType.TASK_MARKER },
-            // id
-            { taskItemSymbol + "i:", ValueHeaderType.ID },
-            // name
-            { taskItemSymbol + "n:", ValueHeaderType.NAME },
-            // description 
-            { taskItemSymbol + "d:", ValueHeaderType.DESCRIPTION },
-            // parent
-            { taskItemSymbol + "p:", ValueHeaderType.PARENT },
-            // children
-            { taskItemSymbol + "c:", ValueHeaderType.CHILD },
-            // deadline header
-            { taskItemSymbol + "D:", ValueHeaderType.DEADLINE_HEAD },
-            // deadline
-            { taskItemTab + taskItemSymbol + "d:", ValueHeaderType.DEADLINE },
-            // warning
-            { taskItemTab + taskItemSymbol + "w:", ValueHeaderType.WARNING },
-            // duration
-            { taskItemTab + taskItemSymbol + "du:", ValueHeaderType.DURATION },
-            // repeat span
-            { taskItemTab + taskItemSymbol + "s:", ValueHeaderType.SPAN },
-            // repeat years
-            { taskItemTab + taskItemSymbol + "y:", ValueHeaderType.YEARS },
-            // repeat months
-            { taskItemTab + taskItemSymbol + "m:", ValueHeaderType.MONTHS },
-        };
-
-        public static Dictionary<ValueHeaderType, string> valueTypeToStringDict = new Dictionary<ValueHeaderType, string>()
-        {
-            // task marker
-            { ValueHeaderType.TASK_MARKER, "<planum>" },
-            // id
-            { ValueHeaderType.ID, taskItemSymbol + "i:" },
-            // name
-            { ValueHeaderType.NAME, taskItemSymbol + "n:" },
-            // description 
-            { ValueHeaderType.DESCRIPTION, taskItemSymbol + "d:" },
-            // parent
-            { ValueHeaderType.PARENT, taskItemSymbol + "p:" },
-            // children
-            { ValueHeaderType.CHILD, taskItemSymbol + "c:" },
-            // deadline header
-            { ValueHeaderType.DEADLINE_HEAD, taskItemSymbol + "D:" },
-            // deadline
-            { ValueHeaderType.DEADLINE, taskItemTab + taskItemSymbol + "d:" },
-            // warning
-            { ValueHeaderType.WARNING, taskItemTab + taskItemSymbol + "w:" },
-            // duration
-            { ValueHeaderType.DURATION, taskItemTab + taskItemSymbol + "du:" },
-            // repeat span
-            { ValueHeaderType.SPAN, taskItemTab + taskItemSymbol + "s:" },
-            // repeat years
-            { ValueHeaderType.YEARS, taskItemTab + taskItemSymbol + "y:" },
-            // repeat months
-            { ValueHeaderType.MONTHS, taskItemTab + taskItemSymbol + "m:" }
-        };
-
-        public static ValueHeaderType GetLineHeaderType(string line)
-        {
-            if (line.Trim().Replace("\n", "").Length == 0)
-                return ValueHeaderType.EMPTY;
-            var formatMatches = stringToValueTypeDict.Keys.ToList().Where(x => line.StartsWith(x));
-            if (formatMatches.Any())
-                return stringToValueTypeDict[formatMatches.First()];
-            else
-                return ValueHeaderType.UNKNOWN;
-        }
-
-        public static string GetLineValueType(string line, ValueHeaderType valueHeaderType)
-        {
-            if (valueHeaderType == ValueHeaderType.UNKNOWN || valueHeaderType == ValueHeaderType.EMPTY || valueHeaderType == ValueHeaderType.TASK_MARKER)
-                throw new Exception("Incorrect task value header type, can't get value from string");
-            return line.Remove(0, valueTypeToStringDict[valueHeaderType].Length).Trim();
-        }
-
-        public static string AddLineValueType(string line, ValueHeaderType valueHeaderType)
-        {
-            if (valueHeaderType == ValueHeaderType.UNKNOWN || valueHeaderType == ValueHeaderType.EMPTY)
-                throw new Exception("Incorrect task value header type, can't add value type to string");
-            return valueTypeToStringDict[valueHeaderType] + " " + line;
-        }
-    }
-
+    /*
+     * <planum>
+     * - [ ] t(ask): {string} [| {guid}] (name or/and guid if name was not provided or name is not uqique)
+     * - d(escription): {string}
+     * - [ ] p(arent): {guid}
+     * ...
+     * - [ ] c(hildren): {string} | [guid] (name or/and guid if name was not provided or name is not unique)
+     * ...
+     * - D(eadline): [e(nabled)][r(epeated)]
+     *     - d(adline]: {hh:mm dd.mm.yyyy}
+     *     - w(arning]: {dd.hh.mm}
+     *     - du(ration]: {dd.hh.mm}
+     *     - r(epeat duration): {y m d.hh:mm}
+     * ...
+     * - [ ] (level 1 checklist)
+     *     - n(name)
+     *     - d(escription)
+     *     - D(eadline)
+     *        - ...
+     *     - [ ] (level 2 checklist)
+     *        - ...
+     * ...
+     * <- ends with empty line/<planum> for next task after it
+    */
     public class TaskFileManager : ITaskFileManager
     {
         RepoConfig repoConfig = new RepoConfig();
@@ -139,7 +51,7 @@ namespace Planum.Model.Repository
         public TaskFileManager()
         {
             appConfig = ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath, new AppConfig());
-            repoConfig = ConfigLoader.LoadConfig<RepoConfigDto>(appConfig.RepoConfigPath, new RepoConfigDto()).FromDto();
+            repoConfig = ConfigLoader.LoadConfig<RepoConfig>(appConfig.RepoConfigPath, new RepoConfig());
             CreateTaskFiles();
         }
 
@@ -170,22 +82,9 @@ namespace Planum.Model.Repository
                 File.Create(BackupPath).Close();
         }
 
-        public void Clear()
-        {
-            File.WriteAllLines(FilePath, new string[] { "" });
-        }
-
-        public void Backup()
-        {
-            // copy main file to backup file
-            File.Copy(FilePath, BackupPath, true);
-        }
-
-        public void Restore()
-        {
-            // copy backup file to main file
-            File.Copy(BackupPath, FilePath, true);
-        }
+        public void Clear() => File.WriteAllLines(FilePath, new string[] { "" });
+        public void Backup() => File.Copy(FilePath, BackupPath, true);
+        public void Restore() => File.Copy(BackupPath, FilePath, true);
 
         // NOTE: user can specify several children or parents with one name because of parsing features, but must be carefull to not accidentally add more tasks than needed
         public void ReadReferencePass(string path, IEnumerable<PlanumTask> tasks, Dictionary<Guid, List<string>> children, Dictionary<Guid, List<string>> parents)
@@ -217,26 +116,6 @@ namespace Planum.Model.Repository
             }
         }
 
-        /*
-         * <planum>
-         * - i[d]: {guid}
-         * - n[ame]: {string}
-         * - d[escription]: {string}
-         * - p[arent]: {guid}
-         * ...
-         * - c[hildre]: {guid}
-         * ...
-         * - de[adline]:
-         *     - e[nabled]
-         *     - ded[adline]: {hh:mm dd.mm.yyyy}
-         *     - w[arning]: {dd.hh.mm}
-         *     - du[ration]: {dd.hh.mm}
-         *     - r[peated] {true\false}
-         *     - s[pan]: {dd.hh.mm}
-         *     - y[ears]: {int}
-         *     - m[onths]: {int}
-         * <- ends with empty line/<planum> for next task after it
-        */
         public IEnumerable<PlanumTask> ReadMainPass(string path, Dictionary<Guid, List<string>> children, Dictionary<Guid, List<string>> parents)
         {
             List<PlanumTask> tasks = new List<PlanumTask>();
@@ -250,7 +129,7 @@ namespace Planum.Model.Repository
             foreach (var line in File.ReadAllLines(path))
             {
                 var lineHeader = TaskValueHeaderFormat.GetLineHeaderType(line);
-                if (lineHeader == ValueHeaderType.TASK_MARKER)
+                if (lineHeader == HeaderValueTypes.TASK_MARKER)
                 {
                     if (task is not null)
                     {
@@ -271,7 +150,7 @@ namespace Planum.Model.Repository
                 else if (task is null)
                     continue;
                 // ID
-                else if (lineHeader == ValueHeaderType.ID)
+                else if (lineHeader == HeaderValueTypes.ID)
                 {
                     var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                     Guid id = new Guid();
@@ -282,39 +161,39 @@ namespace Planum.Model.Repository
                         throw new FileParsingException($"Found duplicate task ID at path: \"{path}\"");
                 }
                 // Name
-                else if (lineHeader == ValueHeaderType.NAME)
+                else if (lineHeader == HeaderValueTypes.NAME)
                     task.Name = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                 // Description
-                else if (lineHeader == ValueHeaderType.DESCRIPTION)
+                else if (lineHeader == HeaderValueTypes.DESCRIPTION)
                     task.Description = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                 // Child
-                else if (lineHeader == ValueHeaderType.CHILD)
+                else if (lineHeader == HeaderValueTypes.CHILD)
                 {
                     if (!children.ContainsKey(task.Id))
                         children[task.Id] = new List<string>();
                     children[task.Id].Add(TaskValueHeaderFormat.GetLineValueType(line, lineHeader));
                 }
                 // Parent
-                else if (lineHeader == ValueHeaderType.PARENT)
+                else if (lineHeader == HeaderValueTypes.PARENT)
                 {
                     if (!parents.ContainsKey(task.Id))
                         parents[task.Id] = new List<string>();
                     parents[task.Id].Add(TaskValueHeaderFormat.GetLineValueType(line, lineHeader));
                 }
                 // Deadline + repeated + enabled
-                else if (lineHeader == ValueHeaderType.DEADLINE_HEAD)
+                else if (lineHeader == HeaderValueTypes.DEADLINE_HEAD)
                 {
                     if (deadline is not null)
                         deadlines.Add(deadline);
                     deadline = new Deadline();
-                    var deadlineStr = TaskValueHeaderFormat.GetLineValueType(line, ValueHeaderType.DEADLINE_HEAD);
+                    var deadlineStr = TaskValueHeaderFormat.GetLineValueType(line, HeaderValueTypes.DEADLINE_HEAD);
                     if (deadlineStr.Contains('e'))
                         deadline.enabled = true;
                     if (deadlineStr.Contains('r'))
                         deadline.repeated = true;
                 }
                 // End of task
-                else if (lineHeader == ValueHeaderType.EMPTY)
+                else if (lineHeader == HeaderValueTypes.EMPTY)
                 {
                     if (deadline is not null)
                         deadlines.Add(deadline);
@@ -328,48 +207,48 @@ namespace Planum.Model.Repository
                 else if (deadline is null)
                     throw new FileParsingException($"Can't parse task value at path: \"{path}\", at line \"{line}\"");
                 // Deadline deadline 
-                else if (lineHeader == ValueHeaderType.DEADLINE)
+                else if (lineHeader == HeaderValueTypes.DEADLINE)
                 {
                     var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                     if (!ValueParser.Parse(ref deadline.deadline, valueStr))
                         throw new FileParsingException($"Can't parse task value at path: \"{path}\", at line \"{line}\"");
                 }
                 // Deadline warning 
-                else if (lineHeader == ValueHeaderType.WARNING)
+                else if (lineHeader == HeaderValueTypes.WARNING)
                 {
                     var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                     if (!ValueParser.Parse(ref deadline.warningTime, valueStr))
                         throw new FileParsingException($"Can't parse task value at path: \"{path}\", at line \"{line}\"");
                 }
                 // Deadline duration 
-                else if (lineHeader == ValueHeaderType.DURATION)
+                else if (lineHeader == HeaderValueTypes.DURATION)
                 {
                     var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                     if (!ValueParser.Parse(ref deadline.duration, valueStr))
                         throw new FileParsingException($"Can't parse task value at path: \"{path}\", at line \"{line}\"");
                 }
                 // Deadline repeat span
-                else if (lineHeader == ValueHeaderType.SPAN)
+                else if (lineHeader == HeaderValueTypes.SPAN)
                 {
                     var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                     if (!ValueParser.Parse(ref deadline.repeatSpan, valueStr))
                         throw new FileParsingException($"Can't parse task value at path: \"{path}\", at line \"{line}\"");
                 }
                 // Deadline repeat years
-                else if (lineHeader == ValueHeaderType.YEARS)
+                else if (lineHeader == HeaderValueTypes.YEARS)
                 {
                     var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                     if (!ValueParser.Parse(ref deadline.repeatYears, valueStr))
                         throw new FileParsingException($"Can't parse task value at path: \"{path}\", at line \"{line}\"");
                 }
                 // Deadline months
-                else if (lineHeader == ValueHeaderType.MONTHS)
+                else if (lineHeader == HeaderValueTypes.MONTHS)
                 {
                     var valueStr = TaskValueHeaderFormat.GetLineValueType(line, lineHeader);
                     if (!ValueParser.Parse(ref deadline.repeatMonths, valueStr))
                         throw new FileParsingException($"Can't parse task value at path: \"{path}\", at line \"{line}\"");
                 }
-                else if (lineHeader == ValueHeaderType.UNKNOWN)
+                else if (lineHeader == HeaderValueTypes.UNKNOWN)
                     throw new FileParsingException($"Encountered unknown task value header at path: \"{path}\", at line \"{line}\"");
             }
 
@@ -384,7 +263,6 @@ namespace Planum.Model.Repository
             return tasks;
         }
 
-        // TODO: add support for seach patterns
         public IEnumerable<PlanumTask> Read()
         {
             IEnumerable<PlanumTask> tasks = new List<PlanumTask>();
@@ -459,13 +337,13 @@ namespace Planum.Model.Repository
             string name = string.Empty;
             bool isTaskLines = false;
 
-            var lineValueType = ValueHeaderType.UNKNOWN;
+            var lineValueType = HeaderValueTypes.UNKNOWN;
 
             foreach (var line in lines)
             {
                 lineValueType = TaskValueHeaderFormat.GetLineHeaderType(line);
                 // Add task to file
-                if (isTaskLines && (lineValueType == ValueHeaderType.EMPTY || lineValueType == ValueHeaderType.TASK_MARKER))
+                if (isTaskLines && (lineValueType == HeaderValueTypes.EMPTY || lineValueType == ValueHeaderType.TASK_MARKER))
                 {
                     var parsedTasks = TaskValueParser.ParseIdentity(id, name, tasks);
                     if (!parsedTasks.Any())
@@ -474,22 +352,22 @@ namespace Planum.Model.Repository
                         throw new FileWritingException($"Unable to find unique task with id: {id} or name: {name} for file at path: \"{path}\" at line \"{line}\"");
                     newLines = newLines.Concat(WriteTask(parsedTasks.First())).ToList();
                     orphanTaskList.Remove(parsedTasks.First());
-                    if (lineValueType != ValueHeaderType.TASK_MARKER)
+                    if (lineValueType != HeaderValueTypes.TASK_MARKER)
                         isTaskLines = false;
                     id = string.Empty;
                     name = string.Empty;
                 }
                 // Start search for id/name
-                else if (lineValueType == ValueHeaderType.TASK_MARKER)
+                else if (lineValueType == HeaderValueTypes.TASK_MARKER)
                 {
                     id = string.Empty;
                     name = string.Empty;
                     isTaskLines = true;
                 }
-                else if (isTaskLines && lineValueType == ValueHeaderType.ID)
-                    id = TaskValueHeaderFormat.GetLineValueType(line, ValueHeaderType.ID);
-                else if (isTaskLines && lineValueType == ValueHeaderType.NAME)
-                    name = TaskValueHeaderFormat.GetLineValueType(line, ValueHeaderType.NAME);
+                else if (isTaskLines && lineValueType == HeaderValueTypes.ID)
+                    id = TaskValueHeaderFormat.GetLineValueType(line, HeaderValueTypes.ID);
+                else if (isTaskLines && lineValueType == HeaderValueTypes.NAME)
+                    name = TaskValueHeaderFormat.GetLineValueType(line, HeaderValueTypes.NAME);
                 else
                     newLines.Add(line);
             }
@@ -504,7 +382,7 @@ namespace Planum.Model.Repository
                     throw new FileWritingException($"Unable to find unique task with id: {id} or name: {name} for file at path: \"{path}\" at line {lines.Last()}");
                 newLines = newLines.Concat(WriteTask(parsedTasks.First())).ToList();
                 orphanTaskList.Remove(parsedTasks.First());
-                if (lineValueType != ValueHeaderType.TASK_MARKER)
+                if (lineValueType != HeaderValueTypes.TASK_MARKER)
                     isTaskLines = false;
                 id = string.Empty;
                 name = string.Empty;
@@ -534,16 +412,16 @@ namespace Planum.Model.Repository
         protected IEnumerable<string> WriteTask(PlanumTask task)
         {
             var linesList = new List<string>();
-            linesList.Add(TaskValueHeaderFormat.AddLineValueType("", ValueHeaderType.TASK_MARKER));
-            linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Id.ToString(), ValueHeaderType.ID));
+            linesList.Add(TaskValueHeaderFormat.AddLineValueType("", HeaderValueTypes.TASK_MARKER));
+            linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Id.ToString(), HeaderValueTypes.ID));
             if (task.Name != string.Empty)
-                linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Name, ValueHeaderType.NAME));
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Name, HeaderValueTypes.NAME));
             if (task.Description != string.Empty)
-                linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Description, ValueHeaderType.DESCRIPTION));
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(task.Description, HeaderValueTypes.DESCRIPTION));
             foreach (var parent in task.Parents)
-                linesList.Add(TaskValueHeaderFormat.AddLineValueType(parent.ToString(), ValueHeaderType.PARENT));
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(parent.ToString(), HeaderValueTypes.PARENT));
             foreach (var child in task.Children)
-                linesList.Add(TaskValueHeaderFormat.AddLineValueType(child.ToString(), ValueHeaderType.CHILD));
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(child.ToString(), HeaderValueTypes.CHILD));
             foreach (var deadline in task.Deadlines)
             {
                 var deadlineStr = "";
@@ -551,18 +429,18 @@ namespace Planum.Model.Repository
                     deadlineStr += 'e';
                 if (deadline.repeated)
                     deadlineStr += 'r';
-                linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadlineStr, ValueHeaderType.DEADLINE_HEAD));
-                linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.deadline.ToString("H:m d.M.yyyy"), ValueHeaderType.DEADLINE));
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadlineStr, HeaderValueTypes.DEADLINE_HEAD));
+                linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.deadline.ToString("H:m d.M.yyyy"), HeaderValueTypes.DEADLINE));
                 if (deadline.warningTime != TimeSpan.Zero)
-                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.warningTime.ToString(@"d\.h\:m"), ValueHeaderType.WARNING));
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.warningTime.ToString(@"d\.h\:m"), HeaderValueTypes.WARNING));
                 if (deadline.duration != TimeSpan.Zero)
-                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.duration.ToString(@"d\.h\:m"), ValueHeaderType.DURATION));
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.duration.ToString(@"d\.h\:m"), HeaderValueTypes.DURATION));
                 if (deadline.repeatSpan != TimeSpan.Zero)
-                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatSpan.ToString(@"d\.h\:m"), ValueHeaderType.SPAN));
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatSpan.ToString(@"d\.h\:m"), HeaderValueTypes.SPAN));
                 if (deadline.repeatYears > 0)
-                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatYears.ToString(), ValueHeaderType.YEARS));
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatYears.ToString(), HeaderValueTypes.YEARS));
                 if (deadline.repeatMonths > 0)
-                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatMonths.ToString(), ValueHeaderType.MONTHS));
+                    linesList.Add(TaskValueHeaderFormat.AddLineValueType(deadline.repeatMonths.ToString(), HeaderValueTypes.MONTHS));
             }
             linesList.Add("");
             return linesList;
