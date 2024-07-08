@@ -10,16 +10,16 @@ namespace Planum.Model.Repository
     public class Repo : IRepo
     {
         protected IEnumerable<PlanumTask> taskBuffer = new List<PlanumTask>();
-        ITaskFileManager taskFileManager;
+        ITaskFileManager TaskFileManager { get; set; }
 
-        public Repo()
+        public Repo(ITaskFileManager taskFileManager)
         {
-            taskFileManager = new TaskFileManager();
+            TaskFileManager = taskFileManager;
             Load();
         }
 
-        public void Save() => taskFileManager.Write(taskBuffer);
-        public void Load() => taskBuffer = taskFileManager.Read();
+        public void Save() => TaskFileManager.Write(taskBuffer);
+        public void Load() => taskBuffer = TaskFileManager.Read();
 
         public IEnumerable<PlanumTask> Get() => taskBuffer;
 
@@ -31,17 +31,17 @@ namespace Planum.Model.Repository
         {
             var ids = tasks.Select(x => x.Id);
             taskBuffer = taskBuffer.Where(x => !ids.Contains(x.Id)).Concat(tasks);
-            taskFileManager.Write(taskBuffer);
+            TaskFileManager.Write(taskBuffer);
         }
 
         public void Delete(Guid id) => Delete(new Guid[] { id });
         public void Delete(IEnumerable<Guid> ids)
         {
             taskBuffer = taskBuffer.Where(x => !ids.Contains(x.Id));
-            taskFileManager.Write(taskBuffer);
+            TaskFileManager.Write(taskBuffer);
         }
 
-        public void Backup() => taskFileManager.Backup();
-        public void Restore() => taskFileManager.Restore();
+        public void Backup() => TaskFileManager.Backup();
+        public void Restore() => TaskFileManager.Restore();
     }
 }
