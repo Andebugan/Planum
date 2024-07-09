@@ -46,6 +46,10 @@ namespace Planum.Model.Entities
             return Equals((Deadline)obj);
         }
 
+        public bool Warning() => (deadline - duration - warningTime) < DateTime.Now; 
+        public bool InProgress() => (deadline - duration) < DateTime.Now; 
+        public bool Overdue() => DateTime.Now > deadline;
+
         public bool Equals(Deadline compared)
         {
             return enabled == compared.enabled &&
@@ -144,6 +148,10 @@ namespace Planum.Model.Entities
                 hash ^= child.GetHashCode();
             return hash;
         }
+
+        public bool Warning() => Deadlines.Where(x => x.Warning() && !x.InProgress() && !x.Overdue()).Any();
+        public bool InProgress() => Deadlines.Where(x => !x.Warning() && x.InProgress() && !x.Overdue()).Any();
+        public bool Overdue() => Deadlines.Where(x => !x.Warning() && !x.InProgress() && x.Overdue()).Any();
 
         public static IEnumerable<PlanumTask> FillRelatives(IEnumerable<PlanumTask> tasks)
         {

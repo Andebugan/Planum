@@ -6,11 +6,11 @@ using Planum.Model.Repository;
 
 namespace Planum.Model.Managers
 {
-    public class TaskManager
+    public class PlanumTaskManager
     {
         protected IRepo PlanumTaskRepo { get; set; }
 
-        public TaskManager(IRepo planumTaskRepo)
+        public PlanumTaskManager(IRepo planumTaskRepo)
         {
             PlanumTaskRepo = planumTaskRepo;
         }

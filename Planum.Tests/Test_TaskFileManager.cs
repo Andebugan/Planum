@@ -5,7 +5,7 @@ using Planum.Config;
 
 namespace Planum.Tests;
 
-public class Test_TaskFileManager
+public class Test_PlanumTaskFileManager
 {
     public static IEnumerable<PlanumTask> CreateTestTasks(int taskCount = 3, int childCount = 3, int parentCount = 3, int deadlineCnt = 3)
     {
@@ -114,68 +114,68 @@ public class Test_TaskFileManager
     public void TestBackup()
     {
         // Arrange
-        TaskFileManager taskFileManager = new TaskFileManager();
+        PlanumTaskFileManager planumTaskFileManager = new PlanumTaskFileManager();
         string[] testLines = {
             "test 1",
             "test 2",
             "test 3"
         };
 
-        File.WriteAllLines(taskFileManager.FilePath, testLines);
+        File.WriteAllLines(planumTaskFileManager.FilePath, testLines);
 
         // Act
-        taskFileManager.Backup();
+        planumTaskFileManager.Backup();
 
         // Assert
-        FileComparator(taskFileManager.FilePath, taskFileManager.BackupPath);
+        FileComparator(planumTaskFileManager.FilePath, planumTaskFileManager.BackupPath);
 
         // Cleanup
-        File.Delete(taskFileManager.FilePath);
-        File.Delete(taskFileManager.BackupPath);
+        File.Delete(planumTaskFileManager.FilePath);
+        File.Delete(planumTaskFileManager.BackupPath);
     }
 
     [Fact]
     public void TestRestore()
     {
         // Arrange
-        TaskFileManager taskFileManager = new TaskFileManager();
+        PlanumTaskFileManager planumTaskFileManager = new PlanumTaskFileManager();
         string[] testLines = {
             "test 1",
             "test 2",
             "test 3"
         };
 
-        File.WriteAllLines(taskFileManager.FilePath, testLines);
+        File.WriteAllLines(planumTaskFileManager.FilePath, testLines);
 
         // Act
-        taskFileManager.Restore();
+        planumTaskFileManager.Restore();
 
         // Assert
-        FileComparator(taskFileManager.FilePath, taskFileManager.BackupPath);
+        FileComparator(planumTaskFileManager.FilePath, planumTaskFileManager.BackupPath);
 
         // Cleanup
-        File.Delete(taskFileManager.FilePath);
-        File.Delete(taskFileManager.BackupPath);
+        File.Delete(planumTaskFileManager.FilePath);
+        File.Delete(planumTaskFileManager.BackupPath);
     }
 
     [Fact]
     public void TestDefaultTaskFileWriteRead()
     {
         // Arrange
-        TaskFileManager taskFileManager = new TaskFileManager();
-        taskFileManager.Clear();
+        PlanumTaskFileManager planumTaskFileManager = new PlanumTaskFileManager();
+        planumTaskFileManager.Clear();
         var planumTasks = CreateTestTasks();
 
         // Act
-        taskFileManager.Write(planumTasks);
-        var tasks = taskFileManager.Read();
+        planumTaskFileManager.Write(planumTasks);
+        var tasks = planumTaskFileManager.Read();
 
         // Assert
         TasksAssertEqual(planumTasks, tasks);
 
         // Cleanup
-        File.Delete(taskFileManager.FilePath);
-        File.Delete(taskFileManager.BackupPath);
+        File.Delete(planumTaskFileManager.FilePath);
+        File.Delete(planumTaskFileManager.BackupPath);
     }
 
     [Fact]
@@ -183,14 +183,14 @@ public class Test_TaskFileManager
     {
         // Arrange
         AppConfig appConfig = ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath, new AppConfig());
-        RepoConfig repoConfig = ConfigLoader.LoadConfig<RepoConfigDto>(appConfig.RepoConfigPath, new RepoConfigDto()).FromDto();
+        RepoConfig repoConfig = ConfigLoader.LoadConfig<RepoConfig>(appConfig.RepoConfigPath, new RepoConfig());
 
-        TaskFileManager taskFileManager = new TaskFileManager();
-        taskFileManager.Clear();
+        PlanumTaskFileManager planumTaskFileManager = new PlanumTaskFileManager();
+        planumTaskFileManager.Clear();
 
-        var dirPath = Path.GetDirectoryName(taskFileManager.FilePath);
+        var dirPath = Path.GetDirectoryName(planumTaskFileManager.FilePath);
         if (dirPath is null)
-            throw new Exception($"Unable to get task file directory: {taskFileManager.FilePath}");
+            throw new Exception($"Unable to get task file directory: {planumTaskFileManager.FilePath}");
 
         List<PlanumTask> planumTasks = CreateTestTasks().ToList();
         var lookupFilenames = new string[] {
@@ -201,37 +201,37 @@ public class Test_TaskFileManager
 
         foreach (var fname in lookupFilenames)
             File.Create(fname).Close();
-        repoConfig.TaskLookupPaths = new Dictionary<string, HashSet<Guid>>();
+        repoConfig.TaskLookupPaths = new Dictionary<string, IEnumerable<Guid>>();
 
         for (int i = 0; i < planumTasks.Count(); i++)
         {
             var path = lookupFilenames[i % lookupFilenames.Count()];
             if (!repoConfig.TaskLookupPaths.ContainsKey(path))
                 repoConfig.TaskLookupPaths[path] = new HashSet<Guid>();
-            repoConfig.TaskLookupPaths[path].Add(planumTasks[i].Id);
+            repoConfig.TaskLookupPaths[path] = repoConfig.TaskLookupPaths[path].Append(planumTasks[i].Id);
         }
 
         ConfigLoader.SaveConfig<RepoConfig>(appConfig.RepoConfigPath, repoConfig);
 
-        taskFileManager = new TaskFileManager(); // reload after config update
-        taskFileManager.Write(planumTasks);
-        var tasks = taskFileManager.Read();
+        planumTaskFileManager = new PlanumTaskFileManager(); // reload after config update
+        planumTaskFileManager.Write(planumTasks);
+        var tasks = planumTaskFileManager.Read();
 
         // Act
-        taskFileManager.Write(tasks);
-        var updatedTasks = taskFileManager.Read();
+        planumTaskFileManager.Write(tasks);
+        var updatedTasks = planumTaskFileManager.Read();
 
         // Assert
         TasksAssertEqual(planumTasks, tasks);
         TasksAssertEqual(tasks, updatedTasks);
 
         // Cleanup
-        File.Delete(taskFileManager.FilePath);
-        File.Delete(taskFileManager.BackupPath);
+        File.Delete(planumTaskFileManager.FilePath);
+        File.Delete(planumTaskFileManager.BackupPath);
         foreach (var filename in lookupFilenames)
             File.Delete(filename);
 
-        repoConfig.TaskLookupPaths = new Dictionary<string, HashSet<Guid>>();
+        repoConfig.TaskLookupPaths = new Dictionary<string, IEnumerable<Guid>>();
         ConfigLoader.SaveConfig<RepoConfig>(appConfig.RepoConfigPath, repoConfig);
     }
 
@@ -240,14 +240,14 @@ public class Test_TaskFileManager
     {
         // Arrange
         AppConfig appConfig = ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath, new AppConfig());
-        RepoConfig repoConfig = ConfigLoader.LoadConfig<RepoConfigDto>(appConfig.RepoConfigPath, new RepoConfigDto()).FromDto();
+        RepoConfig repoConfig = ConfigLoader.LoadConfig<RepoConfig>(appConfig.RepoConfigPath, new RepoConfig());
 
-        TaskFileManager taskFileManager = new TaskFileManager();
-        taskFileManager.Clear();
+        PlanumTaskFileManager planumTaskFileManager = new PlanumTaskFileManager();
+        planumTaskFileManager.Clear();
 
-        var dirPath = Path.GetDirectoryName(taskFileManager.FilePath);
+        var dirPath = Path.GetDirectoryName(planumTaskFileManager.FilePath);
         if (dirPath is null)
-            throw new Exception($"Unable to get task file directory: {taskFileManager.FilePath}");
+            throw new Exception($"Unable to get task file directory: {planumTaskFileManager.FilePath}");
 
         List<PlanumTask> planumTasks = CreateTestTasks().ToList();
         var lookupFilenames = new string[] {
@@ -258,34 +258,34 @@ public class Test_TaskFileManager
 
         foreach (var fname in lookupFilenames)
             File.Create(fname).Close();
-        repoConfig.TaskLookupPaths = new Dictionary<string, HashSet<Guid>>();
+        repoConfig.TaskLookupPaths = new Dictionary<string, IEnumerable<Guid>>();
 
         for (int i = 0; i < planumTasks.Count(); i++)
         {
             var path = lookupFilenames[i % lookupFilenames.Count()];
             if (!repoConfig.TaskLookupPaths.ContainsKey(path))
                 repoConfig.TaskLookupPaths[path] = new HashSet<Guid>();
-            repoConfig.TaskLookupPaths[path].Add(planumTasks[i].Id);
+            repoConfig.TaskLookupPaths[path] = repoConfig.TaskLookupPaths[path].Append(planumTasks[i].Id);
         }
 
         ConfigLoader.SaveConfig<RepoConfig>(appConfig.RepoConfigPath, repoConfig);
 
-        taskFileManager = new TaskFileManager(); // reload after config update
+        planumTaskFileManager = new PlanumTaskFileManager(); // reload after config update
 
         // Act
-        taskFileManager.Write(planumTasks);
-        var tasks = taskFileManager.Read();
+        planumTaskFileManager.Write(planumTasks);
+        var tasks = planumTaskFileManager.Read();
 
         // Assert
         TasksAssertEqual(planumTasks, tasks);
 
         // Cleanup
-        File.Delete(taskFileManager.FilePath);
-        File.Delete(taskFileManager.BackupPath);
+        File.Delete(planumTaskFileManager.FilePath);
+        File.Delete(planumTaskFileManager.BackupPath);
         foreach (var filename in lookupFilenames)
             File.Delete(filename);
 
-        repoConfig.TaskLookupPaths = new Dictionary<string, HashSet<Guid>>();
+        repoConfig.TaskLookupPaths = new Dictionary<string, IEnumerable<Guid>>();
         ConfigLoader.SaveConfig<RepoConfig>(appConfig.RepoConfigPath, repoConfig);
     }
 }

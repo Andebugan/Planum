@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace Planum.Parser
 {
@@ -24,21 +23,9 @@ namespace Planum.Parser
 
         public static string[] TimeSpanFormats = { @"d\.h\:m", @"d\.h", @"h\:m" };
 
-        public static bool Parse(ref Guid value, string data)
-        {
-            return Guid.TryParse(data, out value);
-        }
-
-        public static bool Parse(ref int value, string data)
-        {
-            return int.TryParse(data, out value);
-        }
-
-        public static bool Parse(ref float value, string data)
-        {
-            return float.TryParse(data, out value);
-        }
-
+        public static bool Parse(ref Guid value, string data) => Guid.TryParse(data, out value);
+        public static bool Parse(ref int value, string data) => int.TryParse(data, out value);
+        public static bool Parse(ref float value, string data) => float.TryParse(data, out value);
 
         public static bool Parse(ref bool value, string data)
         {

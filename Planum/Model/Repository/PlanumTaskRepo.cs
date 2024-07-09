@@ -7,19 +7,19 @@ using System.Linq;
 namespace Planum.Model.Repository
 {
 
-    public class Repo : IRepo
+    public class PlanumTaskRepo : IPlanumTaskRepo
     {
         protected IEnumerable<PlanumTask> taskBuffer = new List<PlanumTask>();
-        ITaskFileManager TaskFileManager { get; set; }
+        IPlanumTaskFileManager PlanumTaskFileManager { get; set; }
 
-        public Repo(ITaskFileManager taskFileManager)
+        public PlanumTaskRepo(IPlanumTaskFileManager planumTaskFileManager)
         {
-            TaskFileManager = taskFileManager;
+            PlanumTaskFileManager = planumTaskFileManager;
             Load();
         }
 
-        public void Save() => TaskFileManager.Write(taskBuffer);
-        public void Load() => taskBuffer = TaskFileManager.Read();
+        public void Save() => PlanumTaskFileManager.Write(taskBuffer);
+        public void Load() => taskBuffer = PlanumTaskFileManager.Read();
 
         public IEnumerable<PlanumTask> Get() => taskBuffer;
 
@@ -31,17 +31,17 @@ namespace Planum.Model.Repository
         {
             var ids = tasks.Select(x => x.Id);
             taskBuffer = taskBuffer.Where(x => !ids.Contains(x.Id)).Concat(tasks);
-            TaskFileManager.Write(taskBuffer);
+            PlanumTaskFileManager.Write(taskBuffer);
         }
 
         public void Delete(Guid id) => Delete(new Guid[] { id });
         public void Delete(IEnumerable<Guid> ids)
         {
             taskBuffer = taskBuffer.Where(x => !ids.Contains(x.Id));
-            TaskFileManager.Write(taskBuffer);
+            PlanumTaskFileManager.Write(taskBuffer);
         }
 
-        public void Backup() => TaskFileManager.Backup();
-        public void Restore() => TaskFileManager.Restore();
+        public void Backup() => PlanumTaskFileManager.Backup();
+        public void Restore() => PlanumTaskFileManager.Restore();
     }
 }

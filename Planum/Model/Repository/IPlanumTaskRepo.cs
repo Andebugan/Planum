@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Planum.Model.Entities;
 
 namespace Planum.Model.Repository {
-  public interface IRepo {
+  public interface IPlanumTaskRepo {
 
     public void Save();
     public void Load();

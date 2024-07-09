@@ -28,17 +28,20 @@ namespace Planum.Config
 
         public string TaskItemSymbol { get; set; } = "- ";
         public string TaskItemTabSymbol { get; set; } = "  ";
-        public string TaskHeaderDelimeterSymbol { get; set; } = ":";
+        public string TaskHeaderDelimeterSymbol { get; set; } = ": ";
 
-        public string TaskCompleteMarkerSymbol { get; set; } = "[x]";
-        public string TaskNotCompleteMarkerSymbol { get; set; } = "[ ]";
-        public string TaskInProgressSymbol { get; set; } = "[~]";
-        public string TaskOverdueSymbol { get; set; } = "[!]";
+        public string TaskCompleteMarkerSymbol { get; set; } = "[x] ";
+        public string TaskNotCompleteMarkerSymbol { get; set; } = "[ ] ";
+        public string TaskWarningMarkerSymbol { get; set; } = "[w]" ;
+        public string TaskInProgressMarkerSymbol { get; set; } = "[p] ";
+        public string TaskOverdueMarkerSymbol { get; set; } = "[!] ";
 
-        public string TaskMarkerSymbol { get; set; } = "<planum>";
+        public string TaskMarkerStartSymbol { get; set; } = "<planum:";
+        public string TaskMarkerEndSymbol { get; set; } = ">";
 
         public string TaskIdSymbol { get; set; } = "i";
         public string TaskNameSymbol { get; set; } = "n";
+        public string TaskNameIdDelimiter { get; set; } = "|";
         public string TaskDescriptionSymbol { get; set; } = "d";
         public string TaskParentSymbol { get; set; } = "p";
         public string TaskChildSymbol { get; set; } = "c";
@@ -49,6 +52,12 @@ namespace Planum.Config
         public string TaskWarningTimeSymbol { get; set; } = "w";
         public string TaskDurationTimeSymbol { get; set; } = "du";
         public string TaskRepeatTimeSymbol { get; set; } = "r";
+
+        public string ChecklistTaskName { get; set; } = ".checklist";
+        public string CompleteTaskName { get; set; } = ".complete";
+        public string OverdueTaskName { get; set; } = ".overdue";
+        public string InProgressTaskName { get; set; } = ".progress";
+        public string WarningTaskName { get; set; } = ".warning";
 
         public RepoConfig()
         {
