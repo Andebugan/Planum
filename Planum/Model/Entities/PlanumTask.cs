@@ -18,6 +18,8 @@ namespace Planum.Model.Entities
         public int repeatYears;
         public int repeatMonths;
 
+        public Dictionary<Guid, IEnumerable<Guid>> pipelines;
+
         public Deadline(bool enabled = false,
                 DateTime? deadline = null,
                 TimeSpan? warningTime = null,
@@ -25,7 +27,8 @@ namespace Planum.Model.Entities
                 bool repeated = false,
                 TimeSpan? repeatSpan = null,
                 int repeatYears = 0,
-                int repeatMonths = 0)
+                int repeatMonths = 0,
+                Dictionary<Guid, IEnumerable<Guid>>? pipelines = null)
         {
             this.enabled = enabled;
             this.deadline = deadline is null ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0) : (DateTime)deadline;
@@ -37,6 +40,7 @@ namespace Planum.Model.Entities
             this.repeatSpan = repeatSpan is null ? TimeSpan.Zero : (TimeSpan)repeatSpan;
             this.repeatYears = repeatYears;
             this.repeatMonths = repeatMonths;
+            this.pipelines = pipelines is null ? new Dictionary<Guid, IEnumerable<Guid>>() : pipelines;
         }
 
         public override bool Equals(object? obj)
@@ -63,7 +67,8 @@ namespace Planum.Model.Entities
                 repeated == compared.repeated &&
                 TimeSpan.Equals(repeatSpan, compared.repeatSpan) &&
                 repeatYears == compared.repeatYears &&
-                repeatMonths == compared.repeatMonths;
+                repeatMonths == compared.repeatMonths &&
+                pipelines.SequenceEqual(compared.pipelines);
         }
 
         public override int GetHashCode()
@@ -80,6 +85,7 @@ namespace Planum.Model.Entities
             hash ^= repeatSpan.GetHashCode();
             hash ^= repeatYears.GetHashCode();
             hash ^= repeatMonths.GetHashCode();
+            hash ^= pipelines.GetHashCode();
             return hash;
         }
     }

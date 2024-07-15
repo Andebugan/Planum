@@ -18,8 +18,5 @@ namespace Planum.Model.Repository {
     
     public void Delete(Guid id);
     public void Delete(IEnumerable<Guid> ids);
-
-    public void Backup();
-    public void Restore();
   }
 }

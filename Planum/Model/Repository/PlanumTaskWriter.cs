@@ -8,12 +8,10 @@ namespace Planum.Model.Repository
 {
     public class PlanumTaskWriter
     {
-        AppConfig AppConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
 
-        public PlanumTaskWriter(AppConfig appConfig, RepoConfig repoConfig)
+        public PlanumTaskWriter(RepoConfig repoConfig)
         {
-            AppConfig = appConfig;
             RepoConfig = repoConfig;
         }
 
@@ -50,6 +48,16 @@ namespace Planum.Model.Repository
             return RepoConfig.TaskNotCompleteMarkerSymbol;
         }
 
+        public string GetTaskName(PlanumTask task, IEnumerable<PlanumTask> tasks)
+        {
+            if (tasks.Where(x => x.Id != task.Id && x.Name == task.Name).Any())
+                return RepoConfig.AddMarkdownLink(task.Name +
+                       RepoConfig.TaskNameIdDelimiter +
+                       task.Id.ToString(), RepoConfig.GetTaskPath(task.Id));
+            return RepoConfig.AddMarkdownLink(task.Name,
+                   RepoConfig.GetTaskPath(task.Id));
+        }
+
         public bool CheckIfNormalTask(PlanumTask task)
         {
             if (task.Name == RepoConfig.CompleteTaskName ||
@@ -69,169 +77,186 @@ namespace Planum.Model.Repository
             return tabs;
         }
 
-        public IEnumerable<string> WriteTaskHeader(IEnumerable<string> lines, PlanumTask task) => lines.Append(RepoConfig.TaskMarkerStartSymbol + task.Id.ToString() + RepoConfig.TaskMarkerEndSymbol);
-        public IEnumerable<string> WriteName(IEnumerable<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
+        public void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(RepoConfig.TaskMarkerStartSymbol + task.Id.ToString() + RepoConfig.TaskMarkerEndSymbol);
+        public void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
         {
-            return lines.Append(
-                    AddLineTabs(level) +
-                    RepoConfig.TaskItemSymbol +
-                    GetTaskNameMarkerSymbol(task, tasks) +
-                    RepoConfig.TaskNameSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
-                    task.Name);
+            lines.Add(
+                AddLineTabs(level) +
+                RepoConfig.TaskItemSymbol +
+                GetTaskNameMarkerSymbol(task, tasks) +
+                RepoConfig.TaskNameSymbol +
+                RepoConfig.TaskHeaderDelimeterSymbol +
+                task.Name);
         }
 
-        public IEnumerable<string> WriteDescription(IEnumerable<string> lines, PlanumTask task, int level = 0)
+        public void WriteDescription(IList<string> lines, PlanumTask task, int level = 0)
         {
-            return task.Description == "" ? lines.Append(
+            if (task.Description == "")
+                lines.Add(
                     AddLineTabs(level) +
                     RepoConfig.TaskItemSymbol +
                     RepoConfig.TaskDescriptionSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol +
-                    task.Description) : lines;
+                    task.Description);
         }
 
-        public IEnumerable<string> WriteChecklists(IEnumerable<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
+        public void WriteChecklists(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
         {
             var checklistGroupTasks = tasks.Where(x => x.Name == RepoConfig.ChecklistTaskName && x.Parents.Contains(task.Id));
             foreach (var checklist in tasks.Where(x => checklistGroupTasks.Where(y => y.Children.Contains(x.Id)).Any()))
             {
                 // name
-                lines = WriteName(lines, checklist, tasks, level);
+                WriteName(lines, checklist, tasks, level);
                 // description
-                lines = WriteDescription(lines, checklist, level);
+                WriteDescription(lines, checklist, level);
                 // deadlines
-                lines = WriteDeadlines(lines, checklist, level);
+                WriteDeadlines(lines, checklist, tasks, level);
                 // checklists
-                lines = WriteChecklists(lines, checklist, tasks, level + 1);
+                WriteChecklists(lines, checklist, tasks, level + 1);
             }
-            return lines;
         }
 
-        public IEnumerable<string> WriteChildren(IEnumerable<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
+        public void WriteChildren(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
         {
             foreach (var child in tasks.Where(x => task.Children.Contains(x.Id)))
             {
                 if (!CheckIfNormalTask(child))
                     continue;
-                else if (tasks.Where(x => x.Id != child.Id && x.Name == child.Name).Any())
-                    lines = lines.Append(
-                            RepoConfig.TaskItemSymbol +
-                            GetTaskNameMarkerSymbol(child, tasks) +
-                            RepoConfig.TaskChildSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            child.Name +
-                            RepoConfig.TaskNameIdDelimiter +
-                            child.Id.ToString());
                 else
-                    lines = lines.Append(
-                            RepoConfig.TaskItemSymbol +
-                            GetTaskNameMarkerSymbol(child, tasks) +
-                            RepoConfig.TaskChildSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            child.Name +
-                            RepoConfig.TaskNameIdDelimiter +
-                            child.Id.ToString());
+                    lines.Add(
+                        RepoConfig.TaskItemSymbol +
+                        GetTaskNameMarkerSymbol(child, tasks) +
+                        RepoConfig.TaskParentSymbol +
+                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        GetTaskName(child, tasks)
+                        );
             }
-            return lines;
         }
 
-        public IEnumerable<string> WriteParents(IEnumerable<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
+        public void WriteParents(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
         {
             foreach (var parent in tasks.Where(x => task.Parents.Contains(x.Id)))
             {
                 if (!CheckIfNormalTask(parent))
                     continue;
-                if (tasks.Where(x => x.Id != parent.Id && x.Name == parent.Name).Any())
-                    lines = lines.Append(
-                            RepoConfig.TaskItemSymbol +
-                            GetTaskNameMarkerSymbol(parent, tasks) +
-                            RepoConfig.TaskParentSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            parent.Name +
-                            RepoConfig.TaskNameIdDelimiter +
-                            parent.Id.ToString());
                 else
-                    lines = lines.Append(
-                            RepoConfig.TaskItemSymbol +
-                            GetTaskNameMarkerSymbol(parent, tasks) +
-                            RepoConfig.TaskParentSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            parent.Name +
-                            RepoConfig.TaskNameIdDelimiter +
-                            parent.Id.ToString());
+                    lines.Add(
+                        RepoConfig.TaskItemSymbol +
+                        GetTaskNameMarkerSymbol(parent, tasks) +
+                        RepoConfig.TaskParentSymbol +
+                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        GetTaskName(parent, tasks)
+                        );
             }
-            return lines;
         }
 
-        public IEnumerable<string> WriteDeadlines(IEnumerable<string> lines, PlanumTask task, int level = 0)
+        public void WritePreviousNext(IList<string> lines, Deadline deadline, IEnumerable<PlanumTask> tasks, int level = 0)
+        {
+            var previousTasks = tasks.Where(x => deadline.pipelines.Keys.Contains(x.Id));
+            foreach (var previous in previousTasks)
+            {
+                var nextTasks = tasks.Where(x => deadline.pipelines[previous.Id].Contains(x.Id));
+                string previousStr = GetTaskName(previous, tasks) + RepoConfig.TaskPipelineDelimeterSymbol;
+                foreach (var next in nextTasks)
+                {
+                    string nextStr = GetTaskName(next, tasks);
+                    lines.Add(AddLineTabs(level + 1) +
+                        RepoConfig.TaskItemSymbol +
+                        GetTaskNameMarkerSymbol(next, tasks) +
+                        RepoConfig.TaskPipelineDelimeterSymbol +
+                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        previousStr +
+                        nextStr);
+                }
+            }
+
+            if (deadline.pipelines.ContainsKey(Guid.Empty))
+            {
+                var nextTasks = tasks.Where(x => deadline.pipelines[Guid.Empty].Contains(x.Id));
+                string previousStr = RepoConfig.TaskPipelineDelimeterSymbol;
+                foreach (var next in nextTasks)
+                {
+                    string nextStr = GetTaskName(next, tasks);
+                    lines.Add(AddLineTabs(level + 1) +
+                        RepoConfig.TaskItemSymbol +
+                        GetTaskNameMarkerSymbol(next, tasks) +
+                        RepoConfig.TaskPipelineDelimeterSymbol +
+                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        previousStr +
+                        nextStr);
+                }
+            }
+        }
+
+        public void WriteDeadlines(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
         {
             foreach (var deadline in task.Deadlines)
             {
                 // header
-                lines = lines.Append(
-                        AddLineTabs(level) +
-                        RepoConfig.TaskItemSymbol +
-                        GetDeadlineMarkerSymbol(deadline) +
-                        RepoConfig.TaskDeadlineHeaderSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol
-                        );
+                lines.Append(
+                    AddLineTabs(level) +
+                    RepoConfig.TaskItemSymbol +
+                    GetDeadlineMarkerSymbol(deadline) +
+                    RepoConfig.TaskDeadlineHeaderSymbol +
+                    RepoConfig.TaskHeaderDelimeterSymbol
+                    );
                 // deadline
-                lines = lines.Append(
-                        AddLineTabs(level + 1) +
-                        RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDeadlineSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
-                        deadline.deadline.ToString("H:m d.M.y")
-                        );
+                lines.Append(
+                    AddLineTabs(level + 1) +
+                    RepoConfig.TaskItemSymbol +
+                    RepoConfig.TaskDeadlineSymbol +
+                    RepoConfig.TaskHeaderDelimeterSymbol +
+                    deadline.deadline.ToString("H:m d.M.y")
+                    );
                 // warning time
                 if (deadline.warningTime != TimeSpan.Zero)
-                    lines = lines.Append(
-                            AddLineTabs(level + 1) +
-                            RepoConfig.TaskItemSymbol +
-                            RepoConfig.TaskWarningTimeSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            deadline.warningTime.ToString(@"d\.h\:m")
-                            );
+                    lines.Append(
+                        AddLineTabs(level + 1) +
+                        RepoConfig.TaskItemSymbol +
+                        RepoConfig.TaskWarningTimeSymbol +
+                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        deadline.warningTime.ToString(@"d\.h\:m")
+                        );
                 // duration
                 if (deadline.duration != TimeSpan.Zero)
-                    lines = lines.Append(
-                            AddLineTabs(level + 1) +
-                            RepoConfig.TaskItemSymbol +
-                            RepoConfig.TaskDurationTimeSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            deadline.duration.ToString(@"d\.h\:m")
-                            );
+                    lines.Append(
+                        AddLineTabs(level + 1) +
+                        RepoConfig.TaskItemSymbol +
+                        RepoConfig.TaskDurationTimeSymbol +
+                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        deadline.duration.ToString(@"d\.h\:m")
+                        );
                 // repeat
                 if (deadline.repeatSpan != TimeSpan.Zero && deadline.repeatMonths > 0 && deadline.repeatYears > 0)
-                    lines = lines.Append(
-                            AddLineTabs(level + 1) +
-                            RepoConfig.TaskItemSymbol +
-                            GetEnabledSymbol(deadline.repeated) +
-                            RepoConfig.TaskRepeatTimeSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            deadline.repeatYears.ToString() + " " +
-                            deadline.repeatMonths.ToString() + " " +
-                            deadline.repeatSpan.ToString(@"d\.h\:m")
-                            );
+                    lines.Append(
+                        AddLineTabs(level + 1) +
+                        RepoConfig.TaskItemSymbol +
+                        GetEnabledSymbol(deadline.repeated) +
+                        RepoConfig.TaskRepeatTimeSymbol +
+                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        deadline.repeatYears.ToString() + " " +
+                        deadline.repeatMonths.ToString() + " " +
+                        deadline.repeatSpan.ToString(@"d\.h\:m")
+                        );
+                // next/previous
+                WritePreviousNext(lines, deadline, tasks, level);
             }
-            return lines;
         }
 
-        public IEnumerable<string> WriteTask(IEnumerable<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
+        public void WriteTask(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
         {
             if (!CheckIfNormalTask(task))
-                return lines;
+                return;
 
-            lines = WriteTaskHeader(lines, task);
-            lines = WriteName(lines, task, tasks);
-            lines = WriteDescription(lines, task);
-            lines = WriteParents(lines, task, tasks);
-            lines = WriteChildren(lines, task, tasks);
-            lines = WriteChecklists(lines, task, tasks);
-            lines = WriteDeadlines(lines, task);
+            WriteTaskHeader(lines, task);
+            WriteName(lines, task, tasks);
+            WriteDescription(lines, task);
+            WriteParents(lines, task, tasks);
+            WriteChildren(lines, task, tasks);
+            WriteChecklists(lines, task, tasks);
+            WriteDeadlines(lines, task, tasks);
 
-            return lines;
+            return;
         }
     }
 }
