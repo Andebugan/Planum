@@ -1,11 +1,9 @@
 ﻿using Planum.Config;
 using Planum.Model.Entities;
-using Planum.Parser;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 #nullable enable
 
 namespace Planum.Model.Repository
@@ -18,21 +16,21 @@ namespace Planum.Model.Repository
      * ...
      * - [ ] c(hildren): [{string} | [guid]](path/to/task/file) (name or/and guid if name was not provided or name is not unique)
      * ...
-     * - [ ] D(eadline): ([x] - disabled/complete, [ ] - enabled)
-     *     - d(adline]: {hh:mm dd.mm.yyyy}
-     *     - w(arning]: {dd.hh.mm}
-     *     - du(ration]: {dd.hh.mm}
+     * - [ ] D(eadline): ([x] - disabled/complete, otherwise enabled with status)
+     *     - d(eadline): {hh:mm dd.mm.yyyy}
+     *     - w(arning): {dd.hh.mm}
+     *     - du(ration): {dd.hh.mm}
      *     - [ ] r(epeat duration): {y m d.hh:mm}
-     *     - [ ] p(ipeline node): [{string} | [guid]](path/to/task/file) => [{string} | [guid]](path/to/task/file) (name or/and guid if name was not provided or name is not unique)
+     *     - [ ] n(ext): [{string} | [guid]](path/to/task/file) (name or/and guid if name was not provided or name is not unique), counts as child
      * ...
-     * - [ ] {string} [| {guid}] (name or/and guid if name was not provided or name is not unique) (level 1 checklist)
-     *     - d(escription)
+     * - [ ] {string}
+     *     - d(escription): ...
      *     - [ ] D(eadline)
      *        - ...
-     *        - [ ] {string} [| {guid}] (name or/and guid if name was not provided or name is not unique) (level 1 checklist)
+     *        - [ ] {string}
      *        - ...
      * ...
-     * <- ends with empty line/<planum> for next task after it
+     *
     */
     public class PlanumTaskFileManager : IPlanumTaskFileManager
     {
@@ -47,18 +45,26 @@ namespace Planum.Model.Repository
             PlanumTaskReader = planumTaskReader;
         }
 
-        public IEnumerable<PlanumTask> ReadFromFile(string path, IEnumerable<PlanumTask> tasks)
+        public void ReadFromFile(string path, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next)
         {
-            return new PlanumTask[] { };
+            if (!File.Exists(path))
+                throw new Exception($"File doesn't exist at path: \"{path}\"");
+            IEnumerator<string> linesEnumerator = (IEnumerator<string>)File.ReadAllLines(path).GetEnumerator();
+            do
+                PlanumTaskReader.ReadTask(linesEnumerator, tasks, children, parents, next);
+            while (linesEnumerator.MoveNext());
         }
 
         public IEnumerable<PlanumTask> Read()
         {
             IList<PlanumTask> tasks = new List<PlanumTask>();
+            Dictionary<Guid, IList<string>> children = new Dictionary<Guid, IList<string>>();
+            Dictionary<Guid, IList<string>> parents = new Dictionary<Guid, IList<string>>();
+            Dictionary<Guid, IList<string>> next = new Dictionary<Guid, IList<string>>();
+
             foreach (var path in RepoConfig.TaskLookupPaths.Keys)
-            {
-                
-            }
+                ReadFromFile(path, tasks, children, parents, next);
+            PlanumTaskReader.ParseIdentities(tasks, children, parents, next);
 
             return tasks;
         }
@@ -83,19 +89,19 @@ namespace Planum.Model.Repository
                 // check if matches with planum header
                 if (linesEnumerator.Current.StartsWith(RepoConfig.TaskMarkerStartSymbol) && linesEnumerator.Current.EndsWith(RepoConfig.TaskMarkerEndSymbol))
                 {
-                    var task = PlanumTaskReader.ReadTask(linesEnumerator, tasks);
+                    var taskId = PlanumTaskReader.ReadSkipTask(linesEnumerator);
                     // if not in tasks - ignore
-                    if (taskIds.Contains(task.Id))
+                    if (taskIds.Contains(taskId))
                     {
-                        PlanumTask newTask = tasks.Where(x => x.Id == task.Id).First();
-                        writtenIds.Add(task.Id);
+                        PlanumTask newTask = tasks.Where(x => x.Id == taskId).First();
+                        writtenIds.Add(taskId);
                         PlanumTaskWriter.WriteTask(newLines, newTask, tasks);
                     }
                 }
                 else
                     newLines.Add(linesEnumerator.Current);
             }
-            
+
             RepoConfig.TaskLookupPaths[path] = writtenIds;
 
             File.WriteAllLines(path, newLines);

@@ -6,7 +6,8 @@ namespace Planum.Model.Repository
 {
     public interface IPlanumTaskReader
     {  
-        public void ReadTask(IEnumerator<string> linesEnumeraor, IList<PlanumTask> tasks, Dictionary<Guid, string> children, Dictionary<Guid, string> parents);
-        public PlanumTask ParseRelatives(IList<PlanumTask> tasks, Dictionary<Guid, string> children, Dictionary<Guid, string> parents);
+        public Guid ReadTask(IEnumerator<string> linesEnumerator, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next);
+        public Guid ReadSkipTask(IEnumerator<string> linesEnumerator);
+        public void ParseIdentities(IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next);
     }
 }

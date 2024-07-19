@@ -27,6 +27,7 @@ namespace Planum.Config
         public string TaskItemTabSymbol { get; set; } = "  ";
         public string TaskHeaderDelimeterSymbol { get; set; } = ": ";
 
+        public string TaskDummyMarkerSymbol { get; set; } = "[ ] ";
         public string TaskCompleteMarkerSymbol { get; set; } = "[x] ";
         public string TaskNotCompleteMarkerSymbol { get; set; } = "[ ] ";
         public string TaskWarningMarkerSymbol { get; set; } = "[w]" ;
@@ -45,21 +46,14 @@ namespace Planum.Config
         public string TaskChildSymbol { get; set; } = "c";
 
         public string TaskDeadlineHeaderSymbol { get; set; } = "D";
-        public string TaskDeadlineEnabledSymbol { get; set; } = "e";
-        public string TaskDeadlineRepeatedSymbol { get; set; } = "r";
         public string TaskDeadlineSymbol { get; set; } = "d";
 
         public string TaskWarningTimeSymbol { get; set; } = "w";
         public string TaskDurationTimeSymbol { get; set; } = "du";
         public string TaskRepeatTimeSymbol { get; set; } = "r";
 
-        public string ChecklistTaskName { get; set; } = ".checklist";
-        public string CompleteTaskName { get; set; } = ".complete";
-        public string OverdueTaskName { get; set; } = ".overdue";
-        public string InProgressTaskName { get; set; } = ".progress";
-        public string WarningTaskName { get; set; } = ".warning";
+        public string TaskNextSymbol { get; set; } = "n";
 
-        public string TaskPipelineDelimeterSymbol { get; set; } = " => ";
         public string AddMarkdownLink(string line, string path) => "[" + line + "](" + path + ")";
         public string ParseMarkdownLink(string line, out string path)
         {
@@ -75,11 +69,48 @@ namespace Planum.Config
             return "";
         }
 
+        public string ParseMarkdownLink(string line)
+        {
+            var split = line.Trim('[', ')').Split("](");
+            if (split.Length == 2)
+            {
+                return split[0];
+            }
+            else if (split.Length == 1)
+                return split[0];
+            return "";
+        }
+
+        public void ParseTaskName(string line, out string id, out string name)
+        {
+            id = "";
+            name = "";
+            var split = line.Trim(' ', '\n').Split(TaskNameIdDelimiter);
+            if (split.Length == 1)
+                name = split[0];
+            else if (split.Length == 2)
+            {
+                name = split[0];
+                id = split[1];
+            }
+        }
+
         public RepoConfig()
         {
             TaskFilename = "tasks.md";
             TaskFileSearchPattern = "*.md";
             taskLookupPaths = new Dictionary<string, IEnumerable<Guid>>();
+        }
+
+        public string[] GetTaskStatusMarkerSymbols()
+        {
+            return new string[] {
+                TaskNotCompleteMarkerSymbol,
+                TaskWarningMarkerSymbol,
+                TaskCompleteMarkerSymbol,
+                TaskInProgressMarkerSymbol,
+                TaskOverdueMarkerSymbol,
+            };
         }
 
         public string GetTaskPath(Guid id)

@@ -8,7 +8,7 @@ namespace Planum.Parser {
         public static IEnumerable<PlanumTask> ParseIdentity(string id, string name, IEnumerable<PlanumTask> taskBuffer) {
             Guid guid = new Guid();
             // try parse guid
-            if (ValueParser.Parse(ref guid, id)) {
+            if (ValueParser.TryParse(ref guid, id)) {
                 return taskBuffer.Where(x => x.Id == guid);
             }
 

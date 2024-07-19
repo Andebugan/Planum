@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Planum.Config;
 
 namespace Planum.Model.Entities
 {
     public class Deadline
     {
+        public Guid Id { get; set; }
         public bool enabled;
         public DateTime deadline;
         public TimeSpan warningTime;
@@ -18,7 +20,7 @@ namespace Planum.Model.Entities
         public int repeatYears;
         public int repeatMonths;
 
-        public Dictionary<Guid, IEnumerable<Guid>> pipelines;
+        public HashSet<Guid> next;
 
         public Deadline(bool enabled = false,
                 DateTime? deadline = null,
@@ -28,8 +30,9 @@ namespace Planum.Model.Entities
                 TimeSpan? repeatSpan = null,
                 int repeatYears = 0,
                 int repeatMonths = 0,
-                Dictionary<Guid, IEnumerable<Guid>>? pipelines = null)
+                HashSet<Guid>? next = null)
         {
+            Id = Guid.NewGuid();
             this.enabled = enabled;
             this.deadline = deadline is null ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0) : (DateTime)deadline;
             this.warningTime = warningTime is null ? TimeSpan.Zero : (TimeSpan)warningTime;
@@ -40,7 +43,7 @@ namespace Planum.Model.Entities
             this.repeatSpan = repeatSpan is null ? TimeSpan.Zero : (TimeSpan)repeatSpan;
             this.repeatYears = repeatYears;
             this.repeatMonths = repeatMonths;
-            this.pipelines = pipelines is null ? new Dictionary<Guid, IEnumerable<Guid>>() : pipelines;
+            this.next = next is null ? new HashSet<Guid>() : next;
         }
 
         public override bool Equals(object? obj)
@@ -68,7 +71,7 @@ namespace Planum.Model.Entities
                 TimeSpan.Equals(repeatSpan, compared.repeatSpan) &&
                 repeatYears == compared.repeatYears &&
                 repeatMonths == compared.repeatMonths &&
-                pipelines.SequenceEqual(compared.pipelines);
+                next.SequenceEqual(compared.next);
         }
 
         public override int GetHashCode()
@@ -85,7 +88,7 @@ namespace Planum.Model.Entities
             hash ^= repeatSpan.GetHashCode();
             hash ^= repeatYears.GetHashCode();
             hash ^= repeatMonths.GetHashCode();
-            hash ^= pipelines.GetHashCode();
+            hash ^= next.GetHashCode();
             return hash;
         }
     }
@@ -93,6 +96,7 @@ namespace Planum.Model.Entities
     public class PlanumTask
     {
         public Guid Id { get; set; }
+        public bool Complete { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 
@@ -101,6 +105,7 @@ namespace Planum.Model.Entities
         public HashSet<Guid> Parents { get; set; } = new HashSet<Guid>();
 
         public PlanumTask(Guid? id = null,
+                bool complete = false,
                 string name = "",
                 string description = "",
                 IEnumerable<Deadline>? deadlines = null,
@@ -108,6 +113,7 @@ namespace Planum.Model.Entities
                 IEnumerable<Guid>? parents = null)
         {
             Id = id is null ? new Guid() : (Guid)id;
+            Complete = complete;
             Name = name;
             Description = description;
             if (deadlines is not null)
@@ -132,7 +138,7 @@ namespace Planum.Model.Entities
 
         public bool Equals(PlanumTask compared)
         {
-            if (Id != compared.Id || Name != compared.Name || Description != compared.Description)
+            if (Id != compared.Id || Complete != compared.Complete || Name != compared.Name || Description != compared.Description)
                 return false;
 
             if (Deadlines.Except(compared.Deadlines).Any()) return false;
@@ -144,6 +150,7 @@ namespace Planum.Model.Entities
         public override int GetHashCode()
         {
             int hash = Id.GetHashCode();
+            hash ^= Complete.GetHashCode();
             hash ^= Name.GetHashCode();
             hash ^= Description.GetHashCode();
             foreach (var deadline in Deadlines)
