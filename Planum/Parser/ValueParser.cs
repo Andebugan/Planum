@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace Planum.Parser
 {
     // how to print datetime: DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.ffffffK");
     public static class ValueParser
     {
-        public static string[] dateFormats = { "d.M.y", "d.M.yyyy", "d.M.yyyy", "d.M.y" };
-        public static string[] timeFormats = { "H:m", "H:m" };
+        public static string[] dateFormats = { "d.M.y", "d.M.yyyy", "d.M.yyyy", "d.M" };
+        public static string[] timeFormats = { "H:m" };
 
         public static Dictionary<string, DateTime> dateStringFormats = new Dictionary<string, DateTime>() {
-            { "yesterday", DateTime.Today - TimeSpan.FromDays(1) },
+            { "yesterday", DateTime.Today.AddDays(-1) },
             { "today", DateTime.Today },
-            { "tomorrow", DateTime.Today + TimeSpan.FromDays(1) },
+            { "tomorrow", DateTime.Today.AddDays(1)  },
         };
 
         public static Dictionary<string, DayOfWeek> dayOfWeekStringFormats = new Dictionary<string, DayOfWeek>() {
@@ -27,19 +28,15 @@ namespace Planum.Parser
         };
 
         public static Dictionary<string, int> dateStringDayPrefixFormats = new Dictionary<string, int>() {
-            { "next", -1 },
-            { "previous", 1 }
+            { "next", 1 },
+            { "previous", -1 }
         };
 
         public static Dictionary<string, bool> boolFormats = new Dictionary<string, bool>() {
             {"true", true},
-            {"t", true},
             {"yes", true},
-            {"y", true},
             {"false", false},
-            {"f", false},
             {"no", false},
-            {"n", false},
             {"1", true},
             {"0", false}
         };
@@ -47,14 +44,33 @@ namespace Planum.Parser
         public static string[] TimeSpanFormats = { @"d\.h\:m", @"d\.h", @"h\:m" };
 
         public static bool TryParse(ref Guid value, string data) => Guid.TryParse(data, out value);
-        public static bool TryParse(ref int value, string data) => int.TryParse(data, out value);
-        public static bool TryParse(ref float value, string data) => float.TryParse(data, out value);
+        public static bool TryParse(ref int value, string data)
+        {
+            if (data == string.Empty)
+            {
+                value = 0;
+                return true;
+            }
+            return int.TryParse(data, out value);
+        }
+        public static bool TryParse(ref float value, string data)
+        {
+            if (data == string.Empty)
+            {
+                value = 0;
+                return true;
+            }
+            return float.TryParse(data, out value);
+        }
 
         public static bool TryParse(ref bool value, string data)
         {
-            if (boolFormats.Keys.Contains(data))
+            if (data == string.Empty)
+                return false;
+            var matches = boolFormats.Keys.Where(x => x.StartsWith(data));
+            if (matches.Any())
             {
-                value = boolFormats[data];
+                value = boolFormats[matches.First()];
                 return true;
             }
             return false;
@@ -62,38 +78,45 @@ namespace Planum.Parser
 
         public static bool TryParse(ref TimeSpan value, string data)
         {
-            bool result = false;
+            if (data == string.Empty)
+                return true;
             foreach (var formatStr in TimeSpanFormats)
             {
-                result = TimeSpan.TryParseExact(data, formatStr, CultureInfo.InvariantCulture, TimeSpanStyles.None, out value);
-                if (result)
-                    break;
+                if (TimeSpan.TryParseExact(data, formatStr, CultureInfo.InvariantCulture, TimeSpanStyles.None, out value))
+                    return true;
             }
-            return result;
+            return false;
         }
 
-        public static bool TryParse(ref TimeSpan value, ref int months, ref int years, string data)
+        public static bool TryParse(ref TimeSpan timeSpan, ref int months, ref int years, string data)
         {
-            bool result = false;
             data = data.Trim(' ', '\n');
-            IEnumerator<string> dataEnumerator = (IEnumerator<string>)data.Split(' ').GetEnumerator();
-
-            // years
-            if (int.TryParse(dataEnumerator.Current, out years))
-                if (!dataEnumerator.MoveNext())
-                    return true;
+            var split = data.Split(' ').AsEnumerable();
+            IEnumerator<string> dataEnumerator = (IEnumerator<string>)split.GetEnumerator();
+            dataEnumerator.MoveNext();
+            
+            var tmp_months = 0;
+            var tmp_years = 0;
 
             // months
-            if (int.TryParse(dataEnumerator.Current, out months))
+            if (int.TryParse(dataEnumerator.Current, out tmp_months))
+            {
+                months = tmp_months;
+                if (!dataEnumerator.MoveNext())
+                    return true;
+            }
+
+            // years
+            if (int.TryParse(dataEnumerator.Current, out tmp_years))
+            {
+                months = tmp_years;
+                years = tmp_months;
+                if (!dataEnumerator.MoveNext())
+                    return true;
+            }
 
             // timespan
-            foreach (var formatStr in TimeSpanFormats)
-            {
-                result = TimeSpan.TryParseExact(data, formatStr, CultureInfo.InvariantCulture, TimeSpanStyles.None, out value);
-                if (result)
-                    break;
-            }
-            return result;
+            return TryParse(ref timeSpan, dataEnumerator.Current);
         }
 
         static bool TryParseTime(ref DateTime value, IEnumerator<string> dataEnumerator)
@@ -131,6 +154,7 @@ namespace Planum.Parser
                     if (key.StartsWith(dataEnumerator.Current))
                     {
                         date = dateStringFormats[key];
+                        result = true;
                         break;
                     }
                 }
@@ -155,7 +179,8 @@ namespace Planum.Parser
 
             if (directionPrefix == 0)
                 return false;
-            dataEnumerator.MoveNext();
+            if (!dataEnumerator.MoveNext())
+                return false;
 
             var result = false;
             DayOfWeek dayOfWeek = DayOfWeek.Monday;
@@ -168,43 +193,48 @@ namespace Planum.Parser
                     break;
                 }
             }
-            
+
             if (!result)
                 return false;
 
+            value = value.AddDays(directionPrefix);
             while (value.DayOfWeek != dayOfWeek)
-                value.AddDays(directionPrefix);
+                value = value.AddDays(directionPrefix);
             return true;
         }
 
         public static bool TryParse(ref DateTime value, string data)
         {
             data = data.Trim(' ', '\n');
-            IEnumerator<string> dataEnumerator = (IEnumerator<string>)data.Split(' ').GetEnumerator();
-
+            var split = data.Split(' ').AsEnumerable();
+            IEnumerator<string> dataEnumerator = (IEnumerator<string>)split.GetEnumerator();
             value = DateTime.Today;
 
             if (data == string.Empty || !dataEnumerator.MoveNext())
                 return true;
 
-            bool result = TryParseTime(ref value, dataEnumerator);
+            var result = false;
             // try parse time
-            if (result)
+            if (TryParseTime(ref value, dataEnumerator))
+            {
+                result = true;
                 if (!dataEnumerator.MoveNext())
                     return true;
-                else
-                    return false;
+            }
 
             // try parse date
-            result = TryParseDate(ref value, dataEnumerator);
-            if (result)
+            if (TryParseDate(ref value, dataEnumerator))
+            {
+                result = true;
                 if (!dataEnumerator.MoveNext())
                     return true;
-                else
-                    return false;
+            }
 
             // try parse date with prefix
-            result = TryParseDateMoves(ref value, dataEnumerator);
+            if (!TryParseDateMoves(ref value, dataEnumerator))
+                return false;
+            else
+                result = true;
             return result;
         }
     }

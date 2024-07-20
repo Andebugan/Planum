@@ -8,9 +8,9 @@ namespace Planum.Model.Managers
 {
     public class PlanumTaskManager
     {
-        protected IRepo PlanumTaskRepo { get; set; }
+        protected IPlanumTaskRepo PlanumTaskRepo { get; set; }
 
-        public PlanumTaskManager(IRepo planumTaskRepo)
+        public PlanumTaskManager(IPlanumTaskRepo planumTaskRepo)
         {
             PlanumTaskRepo = planumTaskRepo;
         }
@@ -37,9 +37,6 @@ namespace Planum.Model.Managers
                 tasks = taskFilter.Filter(tasks);
             PlanumTaskRepo.Delete(tasks.Select(x => x.Id));
         }
-
-        public void Backup() => PlanumTaskRepo.Backup();
-        public void Restore() => PlanumTaskRepo.Restore();
 
         public void Save() => PlanumTaskRepo.Save();
         public void Load() => PlanumTaskRepo.Load();
