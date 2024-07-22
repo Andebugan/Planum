@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Planum.Config;
 using Planum.Model.Entities;
+using Planum.Model.Repository;
 using Planum.Parser;
 
-namespace Planum.Model.Repository
+namespace Planum.Repository
 {
     public class PlanumTaskReader : IPlanumTaskReader
     {
@@ -57,6 +57,15 @@ namespace Planum.Model.Repository
             RepoConfig.TaskNameSymbol +
             RepoConfig.TaskHeaderDelimeterSymbol).Length);
         }
+
+        public bool CheckTag(string line, int level = 0) => line.StartsWith(AddLineTabs(level) +
+                RepoConfig.TaskItemSymbol +
+                RepoConfig.TaskTagSymbol +
+                RepoConfig.TaskHeaderDelimeterSymbol);
+        public string ParseTaskTag(string line, int level = 0) => line.Remove(0, (AddLineTabs(level) +
+                RepoConfig.TaskItemSymbol +
+                RepoConfig.TaskTagSymbol +
+                RepoConfig.TaskHeaderDelimeterSymbol).Length);
 
         public bool CheckDescription(string line, int level = 0) => line.StartsWith(AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
@@ -115,15 +124,10 @@ namespace Planum.Model.Repository
         }
         public void ParseChecklist(Guid taskId, IEnumerator<string> linesEnumerator, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> next, int level = 0)
         {
-            // create checklist holder task for this guid if it doesn't exist
-            var checklistHolder = tasks.Where(x => x.Name == AppConfig.ChecklistTaskName && x.Parents.Contains(taskId)).FirstOrDefault();
-            if (checklistHolder is null)
-            {
-                checklistHolder = new PlanumTask(id: Guid.NewGuid(), name: AppConfig.ChecklistTaskName);
-                tasks.Add(checklistHolder);
-            }
-
             var checklistTask = new PlanumTask(id: Guid.NewGuid());
+            checklistTask.Parents.Add(taskId);
+            checklistTask.Tags.Add(DefaultTags.Checklist);
+
             // parse checklist name
             if (linesEnumerator.Current.StartsWith(AddLineTabs(level) +
                                                     RepoConfig.TaskItemSymbol +
@@ -134,7 +138,7 @@ namespace Planum.Model.Repository
                                                                         RepoConfig.TaskItemSymbol +
                                                                         RepoConfig.TaskCompleteMarkerSymbol +
                                                                         RepoConfig.TaskHeaderDelimeterSymbol).Length);
-                checklistTask.Complete = true;
+                checklistTask.Tags.Add(DefaultTags.Complete);
             }
 
             // finish parsing checklist + recursive part
@@ -143,6 +147,9 @@ namespace Planum.Model.Repository
                 // parse description
                 if (CheckDescription(linesEnumerator.Current, level + 1))
                     checklistTask.Description = ParseTaskDescription(linesEnumerator.Current, level + 1);
+                // parse tag
+                else if (CheckTag(linesEnumerator.Current))
+                    checklistTask.Tags.Add(ParseTaskTag(linesEnumerator.Current, level + 1));
                 // parse deadline
                 else if (CheckDeadline(linesEnumerator.Current, level + 1))
                     checklistTask.Deadlines.Add(ParseDeadline(linesEnumerator, next, level + 1));
@@ -320,8 +327,11 @@ namespace Planum.Model.Repository
                 {
                     var complete = false;
                     task.Name = ParseTaskName(linesEnumerator.Current, ref complete);
-                    task.Complete = complete;
+                    task.Tags.Add(DefaultTags.Complete);
                 }
+                // parse tag
+                else if (CheckTag(linesEnumerator.Current))
+                    task.Tags.Add(ParseTaskTag(linesEnumerator.Current));
                 // parse description
                 else if (CheckDescription(linesEnumerator.Current))
                     task.Description = ParseTaskDescription(linesEnumerator.Current);
@@ -377,6 +387,8 @@ namespace Planum.Model.Repository
             {
                 if (CheckDescription(linesEnumerator.Current, level + 1))
                     continue;
+                else if (CheckTag(linesEnumerator.Current, level + 1))
+                    continue;
                 else if (CheckDeadline(linesEnumerator.Current, level + 1))
                     ReadSkipDeadline(linesEnumerator, level + 1);
                 else if (CheckChecklist(linesEnumerator.Current, level + 1))
@@ -398,6 +410,8 @@ namespace Planum.Model.Repository
                 if (CheckName(linesEnumerator.Current))
                     continue;
                 else if (CheckDescription(linesEnumerator.Current))
+                    continue;
+                else if (CheckTag(linesEnumerator.Current))
                     continue;
                 else if (CheckChild(linesEnumerator.Current))
                     continue;

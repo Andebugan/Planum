@@ -3,10 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Planum.Config;
 
 namespace Planum.Model.Entities
 {
+    public static class DefaultTags
+    {
+        public static string Complete = "complete";
+        public static string Checklist = "checklist";
+    }
+
     public class Deadline
     {
         public Guid Id { get; set; }
@@ -96,10 +101,10 @@ namespace Planum.Model.Entities
     public class PlanumTask
     {
         public Guid Id { get; set; }
-        public bool Complete { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 
+        public HashSet<string> Tags { get; set; } = new HashSet<string>();
         public HashSet<Deadline> Deadlines { get; set; } = new HashSet<Deadline>();
         public HashSet<Guid> Children { get; set; } = new HashSet<Guid>();
         public HashSet<Guid> Parents { get; set; } = new HashSet<Guid>();
@@ -110,10 +115,10 @@ namespace Planum.Model.Entities
                 string description = "",
                 IEnumerable<Deadline>? deadlines = null,
                 IEnumerable<Guid>? children = null,
-                IEnumerable<Guid>? parents = null)
+                IEnumerable<Guid>? parents = null,
+                IEnumerable<string>? tags = null)
         {
             Id = id is null ? new Guid() : (Guid)id;
-            Complete = complete;
             Name = name;
             Description = description;
             if (deadlines is not null)
@@ -122,6 +127,8 @@ namespace Planum.Model.Entities
                 Children = children.ToHashSet();
             if (parents is not null)
                 Parents = parents.ToHashSet();
+            if (tags is not null)
+                Tags = tags.ToHashSet();
         }
 
         public void AddChildren(IEnumerable<Guid> children) => Children = Children.Concat(children).ToHashSet();
@@ -138,7 +145,7 @@ namespace Planum.Model.Entities
 
         public bool Equals(PlanumTask compared)
         {
-            if (Id != compared.Id || Complete != compared.Complete || Name != compared.Name || Description != compared.Description)
+            if (Id != compared.Id || Name != compared.Name || Description != compared.Description)
                 return false;
 
             if (Deadlines.Except(compared.Deadlines).Any()) return false;
@@ -150,21 +157,39 @@ namespace Planum.Model.Entities
         public override int GetHashCode()
         {
             int hash = Id.GetHashCode();
-            hash ^= Complete.GetHashCode();
             hash ^= Name.GetHashCode();
             hash ^= Description.GetHashCode();
+
             foreach (var deadline in Deadlines)
                 hash ^= deadline.GetHashCode();
             foreach (var parent in Parents)
                 hash ^= parent.GetHashCode();
             foreach (var child in Children)
                 hash ^= child.GetHashCode();
+            foreach (var tag in Tags)
+                hash ^= tag.GetHashCode();
             return hash;
         }
 
-        public bool Warning() => Deadlines.Where(x => x.Warning() && !x.InProgress() && !x.Overdue()).Any();
-        public bool InProgress() => Deadlines.Where(x => !x.Warning() && x.InProgress() && !x.Overdue()).Any();
-        public bool Overdue() => Deadlines.Where(x => !x.Warning() && !x.InProgress() && x.Overdue()).Any();
+        public static void CalculateTimeConstraints(IEnumerable<PlanumTask> tasks, out IEnumerable<Guid> overdue, out IEnumerable<Guid> inProgress, out IEnumerable<Guid> warning)
+        {
+            overdue = new List<Guid>();
+            inProgress = new List<Guid>();
+            warning = new List<Guid>();
+
+            foreach (var task in tasks)
+            {
+                if (task.Deadlines.Where(x => x.Overdue()).Any())
+                    overdue = overdue.Append(task.Id).Concat(task.Parents);
+                else if (!overdue.Contains(task.Id) && task.Deadlines.Where(x => x.InProgress()).Any())
+                    inProgress = inProgress.Append(task.Id).Concat(task.Parents);
+                else if (!inProgress.Contains(task.Id) && !overdue.Contains(task.Id) && task.Deadlines.Where(x => x.Warning()).Any())
+                    warning = warning.Append(task.Id).Concat(task.Parents);
+            }
+
+            inProgress = inProgress.Except(overdue);
+            warning = warning.Except(overdue);
+        }
 
         public static IEnumerable<PlanumTask> FillRelatives(IEnumerable<PlanumTask> tasks)
         {

@@ -40,6 +40,7 @@ namespace Planum.Config
         public string TaskNameSymbol { get; set; } = "n";
         public string TaskNameIdDelimiter { get; set; } = "| ";
 
+        public string TaskTagSymbol { get; set; } = "t";
         public string TaskDescriptionSymbol { get; set; } = "d";
 
         public string TaskParentSymbol { get; set; } = "p";

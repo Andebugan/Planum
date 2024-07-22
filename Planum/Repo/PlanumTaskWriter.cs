@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Planum.Config;
 using Planum.Model.Entities;
+using Planum.Model.Repository;
 
-namespace Planum.Model.Repository
+namespace Planum.Repository
 {
-    public class PlanumTaskWriter
+    public class PlanumTaskWriter: IPlanumTaskWriter
     {
         RepoConfig RepoConfig { get; set; }
         AppConfig AppConfig { get; set; }
@@ -17,15 +18,15 @@ namespace Planum.Model.Repository
             RepoConfig = repoConfig;
         }
 
-        public string GetTaskNameMarkerSymbol(PlanumTask task, IEnumerable<PlanumTask> tasks)
+        public string GetTaskNameMarkerSymbol(PlanumTask task, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning)
         {
-            if (task.Complete)
+            if (task.Tags.Contains(DefaultTags.Complete))
                 return RepoConfig.TaskCompleteMarkerSymbol;
-            else if (tasks.Where(x => x.Name == AppConfig.OverdueTaskName && x.Children.Contains(x.Id)).Any())
+            else if (overdue.Contains(task.Id))
                 return RepoConfig.TaskOverdueMarkerSymbol;
-            else if (tasks.Where(x => x.Name == AppConfig.InProgressTaskName && x.Children.Contains(x.Id)).Any())
+            else if (inProgress.Contains(task.Id))
                 return RepoConfig.TaskInProgressMarkerSymbol;
-            else if (tasks.Where(x => x.Name == AppConfig.WarningTaskName && x.Children.Contains(x.Id)).Any())
+            else if (warning.Contains(task.Id))
                 return RepoConfig.TaskWarningMarkerSymbol;
             return RepoConfig.TaskNotCompleteMarkerSymbol;
         }
@@ -60,12 +61,9 @@ namespace Planum.Model.Repository
                    RepoConfig.GetTaskPath(task.Id));
         }
 
-        public bool CheckIfNormalTask(PlanumTask task)
+        public bool CheckIfChecklist(PlanumTask task)
         {
-            if (task.Name == AppConfig.ChecklistTaskName ||
-                   task.Name == AppConfig.WarningTaskName ||
-                   task.Name == AppConfig.InProgressTaskName ||
-                   task.Name == AppConfig.OverdueTaskName)
+            if (task.Tags.Contains(DefaultTags.Checklist))
                 return false;
             return true;
         }
@@ -79,12 +77,12 @@ namespace Planum.Model.Repository
         }
 
         public void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(RepoConfig.TaskMarkerStartSymbol + task.Id.ToString() + RepoConfig.TaskMarkerEndSymbol);
-        public void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
+        public void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
         {
             lines.Add(
                 AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
-                GetTaskNameMarkerSymbol(task, tasks) +
+                GetTaskNameMarkerSymbol(task, overdue, inProgress, warning) +
                 RepoConfig.TaskNameSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol +
                 task.Name);
@@ -101,32 +99,31 @@ namespace Planum.Model.Repository
                     task.Description);
         }
 
-        public void WriteChecklists(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
+        public void WriteChecklists(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
         {
-            var checklistGroupTasks = tasks.Where(x => x.Name == AppConfig.ChecklistTaskName && x.Parents.Contains(task.Id));
-            foreach (var checklist in tasks.Where(x => checklistGroupTasks.Where(y => y.Children.Contains(x.Id)).Any()))
+            foreach (var checklist in tasks.Where(x => x.Tags.Contains(DefaultTags.Checklist) && task.Children.Contains(x.Id)))
             {
                 // name
-                WriteName(lines, checklist, tasks, level);
+                WriteName(lines, checklist, tasks, overdue, inProgress, warning, level);
                 // description
                 WriteDescription(lines, checklist, level);
                 // deadlines
-                WriteDeadlines(lines, checklist, tasks, level);
+                WriteDeadlines(lines, checklist, tasks, overdue, inProgress, warning, level);
                 // checklists
-                WriteChecklists(lines, checklist, tasks, level + 1);
+                WriteChecklists(lines, checklist, tasks, overdue, inProgress, warning, level + 1);
             }
         }
 
-        public void WriteChildren(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
+        public void WriteChildren(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning)
         {
             foreach (var child in tasks.Where(x => task.Children.Contains(x.Id)))
             {
-                if (!CheckIfNormalTask(child))
+                if (!CheckIfChecklist(child))
                     continue;
                 else
                     lines.Add(
                         RepoConfig.TaskItemSymbol +
-                        GetTaskNameMarkerSymbol(child, tasks) +
+                        GetTaskNameMarkerSymbol(child, overdue, inProgress, warning) +
                         RepoConfig.TaskParentSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol +
                         GetTaskName(child, tasks)
@@ -134,16 +131,16 @@ namespace Planum.Model.Repository
             }
         }
 
-        public void WriteParents(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
+        public void WriteParents(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning)
         {
             foreach (var parent in tasks.Where(x => task.Parents.Contains(x.Id)))
             {
-                if (!CheckIfNormalTask(parent))
+                if (!CheckIfChecklist(parent))
                     continue;
                 else
                     lines.Add(
                         RepoConfig.TaskItemSymbol +
-                        GetTaskNameMarkerSymbol(parent, tasks) +
+                        GetTaskNameMarkerSymbol(parent, overdue, inProgress, warning) +
                         RepoConfig.TaskParentSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol +
                         GetTaskName(parent, tasks)
@@ -151,7 +148,7 @@ namespace Planum.Model.Repository
             }
         }
 
-        public void WriteNext(IList<string> lines, Deadline deadline, IEnumerable<PlanumTask> tasks, int level = 0)
+        public void WriteNext(IList<string> lines, Deadline deadline, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
         {
             var nextTasks = tasks.Where(x => deadline.next.Contains(x.Id));
             foreach (var next in nextTasks)
@@ -159,14 +156,14 @@ namespace Planum.Model.Repository
                 string nextStr = GetTaskName(next, tasks);
                 lines.Add(AddLineTabs(level + 1) +
                     RepoConfig.TaskItemSymbol +
-                    GetTaskNameMarkerSymbol(next, tasks) +
+                    GetTaskNameMarkerSymbol(next, overdue, inProgress, warning) +
                     RepoConfig.TaskNextSymbol + 
                     RepoConfig.TaskHeaderDelimeterSymbol +
                     nextStr);
             }
         }
 
-        public void WriteDeadlines(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, int level = 0)
+        public void WriteDeadlines(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
         {
             foreach (var deadline in task.Deadlines)
             {
@@ -218,22 +215,28 @@ namespace Planum.Model.Repository
                         deadline.repeatSpan.ToString(@"d\.h\:m")
                         );
                 // next
-                WriteNext(lines, deadline, tasks, level);
+                WriteNext(lines, deadline, tasks, overdue, inProgress, warning, level);
             }
         }
 
         public void WriteTask(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
         {
-            if (!CheckIfNormalTask(task))
+            if (!CheckIfChecklist(task))
                 return;
 
+            IEnumerable<Guid> overdue;
+            IEnumerable<Guid> inProgress;
+            IEnumerable<Guid> warning;
+
+            PlanumTask.CalculateTimeConstraints(tasks, out overdue, out inProgress, out warning);
+
             WriteTaskHeader(lines, task);
-            WriteName(lines, task, tasks);
+            WriteName(lines, task, tasks, overdue, inProgress, warning);
             WriteDescription(lines, task);
-            WriteParents(lines, task, tasks);
-            WriteChildren(lines, task, tasks);
-            WriteDeadlines(lines, task, tasks);
-            WriteChecklists(lines, task, tasks);
+            WriteParents(lines, task, tasks, overdue, inProgress, warning);
+            WriteChildren(lines, task, tasks, overdue, inProgress, warning);
+            WriteDeadlines(lines, task, tasks, overdue, inProgress, warning);
+            WriteChecklists(lines, task, tasks, overdue, inProgress, warning);
 
             return;
         }

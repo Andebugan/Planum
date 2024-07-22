@@ -1,16 +1,18 @@
 ﻿using Planum.Config;
 using Planum.Model.Entities;
+using Planum.Model.Repository;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 #nullable enable
 
-namespace Planum.Model.Repository
+namespace Planum.Repository
 {
     /*
      * <planum:guid>
      * - [ ] n(ame): {string}
+     * - t: {string} (custom user tag)
      * - d(escription): {string}
      * - [ ] p(arent): [{string} | [guid]](path/to/task/file) (name or/and guid if name was not provided or name is not unique)
      * ...
@@ -24,6 +26,7 @@ namespace Planum.Model.Repository
      *     - [ ] n(ext): [{string} | [guid]](path/to/task/file) (name or/and guid if name was not provided or name is not unique), counts as child
      * ...
      * - [ ] {string}
+     *     - t(ag): {string} (custom user tag)
      *     - d(escription): ...
      *     - [ ] D(eadline)
      *        - ...
@@ -50,9 +53,8 @@ namespace Planum.Model.Repository
             if (!File.Exists(path))
                 throw new Exception($"File doesn't exist at path: \"{path}\"");
             IEnumerator<string> linesEnumerator = (IEnumerator<string>)File.ReadAllLines(path).GetEnumerator();
-            do
-                PlanumTaskReader.ReadTask(linesEnumerator, tasks, children, parents, next);
             while (linesEnumerator.MoveNext());
+                PlanumTaskReader.ReadTask(linesEnumerator, tasks, children, parents, next);
         }
 
         public IEnumerable<PlanumTask> Read()
