@@ -12,9 +12,13 @@ namespace Planum.Parser {
                 return taskBuffer.Where(x => x.Id == guid);
             }
 
-            var tasks = taskBuffer.Where(x => x.Id.ToString().StartsWith(id));
-            if (tasks.Any())
-                return tasks;
+            IEnumerable<PlanumTask> tasks;
+            if (id != string.Empty)
+            {
+                tasks = taskBuffer.Where(x => x.Id.ToString().StartsWith(id));
+                if (tasks.Any())
+                    return tasks;
+            }
 
             tasks = taskBuffer.Where(x => x.Name == name);
             if (tasks.Any())
