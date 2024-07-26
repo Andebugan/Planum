@@ -15,7 +15,6 @@ namespace Planum.Tests
 
                 // test both match
                 yield return new object[] { 
-                    0,
                     taskId.ToString(),
                     name,
                     new PlanumTask[] {
@@ -30,7 +29,6 @@ namespace Planum.Tests
 
                 // test id full match
                 yield return new object[] { 
-                    1,
                     taskId.ToString(),
                     name,
                     new PlanumTask[] {
@@ -45,7 +43,6 @@ namespace Planum.Tests
 
                 // test id parital match
                 yield return new object[] { 
-                    2,
                     taskId.ToString().Remove(taskId.ToString().Length / 2, taskId.ToString().Length / 2),
                     name,
                     new PlanumTask[] {
@@ -60,7 +57,6 @@ namespace Planum.Tests
 
                 // test name full match
                 yield return new object[] { 
-                    3,
                     "",
                     name,
                     new PlanumTask[] {
@@ -75,7 +71,6 @@ namespace Planum.Tests
 
                 // test name partial match
                 yield return new object[] { 
-                    4,
                     "",
                     name.Remove(name.Length / 2, name.Length / 2),
                     new PlanumTask[] {
@@ -90,7 +85,6 @@ namespace Planum.Tests
 
                 // test no match
                 yield return new object[] { 
-                    5,
                     taskId.ToString(),
                     name,
                     new PlanumTask[] {
@@ -108,7 +102,7 @@ namespace Planum.Tests
 
         [Theory]
         [ClassData(typeof(ParseIdentityTestData))]
-        public void Test_ParseIdentity(int testId, string id, string name, IEnumerable<PlanumTask> taskBuffer, IEnumerable<PlanumTask> expected)
+        public void Test_ParseIdentity(string id, string name, IEnumerable<PlanumTask> taskBuffer, IEnumerable<PlanumTask> expected)
         {
             // Arrange
 

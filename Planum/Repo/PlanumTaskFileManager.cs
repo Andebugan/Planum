@@ -71,7 +71,7 @@ namespace Planum.Repository
             return tasks;
         }
 
-        protected void WriteToFile(string path, IEnumerable<PlanumTask> tasks, bool create = false)
+        public void WriteToFile(string path, IEnumerable<PlanumTask> tasks, bool create = false)
         {
             if (!File.Exists(path))
                 if (create)

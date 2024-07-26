@@ -23,6 +23,9 @@ namespace Planum.Config
             }
         }
 
+        public string TaskDateTimeWriteFormat { get; set; } = "H:m d.M.y";
+        public string TaskTimeSpanWriteFormat { get; set; } = @"d\.h\:m";
+
         public string TaskItemSymbol { get; set; } = "- ";
         public string TaskItemTabSymbol { get; set; } = "  ";
         public string TaskHeaderDelimeterSymbol { get; set; } = ": ";
@@ -30,15 +33,15 @@ namespace Planum.Config
         public string TaskDummyMarkerSymbol { get; set; } = "[ ] ";
         public string TaskCompleteMarkerSymbol { get; set; } = "[x] ";
         public string TaskNotCompleteMarkerSymbol { get; set; } = "[ ] ";
-        public string TaskWarningMarkerSymbol { get; set; } = "[w]" ;
-        public string TaskInProgressMarkerSymbol { get; set; } = "[p] ";
+        public string TaskWarningMarkerSymbol { get; set; } = "[.] " ;
+        public string TaskInProgressMarkerSymbol { get; set; } = "[~] ";
         public string TaskOverdueMarkerSymbol { get; set; } = "[!] ";
 
         public string TaskMarkerStartSymbol { get; set; } = "<planum:";
         public string TaskMarkerEndSymbol { get; set; } = ">";
 
         public string TaskNameSymbol { get; set; } = "n";
-        public string TaskNameIdDelimiter { get; set; } = "| ";
+        public string TaskNameIdDelimiter { get; set; } = " | ";
 
         public string TaskTagSymbol { get; set; } = "t";
         public string TaskDescriptionSymbol { get; set; } = "d";

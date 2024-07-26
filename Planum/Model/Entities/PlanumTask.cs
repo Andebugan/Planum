@@ -110,7 +110,6 @@ namespace Planum.Model.Entities
         public HashSet<Guid> Parents { get; set; } = new HashSet<Guid>();
 
         public PlanumTask(Guid? id = null,
-                bool complete = false,
                 string name = "",
                 string description = "",
                 IEnumerable<Deadline>? deadlines = null,
@@ -179,35 +178,49 @@ namespace Planum.Model.Entities
 
             foreach (var task in tasks)
             {
-                if (task.Deadlines.Where(x => x.Overdue()).Any())
+                if (task.Deadlines.Where(x => x.Overdue() && x.enabled).Any())
                     overdue = overdue.Append(task.Id).Concat(task.Parents);
-                else if (!overdue.Contains(task.Id) && task.Deadlines.Where(x => x.InProgress()).Any())
+                else if (!overdue.Contains(task.Id) && task.Deadlines.Where(x => x.InProgress() && x.enabled).Any())
                     inProgress = inProgress.Append(task.Id).Concat(task.Parents);
-                else if (!inProgress.Contains(task.Id) && !overdue.Contains(task.Id) && task.Deadlines.Where(x => x.Warning()).Any())
+                else if (!inProgress.Contains(task.Id) && !overdue.Contains(task.Id) && task.Deadlines.Where(x => x.Warning() && x.enabled).Any())
                     warning = warning.Append(task.Id).Concat(task.Parents);
             }
 
             inProgress = inProgress.Except(overdue);
             warning = warning.Except(overdue);
+
+            overdue = overdue.Distinct();
+            inProgress = inProgress.Distinct();
+            warning = warning.Distinct();
         }
 
-        public static IEnumerable<PlanumTask> FillRelatives(IEnumerable<PlanumTask> tasks)
+        public static IEnumerable<PlanumTask> UpdateRelatives(IEnumerable<PlanumTask> tasks)
         {
-            Dictionary<Guid, IEnumerable<Guid>> parentToChildren = new Dictionary<Guid, IEnumerable<Guid>>();
-            Dictionary<Guid, IEnumerable<Guid>> childToParents = new Dictionary<Guid, IEnumerable<Guid>>();
+            Dictionary<Guid, HashSet<Guid>> parentToChildren = new Dictionary<Guid, HashSet<Guid>>();
+            Dictionary<Guid, HashSet<Guid>> childToParents = new Dictionary<Guid, HashSet<Guid>>();
 
             foreach (var task in tasks)
             {
                 if (!parentToChildren.ContainsKey(task.Id))
-                    parentToChildren[task.Id] = new List<Guid>();
+                    parentToChildren[task.Id] = new HashSet<Guid>();
                 if (!childToParents.ContainsKey(task.Id))
-                    childToParents[task.Id] = new List<Guid>();
-                parentToChildren[task.Id] = parentToChildren[task.Id].Concat(task.Children);
-                foreach (var parentId in task.Parents)
-                    parentToChildren[parentId] = parentToChildren[parentId].Append(task.Id);
-                childToParents[task.Id] = childToParents[task.Id].Concat(task.Parents);
-                foreach (var childId in task.Children)
-                    childToParents[childId] = childToParents[childId].Append(task.Id);
+                    childToParents[task.Id] = new HashSet<Guid>();
+
+                foreach (var child in task.Children)
+                {
+                    parentToChildren[task.Id].Add(child);
+                    if (!childToParents.ContainsKey(child))
+                        childToParents[child] = new HashSet<Guid>();
+                    childToParents[child].Add(task.Id);
+                }
+
+                foreach (var parent in task.Parents)
+                {
+                    childToParents[task.Id].Add(parent);
+                    if (!parentToChildren.ContainsKey(parent))
+                        parentToChildren[parent] = new HashSet<Guid>();
+                    parentToChildren[parent].Add(task.Id);
+                }
             }
 
             foreach (var task in tasks)

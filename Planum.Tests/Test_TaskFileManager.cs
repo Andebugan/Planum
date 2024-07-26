@@ -57,7 +57,7 @@ public class Test_PlanumTaskFileManager
 
             testPlanumTaskCollection.Add(baseTask);
         }
-        testPlanumTaskCollection = PlanumTask.FillRelatives(testPlanumTaskCollection).ToList();
+        testPlanumTaskCollection = PlanumTask.UpdateRelatives(testPlanumTaskCollection).ToList();
         return testPlanumTaskCollection;
     }
 

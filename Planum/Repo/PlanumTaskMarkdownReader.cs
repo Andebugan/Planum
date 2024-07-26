@@ -7,12 +7,12 @@ using Planum.Parser;
 
 namespace Planum.Repository
 {
-    public class PlanumTaskReader : IPlanumTaskReader
+    public class PlanumTaskMarkdownReader : IPlanumTaskReader
     {
         AppConfig AppConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
 
-        public PlanumTaskReader(AppConfig appConfig, RepoConfig repoConfig)
+        public PlanumTaskMarkdownReader(AppConfig appConfig, RepoConfig repoConfig)
         {
             AppConfig = appConfig;
             RepoConfig = repoConfig;
