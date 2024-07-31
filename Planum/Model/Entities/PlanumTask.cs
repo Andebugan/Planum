@@ -96,6 +96,27 @@ namespace Planum.Model.Entities
             hash ^= next.GetHashCode();
             return hash;
         }
+
+        public override string ToString()
+        {
+            string result = "Deadline(";
+            result += $"id={Id.ToString()}, "; 
+            result += $"enabled={enabled.ToString()}, ";
+            result += $"deadline={deadline.ToString()}, ";
+            result += $"warningTime={warningTime.ToString()}, ";
+            result += $"duration={duration.ToString()}, ";
+            result += $"repeated={repeated.ToString()}, ";
+            result += $"repeatSpan={repeatSpan.ToString()}, ";
+            result += $"repeatYears={repeatYears.ToString()}, ";
+            result += $"repeatMonths={repeatMonths.ToString()}, ";
+            result += "next={";
+            foreach (var id in next)
+                result += id.ToString() + ", "; 
+            if (next.Count() > 0)
+                result = result.Remove(result.Length - 2, 2);
+            result += "})";
+            return result;
+        }
     }
 
     public class PlanumTask
@@ -223,13 +244,53 @@ namespace Planum.Model.Entities
                 }
             }
 
+            List<PlanumTask> newTasks = new List<PlanumTask>();
+
             foreach (var task in tasks)
             {
-                task.Children = parentToChildren[task.Id].ToHashSet();
-                task.Parents = childToParents[task.Id].ToHashSet();
+                task.Children = parentToChildren[task.Id];
+                task.Parents = childToParents[task.Id];
+                newTasks.Add(task);
             }
+            return newTasks;
+        }
 
-            return tasks;
+        public override string ToString()
+        {
+            string result = "PlanumTask(";
+            result += "Id=" + Id.ToString() + ", ";
+            result += "Name=" + Name.ToString() + ", ";
+            result += "Description=" + Description.ToString() + ", ";
+
+            result += "Tags={";
+            foreach (var item in Tags)
+                result += item.ToString() + ", ";
+            if (Tags.Count() > 0)
+                result = result.Remove(result.Length - 2, 2);
+            result += "}, ";
+
+            result += "Deadlines={";
+            foreach (var item in Deadlines)
+                result += item.ToString() + ", ";
+            if (Deadlines.Count() > 0)
+                result = result.Remove(result.Length - 2, 2);
+            result += "}, ";
+
+            result += "Children={";
+            foreach (var item in Children)
+                result += item.ToString() + ", ";
+            if (Children.Count() > 0)
+                result = result.Remove(result.Length - 2, 2);
+            result += "}, ";
+
+            result += "Parents={";
+            foreach (var item in Parents)
+                result += item.ToString() + ", ";
+            if (Parents.Count() > 0)
+                result = result.Remove(result.Length - 2, 2);
+            result += "})";
+
+            return result;
         }
     }
 }

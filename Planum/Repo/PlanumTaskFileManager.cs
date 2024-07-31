@@ -25,7 +25,7 @@ namespace Planum.Repository
      *     - [ ] r(epeat duration): {y m d.hh:mm}
      *     - [ ] n(ext): [{string} | [guid]](path/to/task/file) (name or/and guid if name was not provided or name is not unique), counts as child
      * ...
-     * - [ ] {string}
+     * - [ ] {string} [name]
      *     - t(ag): {string} (custom user tag)
      *     - d(escription): ...
      *     - [ ] D(eadline)

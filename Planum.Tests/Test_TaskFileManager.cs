@@ -8,7 +8,7 @@ public class Test_PlanumTaskFileManager
 {
     public static IEnumerable<PlanumTask> CreateTestTasks(int taskCount = 3, int childCount = 3, int parentCount = 3, int deadlineCnt = 3)
     {
-        List<PlanumTask> testPlanumTaskCollection;
+        IList<PlanumTask> testPlanumTaskCollection;
         List<Deadline> deadlines = new List<Deadline>();
 
         testPlanumTaskCollection = new List<PlanumTask>();
@@ -57,8 +57,11 @@ public class Test_PlanumTaskFileManager
 
             testPlanumTaskCollection.Add(baseTask);
         }
-        testPlanumTaskCollection = PlanumTask.UpdateRelatives(testPlanumTaskCollection).ToList();
-        return testPlanumTaskCollection;
+        
+        IEnumerable<PlanumTask> tasks = testPlanumTaskCollection;
+        tasks = PlanumTask.UpdateRelatives(tasks);
+
+        return tasks;
     }
 
     public static IEnumerable<object[]> TaskTestData()
