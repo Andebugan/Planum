@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Entities;
 using Planum.Parser;
 
@@ -10,11 +11,13 @@ namespace Planum.Repository
     {
         AppConfig AppConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
+        ILoggerWrapper Logger { get; set; }
 
-        public PlanumTaskMarkdownReader(AppConfig appConfig, RepoConfig repoConfig)
+        public PlanumTaskMarkdownReader(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
         {
             AppConfig = appConfig;
             RepoConfig = repoConfig;
+            Logger = logger;
         }
 
         protected bool CheckTaskMarker(string line) => line.StartsWith(RepoConfig.TaskMarkerStartSymbol) && line.EndsWith(RepoConfig.TaskMarkerEndSymbol);
@@ -190,7 +193,6 @@ namespace Planum.Repository
                 }
             }
         }
-        
 
         protected bool CheckDeadline(string line, int level = 0)
         {
@@ -379,8 +381,12 @@ namespace Planum.Repository
 
         public Guid ReadTask(ref IEnumerator<string> linesEnumerator, ref IList<TaskReadStatus> statuses, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next)
         {
+            Logger.Log(LogLevel.INFO, "Starting task read");
             if (!CheckTaskMarker(linesEnumerator.Current))
+            {
+                Logger.Log(LogLevel.WARN, $"Unable to read task marker at {linesEnumerator.Current}");
                 return Guid.Empty;
+            }
             // parse task ID
             PlanumTask task = new PlanumTask();
             task.Id = ParseTaskMarker(linesEnumerator.Current, ref statuses);
@@ -432,6 +438,7 @@ namespace Planum.Repository
                     break;
             }
             tasks.Add(task);
+            Logger.Log(LogLevel.INFO, $"Read finished, task: {task.Id} | {task.Name}");
             return task.Id;
         }
 

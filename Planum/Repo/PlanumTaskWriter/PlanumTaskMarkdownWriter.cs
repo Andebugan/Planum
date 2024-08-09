@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Entities;
 
 namespace Planum.Repository
@@ -10,9 +11,11 @@ namespace Planum.Repository
     {
         RepoConfig RepoConfig { get; set; }
         AppConfig AppConfig { get; set; }
+        ILoggerWrapper Logger { get; set; }
 
-        public PlanumTaskMarkdownWriter(AppConfig appConfig, RepoConfig repoConfig)
+        public PlanumTaskMarkdownWriter(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
         {
+            Logger = logger;
             AppConfig = appConfig;
             RepoConfig = repoConfig;
         }
@@ -269,6 +272,7 @@ namespace Planum.Repository
 
         public void WriteTask(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
         {
+            Logger.Log(LogLevel.INFO, $"Starting task write: {task.Id} | {task.Name}");
             if (CheckIfChecklist(task))
                 return;
 
@@ -288,6 +292,7 @@ namespace Planum.Repository
             WriteChecklists(lines, task, tasks, overdue, inProgress, warning);
             lines.Add("");
 
+            Logger.Log(LogLevel.INFO, $"Task write finished");
             return;
         }
     }

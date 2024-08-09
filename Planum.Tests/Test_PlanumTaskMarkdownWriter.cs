@@ -13,7 +13,8 @@ namespace Planum.Tests
         {
             // Arrange
             List<string> actual = new List<string>();
-            PlanumTaskMarkdownWriter writer = new PlanumTaskMarkdownWriter(AppConfig.Load(new PlanumLogger(LogLevel.INFO, clearFile: true)), repoConfig);
+            ILoggerWrapper logger = new PlanumLogger(LogLevel.INFO, clearFile: true);
+            PlanumTaskMarkdownWriter writer = new PlanumTaskMarkdownWriter(logger, AppConfig.Load(new PlanumLogger(LogLevel.INFO, clearFile: true)), repoConfig);
 
             // Act
             writer.WriteTask(actual, task, tasks);
