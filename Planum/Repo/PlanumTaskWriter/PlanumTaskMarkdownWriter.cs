@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Planum.Config;
 using Planum.Model.Entities;
-using Planum.Model.Repository;
 
 namespace Planum.Repository
 {
-    public class PlanumTaskMarkdownWriter: IPlanumTaskWriter
+    public class PlanumTaskMarkdownWriter
     {
         RepoConfig RepoConfig { get; set; }
         AppConfig AppConfig { get; set; }
@@ -79,13 +78,15 @@ namespace Planum.Repository
         protected void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(RepoConfig.TaskMarkerStartSymbol + task.Id.ToString() + RepoConfig.TaskMarkerEndSymbol);
         protected void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
         {
-            lines.Add(
-                AddLineTabs(level) +
+            var line = AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
                 GetTaskNameMarkerSymbol(task, overdue, inProgress, warning) +
                 RepoConfig.TaskNameSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol +
-                task.Name);
+                task.Name;
+            if (tasks.Where(x => x.Id != task.Id && x.Name == task.Name).Any())
+                line += RepoConfig.TaskNameIdDelimiter + task.Id.ToString();
+            lines.Add(line);
         }
 
         protected void WriteChecklistName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
@@ -105,21 +106,43 @@ namespace Planum.Repository
                     lines.Add(
                             AddLineTabs(level) +
                             RepoConfig.TaskItemSymbol +
-                            RepoConfig.TaskTagSymbol + 
-                            RepoConfig.TaskHeaderDelimeterSymbol + 
-                            tag); 
+                            RepoConfig.TaskTagSymbol +
+                            RepoConfig.TaskHeaderDelimeterSymbol +
+                            tag);
             }
         }
 
         protected void WriteDescription(IList<string> lines, PlanumTask task, int level = 0)
         {
             if (task.Description != string.Empty)
-                lines.Add(
-                    AddLineTabs(level) +
+            {
+                var descriptionLines = task.Description.Split(RepoConfig.TaskDescriptionNewlineSymbol);
+
+                if (descriptionLines.Count() <= 0)
+                    return;
+
+                var tmpLine = AddLineTabs(level) +
                     RepoConfig.TaskItemSymbol +
                     RepoConfig.TaskDescriptionSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol +
-                    task.Description);
+                    descriptionLines[0];
+
+                if (descriptionLines.Count() > 1)
+                    tmpLine = tmpLine + RepoConfig.TaskDescriptionNewlineSymbol;
+                lines.Add(tmpLine);
+                if (descriptionLines.Count() == 1)
+                    return;
+
+                for (int i = 1; i < descriptionLines.Count() - 1; i++)
+                    lines.Add(AddLineTabs(level + 1) +
+                        descriptionLines[i] +
+                        RepoConfig.TaskDescriptionNewlineSymbol
+                    );
+
+                lines.Add(AddLineTabs(level + 1) +
+                    descriptionLines[descriptionLines.Length - 1]
+                );
+            }
         }
 
         protected void WriteChecklists(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
@@ -182,7 +205,7 @@ namespace Planum.Repository
                 lines.Add(AddLineTabs(level + 1) +
                     RepoConfig.TaskItemSymbol +
                     GetTaskNameMarkerSymbol(next, overdue, inProgress, warning) +
-                    RepoConfig.TaskNextSymbol + 
+                    RepoConfig.TaskNextSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol +
                     nextStr);
             }

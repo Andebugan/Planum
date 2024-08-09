@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using Planum.Config;
 using Planum.Model.Entities;
-using Planum.Model.Repository;
 using Planum.Parser;
 
 namespace Planum.Repository
 {
-    public class PlanumTaskMarkdownReader : IPlanumTaskReader
+    public class PlanumTaskMarkdownReader
     {
         AppConfig AppConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
@@ -19,7 +18,7 @@ namespace Planum.Repository
         }
 
         protected bool CheckTaskMarker(string line) => line.StartsWith(RepoConfig.TaskMarkerStartSymbol) && line.EndsWith(RepoConfig.TaskMarkerEndSymbol);
-        protected Guid ParseTaskMarker(string line)
+        protected Guid ParseTaskMarker(string line, ref IList<TaskReadStatus> statuses)
         {
             line = line.Trim(' ', '\n');
             line = line.Remove(0, RepoConfig.TaskMarkerStartSymbol.Length);
@@ -28,7 +27,7 @@ namespace Planum.Repository
             if (line == string.Empty)
                 return id;
             if (!Guid.TryParse(line, out id))
-                throw new Exception("Unable to parse task ID from marker");
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_TASK_GUID, line: line));
             return id;
         }
 
@@ -71,10 +70,35 @@ namespace Planum.Repository
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.TaskDescriptionSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol);
-        protected string ParseTaskDescription(string line, int level = 0) => line.Remove(0, (AddLineTabs(level) +
+        protected string ParseTaskDescription(ref IEnumerator<string> linesEnumerator, ref bool moveNext, int level = 0)
+        {
+            string descriptionString = linesEnumerator.Current.Remove(0, (AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.TaskDescriptionSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol).Length);
+
+            if (linesEnumerator.Current.EndsWith(RepoConfig.TaskDescriptionNewlineSymbol))
+            {
+                moveNext = linesEnumerator.MoveNext();
+                while (moveNext && linesEnumerator.Current.EndsWith(RepoConfig.TaskDescriptionNewlineSymbol))
+                {
+                    descriptionString += linesEnumerator.Current.Remove(0, (AddLineTabs(level + 1).Length));
+                    moveNext = linesEnumerator.MoveNext();
+                }
+
+                if (moveNext)
+                {
+                    descriptionString += linesEnumerator.Current.Remove(0, (AddLineTabs(level + 1).Length));
+                    moveNext = linesEnumerator.MoveNext();
+                }
+                else
+                    descriptionString = descriptionString.TrimEnd('\\');
+            }
+            else
+                moveNext = linesEnumerator.MoveNext();
+
+            return descriptionString;
+        }
 
         protected bool CheckParent(string line)
         {
@@ -123,7 +147,7 @@ namespace Planum.Repository
                     return true;
             return false;
         }
-        protected void ParseChecklist(ref bool moveNext, Guid taskId, IEnumerator<string> linesEnumerator, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> next, int level = 0)
+        protected void ParseChecklist(ref bool moveNext, ref IList<TaskReadStatus> statuses, ref IEnumerator<string> linesEnumerator, Guid taskId, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> next, int level = 0)
         {
             var checklistTask = new PlanumTask(id: Guid.NewGuid());
             checklistTask.Parents.Add(taskId);
@@ -146,10 +170,7 @@ namespace Planum.Repository
             {
                 // parse description
                 if (CheckDescription(linesEnumerator.Current, level + 1))
-                {
-                    checklistTask.Description = ParseTaskDescription(linesEnumerator.Current, level + 1);
-                    moveNext = linesEnumerator.MoveNext();
-                }
+                    checklistTask.Description = ParseTaskDescription(ref linesEnumerator, ref moveNext, level + 1);
                 // parse tag
                 else if (CheckTag(linesEnumerator.Current))
                 {
@@ -158,14 +179,10 @@ namespace Planum.Repository
                 }
                 // parse deadline
                 else if (CheckDeadline(linesEnumerator.Current, level + 1))
-                {
-                    checklistTask.Deadlines.Add(ParseDeadline(ref moveNext, linesEnumerator, next, level + 1));
-                }
+                    checklistTask.Deadlines.Add(ParseDeadline(ref moveNext, ref statuses, ref linesEnumerator, next, level + 1));
                 // parse checklist
                 else if (CheckChecklist(linesEnumerator.Current, level + 1))
-                {
-                    ParseChecklist(ref moveNext, checklistTask.Id, linesEnumerator, tasks, next, level + 1);
-                }
+                    ParseChecklist(ref moveNext, ref statuses, ref linesEnumerator, checklistTask.Id, tasks, next, level + 1);
                 else
                 {
                     moveNext = true;
@@ -173,6 +190,7 @@ namespace Planum.Repository
                 }
             }
         }
+        
 
         protected bool CheckDeadline(string line, int level = 0)
         {
@@ -189,7 +207,7 @@ namespace Planum.Repository
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.TaskDeadlineSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol);
-        protected DateTime ParseDeadlineDate(string line, int level = 0)
+        protected DateTime ParseDeadlineDate(string line, ref IList<TaskReadStatus> statuses, int level = 0)
         {
             line = line.Remove(0, (AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
@@ -197,7 +215,7 @@ namespace Planum.Repository
                 RepoConfig.TaskHeaderDelimeterSymbol).Length);
             DateTime deadline = DateTime.Today;
             if (!ValueParser.TryParse(ref deadline, line))
-                throw new Exception($"Unable to parse deadline: {line}");
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_DEADLINE, line: line));
             return deadline;
         }
 
@@ -205,7 +223,7 @@ namespace Planum.Repository
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.TaskWarningTimeSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol);
-        protected TimeSpan ParseWarningTime(string line, int level = 0)
+        protected TimeSpan ParseWarningTime(string line, ref IList<TaskReadStatus> statuses, int level = 0)
         {
             line = line.Remove(0, (AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
@@ -213,7 +231,7 @@ namespace Planum.Repository
                 RepoConfig.TaskHeaderDelimeterSymbol).Length);
             TimeSpan warningTime = TimeSpan.Zero;
             if (!ValueParser.TryParse(ref warningTime, line))
-                throw new Exception($"Unable to parse warning time");
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_WARNING_TIME, line: line));
             return warningTime;
         }
 
@@ -221,7 +239,7 @@ namespace Planum.Repository
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.TaskDurationTimeSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol);
-        protected TimeSpan ParseDuration(string line, int level = 0)
+        protected TimeSpan ParseDuration(string line, ref IList<TaskReadStatus> statuses, int level = 0)
         {
             line = line.Remove(0, (AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
@@ -229,7 +247,7 @@ namespace Planum.Repository
                 RepoConfig.TaskHeaderDelimeterSymbol).Length);
             TimeSpan duration = TimeSpan.Zero;
             if (!ValueParser.TryParse(ref duration, line))
-                throw new Exception($"Unable to parse duration");
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_WARNING_TIME, line: line));
             return duration;
         }
 
@@ -244,7 +262,7 @@ namespace Planum.Repository
                     return true;
             return false;
         }
-        protected void ParseRepeat(string line, ref Deadline deadline, int level = 0)
+        protected void ParseRepeat(string line, ref IList<TaskReadStatus> statuses, ref Deadline deadline, int level = 0)
         {
             // parse header
             if (line.StartsWith(AddLineTabs(level) +
@@ -263,7 +281,7 @@ namespace Planum.Repository
                         RepoConfig.TaskHeaderDelimeterSymbol).Length);
 
             if (!ValueParser.TryParse(ref deadline.repeatSpan, ref deadline.repeatMonths, ref deadline.repeatYears, line))
-                throw new Exception($"Unable to parse repeated");
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_REPEAT_PERIOD, line: line));
         }
 
         protected bool CheckNext(string line, int level = 0)
@@ -283,7 +301,7 @@ namespace Planum.Repository
                     RepoConfig.TaskNextSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol).Length));
 
-        protected Deadline ParseDeadline(ref bool moveNext, IEnumerator<string> linesEnumerator, Dictionary<Guid, IList<string>> next, int level = 0)
+        protected Deadline ParseDeadline(ref bool moveNext, ref IList<TaskReadStatus> statuses, ref IEnumerator<string> linesEnumerator, Dictionary<Guid, IList<string>> next, int level = 0)
         {
             Deadline deadline = new Deadline();
 
@@ -306,7 +324,11 @@ namespace Planum.Repository
             var deadlineId = Guid.NewGuid();
 
             if (line != string.Empty && !ValueParser.TryParse(ref deadlineId, line))
-                throw new Exception("Unable to parse deadline id");
+            {
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_REPEAT_PERIOD, line: line));
+                deadline.Id = Guid.Empty;
+                return deadline;
+            }
             deadline.Id = deadlineId;
 
             moveNext = linesEnumerator.MoveNext();
@@ -316,25 +338,25 @@ namespace Planum.Repository
                 // parse deadline
                 if (CheckDeadlineDate(linesEnumerator.Current, level + 1))
                 {
-                    deadline.deadline = ParseDeadlineDate(linesEnumerator.Current, level + 1);
+                    deadline.deadline = ParseDeadlineDate(linesEnumerator.Current, ref statuses, level + 1);
                     moveNext = linesEnumerator.MoveNext();
                 }
                 // parse warning
                 else if (CheckWarningTime(linesEnumerator.Current, level + 1))
                 {
-                    deadline.warningTime = ParseWarningTime(linesEnumerator.Current, level + 1);
+                    deadline.warningTime = ParseWarningTime(linesEnumerator.Current, ref statuses, level + 1);
                     moveNext = linesEnumerator.MoveNext();
                 }
                 // parse duration
                 else if (CheckDuration(linesEnumerator.Current, level + 1))
                 {
-                    deadline.duration = ParseDuration(linesEnumerator.Current, level + 1);
+                    deadline.duration = ParseDuration(linesEnumerator.Current, ref statuses, level + 1);
                     moveNext = linesEnumerator.MoveNext();
                 }
                 // parse repeat duration
                 else if (CheckRepeated(linesEnumerator.Current, level + 1))
                 {
-                    ParseRepeat(linesEnumerator.Current, ref deadline, level + 1);
+                    ParseRepeat(linesEnumerator.Current, ref statuses, ref deadline, level + 1);
                     moveNext = linesEnumerator.MoveNext();
                 }
                 // parse next tasks 
@@ -355,13 +377,13 @@ namespace Planum.Repository
             return deadline;
         }
 
-        public Guid ReadTask(IEnumerator<string> linesEnumerator, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next)
+        public Guid ReadTask(ref IEnumerator<string> linesEnumerator, ref IList<TaskReadStatus> statuses, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next)
         {
             if (!CheckTaskMarker(linesEnumerator.Current))
                 return Guid.Empty;
             // parse task ID
             PlanumTask task = new PlanumTask();
-            task.Id = ParseTaskMarker(linesEnumerator.Current);
+            task.Id = ParseTaskMarker(linesEnumerator.Current, ref statuses);
             bool moveNext = linesEnumerator.MoveNext();
 
             while (moveNext)
@@ -383,10 +405,7 @@ namespace Planum.Repository
                 }
                 // parse description
                 else if (CheckDescription(linesEnumerator.Current))
-                {
-                    task.Description = ParseTaskDescription(linesEnumerator.Current);
-                    moveNext = linesEnumerator.MoveNext();
-                }
+                    task.Description = ParseTaskDescription(ref linesEnumerator, ref moveNext);
                 // parse child
                 else if (CheckChild(linesEnumerator.Current))
                 {
@@ -405,14 +424,10 @@ namespace Planum.Repository
                 }
                 // parse deadlines
                 else if (CheckDeadline(linesEnumerator.Current))
-                {
-                    task.Deadlines.Add(ParseDeadline(ref moveNext, linesEnumerator, next, 0));
-                }
+                    task.Deadlines.Add(ParseDeadline(ref moveNext, ref statuses, ref linesEnumerator, next, 0));
                 // parse checklists
                 else if (CheckChecklist(linesEnumerator.Current))
-                {
-                    ParseChecklist(ref moveNext, task.Id, linesEnumerator, tasks, next, 0);
-                }
+                    ParseChecklist(ref moveNext, ref statuses, ref linesEnumerator, task.Id, tasks, next, 0);
                 else
                     break;
             }
@@ -420,69 +435,13 @@ namespace Planum.Repository
             return task.Id;
         }
 
-        protected void ReadSkipDeadline(IEnumerator<string> linesEnumerator, int level = 0)
+        public Guid ReadSkipTask(ref IEnumerator<string> linesEnumerator, ref IList<TaskReadStatus> statuses)
         {
-            while (linesEnumerator.MoveNext())
-            {
-                if (CheckDeadlineDate(linesEnumerator.Current, level + 1))
-                    continue;
-                else if (CheckWarningTime(linesEnumerator.Current, level + 1))
-                    continue;
-                else if (CheckDuration(linesEnumerator.Current, level + 1))
-                    continue;
-                else if (CheckRepeated(linesEnumerator.Current, level + 1))
-                    continue;
-                else if (CheckNext(linesEnumerator.Current, level + 1))
-                    continue;
-                else
-                    break;
-            }
-        }
-
-        protected void ReadSkipChecklists(IEnumerator<string> linesEnumerator, int level = 0)
-        {
-            while (linesEnumerator.MoveNext())
-            {
-                if (CheckDescription(linesEnumerator.Current, level + 1))
-                    continue;
-                else if (CheckTag(linesEnumerator.Current, level + 1))
-                    continue;
-                else if (CheckDeadline(linesEnumerator.Current, level + 1))
-                    ReadSkipDeadline(linesEnumerator, level + 1);
-                else if (CheckChecklist(linesEnumerator.Current, level + 1))
-                    ReadSkipChecklists(linesEnumerator, level + 1);
-                else
-                    return;
-            }
-        }
-
-        public Guid ReadSkipTask(IEnumerator<string> linesEnumerator)
-        {
-            if (!CheckTaskMarker(linesEnumerator.Current))
-                return Guid.Empty;
-            // parse task ID
-            Guid Id = ParseTaskMarker(linesEnumerator.Current);
-
-            while (linesEnumerator.MoveNext())
-            {
-                if (CheckName(linesEnumerator.Current))
-                    continue;
-                else if (CheckDescription(linesEnumerator.Current))
-                    continue;
-                else if (CheckTag(linesEnumerator.Current))
-                    continue;
-                else if (CheckChild(linesEnumerator.Current))
-                    continue;
-                else if (CheckParent(linesEnumerator.Current))
-                    continue;
-                else if (CheckDeadline(linesEnumerator.Current))
-                    ReadSkipDeadline(linesEnumerator);
-                else if (CheckChecklist(linesEnumerator.Current))
-                    ReadSkipChecklists(linesEnumerator);
-                else
-                    break;
-            }
-            return Id;
+            var tasks = new List<PlanumTask>();
+            var children = new Dictionary<Guid, IList<string>>();
+            var parents = new Dictionary<Guid, IList<string>>();
+            var next = new Dictionary<Guid, IList<string>>();
+            return ReadTask(ref linesEnumerator, ref statuses, tasks, children, parents, next);
         }
 
         protected void ParseTaskIdentitesFromString(HashSet<Guid> identites, IEnumerable<string> stringValues, IEnumerable<PlanumTask> tasks) 

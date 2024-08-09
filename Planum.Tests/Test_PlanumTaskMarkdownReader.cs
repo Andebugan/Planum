@@ -1,11 +1,23 @@
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Entities;
 using Planum.Repository;
 
 namespace Planum.Tests
 {
-    public class Test_TaskFileReader
+    public class Test_TaskMardownReader
     {
+        void CompareHashSets<T>(HashSet<T> first, HashSet<T> second)
+        {
+            var firstSorted = new SortedSet<T>(first);
+            var secondSorted = new SortedSet<T>(second);
+            
+            Assert.Equal(first.Count(), second.Count());
+
+            foreach (var pair in firstSorted.Zip(secondSorted))
+                Assert.Equal(pair.First, pair.Second);
+        }
+
         [Theory]
         [ClassData(typeof(TestMarkdownTaskData))]
         public void TestReadTask(PlanumTask task, IList<PlanumTask> tasks, IEnumerable<string> lines, RepoConfig repoConfig)
@@ -14,21 +26,24 @@ namespace Planum.Tests
             IEnumerator<string> linesEnumerator = (IEnumerator<string>)lines.GetEnumerator();
             linesEnumerator.MoveNext();
 
-            PlanumTaskMarkdownReader reader = new PlanumTaskMarkdownReader(AppConfig.Load(), repoConfig);
+            PlanumTaskMarkdownReader reader = new PlanumTaskMarkdownReader(AppConfig.Load(new PlanumLogger(LogLevel.INFO, clearFile: true)), repoConfig);
             Dictionary<Guid, IList<string>> children = new Dictionary<Guid, IList<string>>();
             Dictionary<Guid, IList<string>> parents = new Dictionary<Guid, IList<string>>();
             Dictionary<Guid, IList<string>> next = new Dictionary<Guid, IList<string>>();
 
             List<PlanumTask> tasksActual = new List<PlanumTask>();
             tasks = tasks.Where(x => x.Id != task.Id).ToList();
+            IList<TaskReadStatus> statuses = new List<TaskReadStatus>();
 
             // Act
-            var id = reader.ReadTask(linesEnumerator, tasksActual, children, parents, next);
+            var id = reader.ReadTask(ref linesEnumerator, ref statuses, tasksActual, children, parents, next);
             tasksActual = tasks.Concat(tasksActual).ToList();
             reader.ParseIdentities(tasksActual, children, parents, next);
             tasksActual = PlanumTask.UpdateRelatives(tasksActual).ToList();
 
             // Assert
+            Assert.True(!statuses.Where(x => x.Status != TaskReadStatusType.OK).Any());
+
             tasks.Add(task);
             Assert.Equal(tasks.Count(), tasksActual.Count());
 
@@ -59,17 +74,6 @@ namespace Planum.Tests
                     CompareHashSets(deadlinePair.First.next, deadlinePair.Second.next);
                 }
             }
-        }
-
-        void CompareHashSets<T>(HashSet<T> first, HashSet<T> second)
-        {
-            var firstSorted = new SortedSet<T>(first);
-            var secondSorted = new SortedSet<T>(second);
-            
-            Assert.Equal(first.Count(), second.Count());
-
-            foreach (var pair in firstSorted.Zip(secondSorted))
-                Assert.Equal(pair.First, pair.Second);
         }
     }
 }

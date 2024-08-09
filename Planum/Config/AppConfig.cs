@@ -1,3 +1,5 @@
+using Planum.Logger;
+
 namespace Planum.Config
 {
     public class AppConfig
@@ -5,8 +7,8 @@ namespace Planum.Config
         public string RepoConfigPath = "RepoConfig.json";
         public string AppConfigPath = "AppConfig.json";
 
-        public static AppConfig Load() => ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath, new AppConfig());
+        public static AppConfig Load(ILoggerWrapper logger) => ConfigLoader.LoadConfig<AppConfig>(ConfigLoader.AppConfigPath, new AppConfig(), logger);
 
-        public void Save() => ConfigLoader.SaveConfig<AppConfig>(ConfigLoader.AppConfigPath, this);
+        public void Save(ILoggerWrapper logger) => ConfigLoader.SaveConfig<AppConfig>(ConfigLoader.AppConfigPath, this, logger);
     }
 }

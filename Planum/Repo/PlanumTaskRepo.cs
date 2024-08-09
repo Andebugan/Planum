@@ -39,7 +39,7 @@ namespace Planum.Repository
         public void Delete(IEnumerable<Guid> ids)
         {
             taskBuffer = taskBuffer.Where(x => ids.Contains(x.Id));
-            PlanumTaskFileManager.Write(taskBuffer, true);
+            PlanumTaskFileManager.Write(taskBuffer);
         }
     }
 }

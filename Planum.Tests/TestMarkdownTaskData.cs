@@ -1,14 +1,15 @@
 using System.Collections;
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Entities;
 
 namespace Planum.Tests
 {
     public class TestMarkdownTaskData : IEnumerable<object[]>
     {
-        public void GetTaskNameDescriptionTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskNameDescriptionTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
             task = new PlanumTask(Guid.NewGuid(), "test name", "test description");
             tasks = new PlanumTask[] { task };
             tasks = PlanumTask.UpdateRelatives(tasks).ToList();
@@ -21,9 +22,27 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskTagTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskNameDescriptionMultilineTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
+            task = new PlanumTask(Guid.NewGuid(), "test name", "test description\\new line 1\\new line 2\\new line 3");
+            tasks = new PlanumTask[] { task };
+            tasks = PlanumTask.UpdateRelatives(tasks).ToList();
+
+            expected = new string[] {
+                    "<planum:" + task.Id.ToString() + ">",
+                    "- [ ] n: test name",
+                    "- d: test description\\",
+                    "  new line 1\\",
+                    "  new line 2\\",
+                    "  new line 3",
+                    ""
+                };
+        }
+
+        public void GetTaskTagTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        {
+            repoConfig = RepoConfig.Load(logger);
             task = new PlanumTask(Guid.NewGuid(), "test name", tags: new string[] { "user tag 1", "user tag 2", "user tag 3" });
             tasks = new PlanumTask[] { task };
             tasks = PlanumTask.UpdateRelatives(tasks).ToList();
@@ -38,9 +57,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskCompleteTagTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskCompleteTagTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
             task = new PlanumTask(Guid.NewGuid(), "test name", tags: new string[] { DefaultTags.Complete });
             tasks = new PlanumTask[] { task };
             tasks = PlanumTask.UpdateRelatives(tasks).ToList();
@@ -52,9 +71,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskDeadlineFieldsTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskDeadlineFieldsTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             Deadline[] deadlines = new Deadline[] {
                     new Deadline(false, new DateTime(2024, 7, 25, 10, 0, 0), new TimeSpan(1, 2, 3, 0), new TimeSpan(2, 3, 4, 0)),
@@ -85,9 +104,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskDeadlineOverdueTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskDeadlineOverdueTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             Deadline[] deadlines = new Deadline[] {
                     new Deadline(true, DateTime.Today.AddDays(-1), new TimeSpan(2, 0, 0, 0), new TimeSpan(2, 0, 0, 0)),
@@ -108,9 +127,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskDeadlineInProgressTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskDeadlineInProgressTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             Deadline[] deadlines = new Deadline[] {
                     new Deadline(true, DateTime.Today.AddDays(1), new TimeSpan(2, 0, 0, 0), new TimeSpan(2, 0, 0, 0)),
@@ -132,9 +151,9 @@ namespace Planum.Tests
 
         }
 
-        public void GetTaskDeadlineWarningTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskDeadlineWarningTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             Deadline[] deadlines = new Deadline[] {
                     new Deadline(true, DateTime.Today.AddDays(3), new TimeSpan(2, 0, 0, 0), new TimeSpan(2, 0, 0, 0)),
@@ -156,9 +175,9 @@ namespace Planum.Tests
 
         }
 
-        public void GetTaskDeadlineNotStartedTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskDeadlineNotStartedTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             Deadline[] deadlines = new Deadline[] {
                     new Deadline(true, DateTime.Today.AddDays(5), new TimeSpan(2, 0, 0, 0), new TimeSpan(2, 0, 0, 0)),
@@ -179,9 +198,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskParentsTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskParentsTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             PlanumTask[] parents = new PlanumTask[] {
                     new PlanumTask(Guid.NewGuid(), "normal"),
@@ -193,7 +212,7 @@ namespace Planum.Tests
                 };
 
             foreach (var parent in parents)
-                repoConfig.TaskLookupPaths.Add(parent.Name + "_path", new Guid[] { parent.Id });
+                repoConfig.TaskLookupPaths.Add(parent.Name + "_path", new HashSet<Guid> { parent.Id });
 
             task = new PlanumTask(Guid.NewGuid(), "test name", parents: parents.Select(x => x.Id));
             tasks = new PlanumTask[] { task };
@@ -213,9 +232,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskChildTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskChildTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             PlanumTask[] children = new PlanumTask[] {
                     new PlanumTask(Guid.NewGuid(), "normal"),
@@ -227,7 +246,7 @@ namespace Planum.Tests
                 };
 
             foreach (var child in children)
-                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new Guid[] { child.Id });
+                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new HashSet<Guid>()  { child.Id });
 
             task = new PlanumTask(Guid.NewGuid(), "test name", children: children.Select(x => x.Id));
             tasks = new PlanumTask[] { task };
@@ -247,9 +266,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskChildTestOverdueData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskChildTestOverdueData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             PlanumTask[] children = new PlanumTask[] {
                     new PlanumTask(Guid.NewGuid(), "notStarted", deadlines: new Deadline[] { new Deadline(true, DateTime.Today.AddDays(5), new TimeSpan(2, 0, 0, 0), new TimeSpan(2, 0, 0, 0)) }),
@@ -259,7 +278,7 @@ namespace Planum.Tests
                 };
 
             foreach (var child in children)
-                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new Guid[] { child.Id });
+                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new HashSet<Guid>()  { child.Id });
 
             task = new PlanumTask(Guid.NewGuid(), "test name", children: children.Select(x => x.Id));
             tasks = new PlanumTask[] { task };
@@ -277,9 +296,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskChildTestInProgressData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskChildTestInProgressData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             PlanumTask[] children = new PlanumTask[] {
                     new PlanumTask(Guid.NewGuid(), "notStarted", deadlines: new Deadline[] { new Deadline(true, DateTime.Today.AddDays(5), new TimeSpan(2, 0, 0, 0), new TimeSpan(2, 0, 0, 0)) }),
@@ -288,7 +307,7 @@ namespace Planum.Tests
                 };
 
             foreach (var child in children)
-                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new Guid[] { child.Id });
+                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new HashSet<Guid>()  { child.Id });
 
             task = new PlanumTask(Guid.NewGuid(), "test name", children: children.Select(x => x.Id));
             tasks = new PlanumTask[] { task };
@@ -305,16 +324,16 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetTaskChildTestWarningData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetTaskChildTestWarningData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             PlanumTask[] children = new PlanumTask[] {
                     new PlanumTask(Guid.NewGuid(), "warning", deadlines: new Deadline[] { new Deadline(true, DateTime.Today.AddDays(3), new TimeSpan(2, 0, 0, 0), new TimeSpan(2, 0, 0, 0)) }),
                 };
 
             foreach (var child in children)
-                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new Guid[] { child.Id });
+                repoConfig.TaskLookupPaths.Add(child.Name + "_path", new HashSet<Guid>()  { child.Id });
 
             task = new PlanumTask(Guid.NewGuid(), "test name", children: children.Select(x => x.Id));
             tasks = new PlanumTask[] { task };
@@ -329,14 +348,14 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetChecklistTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetChecklistTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             Deadline deadline = new Deadline(false, DateTime.Today, new TimeSpan(1, 1, 1, 0), new TimeSpan(1, 1, 1, 0), false, new TimeSpan(1, 1, 1, 0), 1, 1);
             PlanumTask checklist = new PlanumTask(Guid.NewGuid(), "checklist", "test checklist", deadlines: new Deadline[] { deadline }, tags: new string[] { DefaultTags.Checklist });
 
-            task = new PlanumTask(Guid.NewGuid(), "test name", children: new Guid[] { checklist.Id });
+            task = new PlanumTask(Guid.NewGuid(), "test name", children: new HashSet<Guid>()  { checklist.Id });
             tasks = new PlanumTask[] { task, checklist };
             tasks = PlanumTask.UpdateRelatives(tasks).ToList();
 
@@ -354,9 +373,9 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetChecklistMultilevelTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetChecklistMultilevelTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             PlanumTask checklist_1_1_1 = new PlanumTask(Guid.NewGuid(), "checklist 1 1 1", tags: new string[] { DefaultTags.Checklist });
             PlanumTask checklist_1_1_2 = new PlanumTask(Guid.NewGuid(), "checklist 1 1 2", tags: new string[] { DefaultTags.Checklist });
@@ -370,13 +389,13 @@ namespace Planum.Tests
             PlanumTask checklist_1_3_2 = new PlanumTask(Guid.NewGuid(), "checklist 1 3 2", tags: new string[] { DefaultTags.Checklist });
             PlanumTask checklist_1_3_3 = new PlanumTask(Guid.NewGuid(), "checklist 1 3 3", tags: new string[] { DefaultTags.Checklist });
 
-            PlanumTask checklist_1_1 = new PlanumTask(Guid.NewGuid(), "checklist 1 1", children: new Guid[] { checklist_1_1_1.Id, checklist_1_1_2.Id, checklist_1_1_3.Id }, tags: new string[] { DefaultTags.Checklist });
-            PlanumTask checklist_1_2 = new PlanumTask(Guid.NewGuid(), "checklist 1 2", children: new Guid[] { checklist_1_2_1.Id, checklist_1_2_2.Id, checklist_1_2_3.Id }, tags: new string[] { DefaultTags.Checklist });
-            PlanumTask checklist_1_3 = new PlanumTask(Guid.NewGuid(), "checklist 1 3", children: new Guid[] { checklist_1_3_1.Id, checklist_1_3_2.Id, checklist_1_3_3.Id }, tags: new string[] { DefaultTags.Checklist });
+            PlanumTask checklist_1_1 = new PlanumTask(Guid.NewGuid(), "checklist 1 1", children: new HashSet<Guid>()  { checklist_1_1_1.Id, checklist_1_1_2.Id, checklist_1_1_3.Id }, tags: new string[] { DefaultTags.Checklist });
+            PlanumTask checklist_1_2 = new PlanumTask(Guid.NewGuid(), "checklist 1 2", children: new HashSet<Guid>()  { checklist_1_2_1.Id, checklist_1_2_2.Id, checklist_1_2_3.Id }, tags: new string[] { DefaultTags.Checklist });
+            PlanumTask checklist_1_3 = new PlanumTask(Guid.NewGuid(), "checklist 1 3", children: new HashSet<Guid>()  { checklist_1_3_1.Id, checklist_1_3_2.Id, checklist_1_3_3.Id }, tags: new string[] { DefaultTags.Checklist });
 
-            PlanumTask checklist_1 = new PlanumTask(Guid.NewGuid(), "checklist 1", children: new Guid[] { checklist_1_1.Id, checklist_1_2.Id, checklist_1_3.Id }, tags: new string[] { DefaultTags.Checklist });
+            PlanumTask checklist_1 = new PlanumTask(Guid.NewGuid(), "checklist 1", children: new HashSet<Guid>()  { checklist_1_1.Id, checklist_1_2.Id, checklist_1_3.Id }, tags: new string[] { DefaultTags.Checklist });
 
-            task = new PlanumTask(Guid.NewGuid(), "test name", children: new Guid[] { checklist_1.Id });
+            task = new PlanumTask(Guid.NewGuid(), "test name", children: new HashSet<Guid>()  { checklist_1.Id });
             tasks = new PlanumTask[] { task, checklist_1, checklist_1_1, checklist_1_2, checklist_1_3, checklist_1_1_1, checklist_1_1_2, checklist_1_1_3, checklist_1_2_1, checklist_1_2_2, checklist_1_2_3, checklist_1_3_1, checklist_1_3_2, checklist_1_3_3 };
             tasks = PlanumTask.UpdateRelatives(tasks).ToList();
 
@@ -400,17 +419,17 @@ namespace Planum.Tests
                 };
         }
 
-        public void GetDeadlineNextTestData(out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
+        public void GetDeadlineNextTestData(ILoggerWrapper logger, out RepoConfig repoConfig, out PlanumTask task, out IEnumerable<PlanumTask> tasks, out string[] expected)
         {
-            repoConfig = RepoConfig.Load();
+            repoConfig = RepoConfig.Load(logger);
 
             PlanumTask next_1 = new PlanumTask(Guid.NewGuid(), "next 1");
             PlanumTask next_2 = new PlanumTask(Guid.NewGuid(), "next 2");
             PlanumTask next_3 = new PlanumTask(Guid.NewGuid(), "next 3");
 
-            repoConfig.TaskLookupPaths.Add("next_file_1", new Guid[] { next_1.Id });
-            repoConfig.TaskLookupPaths.Add("next_file_2", new Guid[] { next_2.Id });
-            repoConfig.TaskLookupPaths.Add("next_file_3", new Guid[] { next_3.Id });
+            repoConfig.TaskLookupPaths.Add("next_file_1", new HashSet<Guid>()  { next_1.Id });
+            repoConfig.TaskLookupPaths.Add("next_file_2", new HashSet<Guid>()  { next_2.Id });
+            repoConfig.TaskLookupPaths.Add("next_file_3", new HashSet<Guid>()  { next_3.Id });
 
             Deadline[] deadlines = new Deadline[] {
                     new Deadline(false, DateTime.Today.AddDays(5), next: new HashSet<Guid>() { next_1.Id, next_2.Id, next_3.Id } ),
@@ -439,42 +458,46 @@ namespace Planum.Tests
             IEnumerable<PlanumTask> tasks;
             string[] expected;
 
-            GetTaskNameDescriptionTestData(out repoConfig, out task, out tasks, out expected);
+            ILoggerWrapper logger = new PlanumLogger(LogLevel.INFO, clearFile: true);
+
+            GetTaskNameDescriptionTestData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+            GetTaskNameDescriptionMultilineTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
 
-            GetTaskTagTestData(out repoConfig, out task, out tasks, out expected);
+            GetTaskTagTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskCompleteTagTestData(out repoConfig, out task, out tasks, out expected);
-            yield return new object[] { task, tasks, expected, repoConfig };
-
-            GetTaskDeadlineFieldsTestData(out repoConfig, out task, out tasks, out expected);
-            yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskDeadlineOverdueTestData(out repoConfig, out task, out tasks, out expected);
-            yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskDeadlineInProgressTestData(out repoConfig, out task, out tasks, out expected);
-            yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskDeadlineWarningTestData(out repoConfig, out task, out tasks, out expected);
-            yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskDeadlineNotStartedTestData(out repoConfig, out task, out tasks, out expected);
+            GetTaskCompleteTagTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
 
-            GetTaskParentsTestData(out repoConfig, out task, out tasks, out expected);
+            GetTaskDeadlineFieldsTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskChildTestData(out repoConfig, out task, out tasks, out expected);
+            GetTaskDeadlineOverdueTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskChildTestOverdueData(out repoConfig, out task, out tasks, out expected);
+            GetTaskDeadlineInProgressTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskChildTestInProgressData(out repoConfig, out task, out tasks, out expected);
+            GetTaskDeadlineWarningTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
-            GetTaskChildTestWarningData(out repoConfig, out task, out tasks, out expected);
-            yield return new object[] { task, tasks, expected, repoConfig };
-
-            GetChecklistTestData(out repoConfig, out task, out tasks, out expected);
-            yield return new object[] { task, tasks, expected, repoConfig };
-            GetChecklistMultilevelTestData(out repoConfig, out task, out tasks, out expected);
+            GetTaskDeadlineNotStartedTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
 
-            GetDeadlineNextTestData(out repoConfig, out task, out tasks, out expected);
+            GetTaskParentsTestData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+            GetTaskChildTestData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+            GetTaskChildTestOverdueData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+            GetTaskChildTestInProgressData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+            GetTaskChildTestWarningData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+
+            GetChecklistTestData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+            GetChecklistMultilevelTestData(logger, out repoConfig, out task, out tasks, out expected);
+            yield return new object[] { task, tasks, expected, repoConfig };
+
+            GetDeadlineNextTestData(logger, out repoConfig, out task, out tasks, out expected);
             yield return new object[] { task, tasks, expected, repoConfig };
         }
 
