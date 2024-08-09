@@ -7,13 +7,13 @@ using Planum.Model.Entities;
 
 namespace Planum.Repository
 {
-    public class PlanumTaskMarkdownWriter
+    public class TaskMarkdownWriter
     {
         RepoConfig RepoConfig { get; set; }
         AppConfig AppConfig { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public PlanumTaskMarkdownWriter(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
+        public TaskMarkdownWriter(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
         {
             Logger = logger;
             AppConfig = appConfig;

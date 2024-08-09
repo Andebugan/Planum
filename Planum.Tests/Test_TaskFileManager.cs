@@ -5,7 +5,7 @@ using Planum.Repository;
 
 namespace Planum.Tests;
 
-public class Test_PlanumTaskFileManager
+public class Test_TaskFileManager
 {
     bool FileComparator(string pathFirst, string pathSecond)
     {
@@ -60,12 +60,12 @@ public class Test_PlanumTaskFileManager
         ILoggerWrapper logger = new PlanumLogger(LogLevel.DEBUG, clearFile: true);
         RepoConfig repoConfig = RepoConfig.Load(logger);
 
-        PlanumTaskMarkdownWriter writer = new PlanumTaskMarkdownWriter(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
-        PlanumTaskMarkdownReader reader = new PlanumTaskMarkdownReader(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
-        PlanumTaskFileManager fileManager = new PlanumTaskFileManager(repoConfig, writer, reader, logger);
+        TaskMarkdownWriter writer = new TaskMarkdownWriter(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
+        TaskMarkdownReader reader = new TaskMarkdownReader(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
+        TaskFileManager fileManager = new TaskFileManager(repoConfig, writer, reader, logger);
 
-        TaskFileManagerWriteStatus writeStatus = new TaskFileManagerWriteStatus();
-        TaskFileManagerReadStatus readStatus = new TaskFileManagerReadStatus();
+        WriteStatus writeStatus = new WriteStatus();
+        ReadStatus readStatus = new ReadStatus();
         
         string[] fnames;
 
@@ -91,12 +91,12 @@ public class Test_PlanumTaskFileManager
         ILoggerWrapper logger = new PlanumLogger(LogLevel.DEBUG, clearFile: true);
         RepoConfig repoConfig = RepoConfig.Load(logger);
 
-        PlanumTaskMarkdownWriter writer = new PlanumTaskMarkdownWriter(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
-        PlanumTaskMarkdownReader reader = new PlanumTaskMarkdownReader(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
-        PlanumTaskFileManager fileManager = new PlanumTaskFileManager(repoConfig, writer, reader, logger);
+        TaskMarkdownWriter writer = new TaskMarkdownWriter(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
+        TaskMarkdownReader reader = new TaskMarkdownReader(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
+        TaskFileManager fileManager = new TaskFileManager(repoConfig, writer, reader, logger);
 
-        TaskFileManagerWriteStatus writeStatus = new TaskFileManagerWriteStatus();
-        TaskFileManagerReadStatus readStatus = new TaskFileManagerReadStatus();
+        WriteStatus writeStatus = new WriteStatus();
+        ReadStatus readStatus = new ReadStatus();
         
         string[] fnames;
 
@@ -125,12 +125,12 @@ public class Test_PlanumTaskFileManager
         ILoggerWrapper logger = new PlanumLogger(LogLevel.DEBUG, clearFile: true);
         RepoConfig repoConfig = RepoConfig.Load(logger);
 
-        PlanumTaskMarkdownWriter writer = new PlanumTaskMarkdownWriter(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
-        PlanumTaskMarkdownReader reader = new PlanumTaskMarkdownReader(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
-        PlanumTaskFileManager fileManager = new PlanumTaskFileManager(repoConfig, writer, reader, logger);
+        TaskMarkdownWriter writer = new TaskMarkdownWriter(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
+        TaskMarkdownReader reader = new TaskMarkdownReader(logger, AppConfig.Load(logger), RepoConfig.Load(logger));
+        TaskFileManager fileManager = new TaskFileManager(repoConfig, writer, reader, logger);
 
-        TaskFileManagerWriteStatus writeStatus = new TaskFileManagerWriteStatus();
-        TaskFileManagerReadStatus readStatus = new TaskFileManagerReadStatus();
+        WriteStatus writeStatus = new WriteStatus();
+        ReadStatus readStatus = new ReadStatus();
         
         string[] fnames;
 

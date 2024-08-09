@@ -27,7 +27,7 @@ namespace Planum.Tests
             linesEnumerator.MoveNext();
 
             ILoggerWrapper logger = new PlanumLogger(LogLevel.INFO, clearFile: true);
-            PlanumTaskMarkdownReader reader = new PlanumTaskMarkdownReader(logger, AppConfig.Load(new PlanumLogger(LogLevel.INFO, clearFile: true)), repoConfig);
+            TaskMarkdownReader reader = new TaskMarkdownReader(logger, AppConfig.Load(new PlanumLogger(LogLevel.INFO, clearFile: true)), repoConfig);
             Dictionary<Guid, IList<string>> children = new Dictionary<Guid, IList<string>>();
             Dictionary<Guid, IList<string>> parents = new Dictionary<Guid, IList<string>>();
             Dictionary<Guid, IList<string>> next = new Dictionary<Guid, IList<string>>();

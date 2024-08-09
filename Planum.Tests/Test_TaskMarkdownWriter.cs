@@ -5,7 +5,7 @@ using Planum.Repository;
 
 namespace Planum.Tests
 {
-    public class Test_PlanumTaskMarkdownWriter
+    public class Test_TaskMarkdownWriter
     {
         [Theory]
         [ClassData(typeof(TestMarkdownTaskData))]
@@ -14,7 +14,7 @@ namespace Planum.Tests
             // Arrange
             List<string> actual = new List<string>();
             ILoggerWrapper logger = new PlanumLogger(LogLevel.INFO, clearFile: true);
-            PlanumTaskMarkdownWriter writer = new PlanumTaskMarkdownWriter(logger, AppConfig.Load(new PlanumLogger(LogLevel.INFO, clearFile: true)), repoConfig);
+            TaskMarkdownWriter writer = new TaskMarkdownWriter(logger, AppConfig.Load(new PlanumLogger(LogLevel.INFO, clearFile: true)), repoConfig);
 
             // Act
             writer.WriteTask(actual, task, tasks);

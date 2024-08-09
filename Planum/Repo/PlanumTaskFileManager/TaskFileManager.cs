@@ -9,14 +9,14 @@ using System.Linq;
 
 namespace Planum.Repository
 {
-    public class PlanumTaskFileManager
+    public class TaskFileManager: ITaskFileManager
     {
         RepoConfig RepoConfig { get; set; }
-        PlanumTaskMarkdownWriter PlanumTaskWriter { get; set; }
-        PlanumTaskMarkdownReader PlanumTaskReader { get; set; }
+        TaskMarkdownWriter PlanumTaskWriter { get; set; }
+        TaskMarkdownReader PlanumTaskReader { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public PlanumTaskFileManager(RepoConfig repoConfig, PlanumTaskMarkdownWriter planumTaskWriter, PlanumTaskMarkdownReader planumTaskReader, ILoggerWrapper logger)
+        public TaskFileManager(RepoConfig repoConfig, TaskMarkdownWriter planumTaskWriter, TaskMarkdownReader planumTaskReader, ILoggerWrapper logger)
         {
             RepoConfig = repoConfig;
             PlanumTaskWriter = planumTaskWriter;
@@ -24,7 +24,7 @@ namespace Planum.Repository
             Logger = logger;
         }
 
-        protected void ReadFromFile(string path, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next, ref TaskFileManagerReadStatus readStatus)
+        protected void ReadFromFile(string path, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next, ref ReadStatus readStatus)
         {
             Logger.Log(LogLevel.INFO, message: $"Reading tasks from file: {path}");
             if (!File.Exists(path))
@@ -47,7 +47,7 @@ namespace Planum.Repository
             Logger.Log(LogLevel.INFO, message: $"Task read complete");
         }
 
-        public IEnumerable<PlanumTask> Read(ref TaskFileManagerReadStatus readStatus)
+        public IEnumerable<PlanumTask> Read(ref ReadStatus readStatus)
         {
             Logger.Log(LogLevel.INFO, message: $"Read starting, checking paths in task lookup paths");
 
@@ -65,7 +65,7 @@ namespace Planum.Repository
             return tasks;
         }
 
-        protected List<Guid> WriteUpdateToFile(IEnumerable<PlanumTask> tasks, ref IEnumerator<string> linesEnumerator, ref List<string> newLines, ref TaskFileManagerReadStatus readStatus)
+        protected List<Guid> WriteUpdateToFile(IEnumerable<PlanumTask> tasks, ref IEnumerator<string> linesEnumerator, ref List<string> newLines, ref ReadStatus readStatus)
         {
             List<Guid> writtenIds = new List<Guid>();
             IEnumerable<Guid> taskIds = tasks.Select(x => x.Id);
@@ -107,7 +107,7 @@ namespace Planum.Repository
             Logger.Log(LogLevel.INFO, message: $"Task insert complete");
         }
 
-        protected void WriteToFile(string path, IEnumerable<PlanumTask> tasks, ref TaskFileManagerWriteStatus writeStatus, ref TaskFileManagerReadStatus readStatus, ref Dictionary<string, IEnumerable<string>> fileLines)
+        protected void WriteToFile(string path, IEnumerable<PlanumTask> tasks, ref WriteStatus writeStatus, ref ReadStatus readStatus, ref Dictionary<string, IEnumerable<string>> fileLines)
         {
             Logger.Log(LogLevel.INFO, message: $"Writing tasks into file: {path}");
             if (!File.Exists(path))
@@ -132,7 +132,7 @@ namespace Planum.Repository
             Logger.Log(LogLevel.INFO, message: $"Write comleted, success: {writeStatus.CheckOkStatus() && readStatus.CheckOkStatus()}");
         }
 
-        public void Write(IEnumerable<PlanumTask> tasks, ref TaskFileManagerWriteStatus writeStatus, ref TaskFileManagerReadStatus readStatus)
+        public void Write(IEnumerable<PlanumTask> tasks, ref WriteStatus writeStatus, ref ReadStatus readStatus)
         {
             Logger.Log(LogLevel.INFO, message: $"Write starting");
             Dictionary<string, IEnumerable<string>> fileLines = new Dictionary<string, IEnumerable<string>>();

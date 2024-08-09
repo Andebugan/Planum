@@ -7,13 +7,13 @@ using Planum.Parser;
 
 namespace Planum.Repository
 {
-    public class PlanumTaskMarkdownReader
+    public class TaskMarkdownReader
     {
         AppConfig AppConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public PlanumTaskMarkdownReader(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
+        public TaskMarkdownReader(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
         {
             AppConfig = appConfig;
             RepoConfig = repoConfig;
@@ -114,7 +114,7 @@ namespace Planum.Repository
             return false;
         }
         protected string ParseParentString(string line) => RepoConfig.ParseMarkdownLink(line.Remove(0, (RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDummyMarkerSymbol + 
+                        RepoConfig.TaskDummyMarkerSymbol +
                         RepoConfig.TaskParentSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol).Length));
 
@@ -129,7 +129,7 @@ namespace Planum.Repository
             return false;
         }
         protected string ParseChildString(string line) => RepoConfig.ParseMarkdownLink(line.Remove(0, (RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDummyMarkerSymbol + 
+                        RepoConfig.TaskDummyMarkerSymbol +
                         RepoConfig.TaskChildSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol).Length));
 
@@ -160,7 +160,7 @@ namespace Planum.Repository
             if (linesEnumerator.Current.StartsWith(AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.TaskCompleteMarkerSymbol))
-                                checklistTask.Tags.Add(DefaultTags.Complete);
+                checklistTask.Tags.Add(DefaultTags.Complete);
 
             checklistTask.Name = linesEnumerator.Current.Remove(0, (AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
@@ -299,7 +299,7 @@ namespace Planum.Repository
         }
         protected string ParseNextTaskString(string line, int level = 0) => RepoConfig.ParseMarkdownLink(line.Remove(0, (AddLineTabs(level) +
                     RepoConfig.TaskItemSymbol +
-                    RepoConfig.TaskDummyMarkerSymbol + 
+                    RepoConfig.TaskDummyMarkerSymbol +
                     RepoConfig.TaskNextSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol).Length));
 
@@ -311,7 +311,7 @@ namespace Planum.Repository
             var line = linesEnumerator.Current.Remove(0, (AddLineTabs(level) +
                         RepoConfig.TaskItemSymbol +
                         RepoConfig.TaskDummyMarkerSymbol +
-                        RepoConfig.TaskDeadlineHeaderSymbol+
+                        RepoConfig.TaskDeadlineHeaderSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol).Length).Trim(' ', '\n');
 
             if (linesEnumerator.Current.StartsWith(AddLineTabs(level) +
@@ -451,7 +451,7 @@ namespace Planum.Repository
             return ReadTask(ref linesEnumerator, ref statuses, tasks, children, parents, next);
         }
 
-        protected void ParseTaskIdentitesFromString(HashSet<Guid> identites, IEnumerable<string> stringValues, IEnumerable<PlanumTask> tasks) 
+        protected void ParseTaskIdentitesFromString(HashSet<Guid> identites, IEnumerable<string> stringValues, IEnumerable<PlanumTask> tasks)
         {
             foreach (var stringValue in stringValues)
             {
