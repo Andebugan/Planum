@@ -4,7 +4,7 @@ using Planum.Model.Entities;
 
 namespace Planum.Model.Filters
 {
-    public interface IPlanumTaskFilter
+    public interface ITaskFilter
     {
         public IValueFilter<Guid> IdFilter { get; set; }
         public IValueFilter<string> NameFilter { get; set; }

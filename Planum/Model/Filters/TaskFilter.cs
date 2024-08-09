@@ -5,7 +5,7 @@ using Planum.Model.Entities;
 
 namespace Planum.Model.Filters
 {
-    public class PlanumTaskFilter : IPlanumTaskFilter
+    public class TaskFilter : ITaskFilter
     {
         public IValueFilter<Guid> IdFilter { get; set; }
         public IValueFilter<string> NameFilter { get; set; }
@@ -14,7 +14,7 @@ namespace Planum.Model.Filters
         public IValueFilter<Guid> ChildFilter { get; set; }
         public IDeadlineFilter DeadlineFilter { get; set; }
 
-        public PlanumTaskFilter(
+        public TaskFilter(
                 IValueFilter<Guid>? idFilter = null,
                 IValueFilter<string>? nameFilter = null,
                 IValueFilter<string>? descriptionFilter = null,

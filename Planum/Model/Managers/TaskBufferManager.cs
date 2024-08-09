@@ -6,16 +6,16 @@ using Planum.Model.Repository;
 
 namespace Planum.Model.Managers
 {
-    public class TaskManager
+    public class TaskBufferManager
     {
         protected ITaskRepo TaskRepo { get; set; }
 
-        public TaskManager(ITaskRepo planumTaskRepo)
+        public TaskBufferManager(ITaskRepo planumTaskRepo)
         {
             TaskRepo = planumTaskRepo;
         }
 
-        public IEnumerable<PlanumTask> Find(IPlanumTaskFilter? taskFilter = null)
+        public IEnumerable<PlanumTask> Find(ITaskFilter? taskFilter = null)
         {
             var tasks = TaskRepo.Get();
             if (taskFilter is null)
@@ -30,7 +30,7 @@ namespace Planum.Model.Managers
         public void Update(PlanumTask task) => TaskRepo.Update(task);
         public void Update(IEnumerable<PlanumTask> tasks) => TaskRepo.Update(tasks);
 
-        public void Delete(IPlanumTaskFilter? taskFilter = null)
+        public void Delete(ITaskFilter? taskFilter = null)
         {
             var tasks = TaskRepo.Get();
             if (taskFilter is not null)

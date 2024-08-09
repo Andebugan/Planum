@@ -11,14 +11,15 @@ namespace Planum.Model.Repository
         public void Load(ref ReadStatus readStatus);
 
         public IEnumerable<PlanumTask> Get();
+        public IEnumerable<PlanumTask> GetDiff();
 
         public void Add(PlanumTask task);
         public void Add(IEnumerable<PlanumTask> tasks);
 
-        public void Update(PlanumTask task, ref WriteStatus writeStatus, ref ReadStatus readStatus);
-        public void Update(IEnumerable<PlanumTask> tasks, ref WriteStatus writeStatus, ref ReadStatus readStatus);
+        public void Update(PlanumTask task);
+        public void Update(IEnumerable<PlanumTask> tasks);
         
-        public void Delete(Guid id, ref WriteStatus writeStatus, ref ReadStatus readStatus);
-        public void Delete(IEnumerable<Guid> ids, ref WriteStatus writeStatus, ref ReadStatus readStatus);
+        public void Delete(Guid id);
+        public void Delete(IEnumerable<Guid> ids);
     }
 }
