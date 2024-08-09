@@ -6,13 +6,12 @@ using System.Linq;
 
 namespace Planum.Repository
 {
-
     public class TaskRepo
     {
         protected IEnumerable<PlanumTask> taskBuffer = new List<PlanumTask>();
         ITaskFileManager FileManager { get; set; }
 
-        public TaskRepo(ITaskFileManager planumTaskFileManager) => FileManager = planumTaskFileManager;
+        public TaskRepo(ITaskFileManager taskFileManager) => FileManager = taskFileManager;
 
         public void Save(ref WriteStatus writeStatus, ref ReadStatus readStatus) => FileManager.Write(taskBuffer, ref writeStatus, ref readStatus);
         public void Load(ref ReadStatus readStatus) => taskBuffer = FileManager.Read(ref readStatus);

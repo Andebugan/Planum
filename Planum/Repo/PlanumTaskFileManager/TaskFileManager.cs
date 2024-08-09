@@ -12,15 +12,15 @@ namespace Planum.Repository
     public class TaskFileManager: ITaskFileManager
     {
         RepoConfig RepoConfig { get; set; }
-        TaskMarkdownWriter PlanumTaskWriter { get; set; }
-        TaskMarkdownReader PlanumTaskReader { get; set; }
+        TaskMarkdownWriter TaskWriter { get; set; }
+        TaskMarkdownReader TaskReader { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public TaskFileManager(RepoConfig repoConfig, TaskMarkdownWriter planumTaskWriter, TaskMarkdownReader planumTaskReader, ILoggerWrapper logger)
+        public TaskFileManager(RepoConfig repoConfig, TaskMarkdownWriter taskWriter, TaskMarkdownReader taskReader, ILoggerWrapper logger)
         {
             RepoConfig = repoConfig;
-            PlanumTaskWriter = planumTaskWriter;
-            PlanumTaskReader = planumTaskReader;
+            TaskWriter = taskWriter;
+            TaskReader = taskReader;
             Logger = logger;
         }
 
@@ -39,7 +39,7 @@ namespace Planum.Repository
             while (linesEnumerator.MoveNext() && readStatus.CheckOkStatus())
             {
                 var readStatuses = readStatus.ReadStatuses;
-                var guid = PlanumTaskReader.ReadTask(ref linesEnumerator, ref readStatuses, tasks, children, parents, next);
+                var guid = TaskReader.ReadTask(ref linesEnumerator, ref readStatuses, tasks, children, parents, next);
                 readStatus.ReadStatuses = readStatuses;
             }
 
@@ -59,7 +59,7 @@ namespace Planum.Repository
             foreach (var path in RepoConfig.TaskLookupPaths.Keys)
                 ReadFromFile(path, tasks, children, parents, next, ref readStatus);
             if (readStatus.CheckOkStatus())
-                PlanumTaskReader.ParseIdentities(tasks, children, parents, next);
+                TaskReader.ParseIdentities(tasks, children, parents, next);
 
             Logger.Log(LogLevel.INFO, message: $"Read completed, success: {readStatus.CheckOkStatus()}");
             return tasks;
@@ -76,14 +76,14 @@ namespace Planum.Repository
                 if (linesEnumerator.Current.StartsWith(RepoConfig.TaskMarkerStartSymbol) && linesEnumerator.Current.EndsWith(RepoConfig.TaskMarkerEndSymbol))
                 {
                     var readStatuses = readStatus.ReadStatuses;
-                    var taskId = PlanumTaskReader.ReadSkipTask(ref linesEnumerator, ref readStatuses);
+                    var taskId = TaskReader.ReadSkipTask(ref linesEnumerator, ref readStatuses);
                     readStatus.ReadStatuses = readStatuses;
 
                     if (taskIds.Contains(taskId))
                     {
                         PlanumTask newTask = tasks.Where(x => x.Id == taskId).First();
                         writtenIds.Add(taskId);
-                        PlanumTaskWriter.WriteTask(newLines, newTask, tasks);
+                        TaskWriter.WriteTask(newLines, newTask, tasks);
                     }
                 }
                 else
@@ -102,7 +102,7 @@ namespace Planum.Repository
             foreach (var id in insertedIds)
             {
                 PlanumTask newTask = tasks.Where(x => x.Id == id).First();
-                PlanumTaskWriter.WriteTask(newLines, newTask, tasks);
+                TaskWriter.WriteTask(newLines, newTask, tasks);
             }
             Logger.Log(LogLevel.INFO, message: $"Task insert complete");
         }
