@@ -1,4 +1,5 @@
 ﻿using Planum.Model.Entities;
+using Planum.Model.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace Planum.Repository
 {
-    public class TaskRepo
+    public class TaskRepo: ITaskRepo
     {
         protected IEnumerable<PlanumTask> taskBuffer = new List<PlanumTask>();
         ITaskFileManager FileManager { get; set; }
@@ -36,4 +37,5 @@ namespace Planum.Repository
             FileManager.Write(taskBuffer, ref writeStatus, ref readStatus);
         }
     }
+
 }

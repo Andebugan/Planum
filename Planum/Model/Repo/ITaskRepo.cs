@@ -1,22 +1,24 @@
 using System;
 using System.Collections.Generic;
 using Planum.Model.Entities;
+using Planum.Repository;
 
-namespace Planum.Model.Repository {
-  public interface ITaskRepo {
+namespace Planum.Model.Repository
+{
+    public interface ITaskRepo
+    {
+        public void Save(ref WriteStatus writeStatus, ref ReadStatus readStatus);
+        public void Load(ref ReadStatus readStatus);
 
-    public void Save();
-    public void Load();
+        public IEnumerable<PlanumTask> Get();
 
-    public IEnumerable<PlanumTask> Get();
+        public void Add(PlanumTask task);
+        public void Add(IEnumerable<PlanumTask> tasks);
 
-    public void Add(PlanumTask task);
-    public void Add(IEnumerable<PlanumTask> tasks);
-
-    public void Update(PlanumTask task);
-    public void Update(IEnumerable<PlanumTask> tasks);
-    
-    public void Delete(Guid id);
-    public void Delete(IEnumerable<Guid> ids);
-  }
+        public void Update(PlanumTask task, ref WriteStatus writeStatus, ref ReadStatus readStatus);
+        public void Update(IEnumerable<PlanumTask> tasks, ref WriteStatus writeStatus, ref ReadStatus readStatus);
+        
+        public void Delete(Guid id, ref WriteStatus writeStatus, ref ReadStatus readStatus);
+        public void Delete(IEnumerable<Guid> ids, ref WriteStatus writeStatus, ref ReadStatus readStatus);
+    }
 }
