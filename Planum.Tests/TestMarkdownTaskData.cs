@@ -118,8 +118,8 @@ namespace Planum.Tests
 
             expected = new string[] {
                     "<planum:" + task.Id.ToString() + ">",
-                    "- [!] n: test name",
-                    "- [!] D: " + deadlines[0].Id,
+                    "- [#] n: test name",
+                    "- [#] D: " + deadlines[0].Id,
                     "  - d: " + deadlines[0].deadline.ToString(repoConfig.TaskDateTimeWriteFormat),
                     "  - w: 2.0:0",
                     "  - du: 2.0:0",
@@ -141,8 +141,8 @@ namespace Planum.Tests
 
             expected = new string[] {
                     "<planum:" + task.Id.ToString() + ">",
-                    "- [~] n: test name",
-                    "- [~] D: " + deadlines[0].Id,
+                    "- [*] n: test name",
+                    "- [*] D: " + deadlines[0].Id,
                     "  - d: " + deadlines[0].deadline.ToString(repoConfig.TaskDateTimeWriteFormat),
                     "  - w: 2.0:0",
                     "  - du: 2.0:0",
@@ -226,8 +226,8 @@ namespace Planum.Tests
                     "- [ ] p: [disabled](disabled_path)",
                     "- [ ] p: [notStarted](notStarted_path)",
                     "- [.] p: [warning](warning_path)",
-                    "- [~] p: [inProgress](inProgress_path)",
-                    "- [!] p: [overdue](overdue_path)",
+                    "- [*] p: [inProgress](inProgress_path)",
+                    "- [#] p: [overdue](overdue_path)",
                     ""
                 };
         }
@@ -255,13 +255,13 @@ namespace Planum.Tests
 
             expected = new string[] {
                     "<planum:" + task.Id.ToString() + ">",
-                    "- [!] n: test name",
+                    "- [#] n: test name",
                     "- [ ] c: [normal](normal_path)",
                     "- [ ] c: [disabled](disabled_path)",
                     "- [ ] c: [notStarted](notStarted_path)",
                     "- [.] c: [warning](warning_path)",
-                    "- [~] c: [inProgress](inProgress_path)",
-                    "- [!] c: [overdue](overdue_path)",
+                    "- [*] c: [inProgress](inProgress_path)",
+                    "- [#] c: [overdue](overdue_path)",
                     ""
                 };
         }
@@ -287,11 +287,11 @@ namespace Planum.Tests
 
             expected = new string[] {
                     "<planum:" + task.Id.ToString() + ">",
-                    "- [!] n: test name",
+                    "- [#] n: test name",
                     "- [ ] c: [notStarted](notStarted_path)",
                     "- [.] c: [warning](warning_path)",
-                    "- [~] c: [inProgress](inProgress_path)",
-                    "- [!] c: [overdue](overdue_path)",
+                    "- [*] c: [inProgress](inProgress_path)",
+                    "- [#] c: [overdue](overdue_path)",
                     ""
                 };
         }
@@ -316,10 +316,10 @@ namespace Planum.Tests
 
             expected = new string[] {
                     "<planum:" + task.Id.ToString() + ">",
-                    "- [~] n: test name",
+                    "- [*] n: test name",
                     "- [ ] c: [notStarted](notStarted_path)",
                     "- [.] c: [warning](warning_path)",
-                    "- [~] c: [inProgress](inProgress_path)",
+                    "- [*] c: [inProgress](inProgress_path)",
                     ""
                 };
         }

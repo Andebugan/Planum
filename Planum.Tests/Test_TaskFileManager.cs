@@ -50,8 +50,7 @@ public class Test_TaskFileManager
     void RemoveFiles(string[] fnames)
     {
         foreach (var fname in fnames)
-            if (File.Exists(fname))
-                File.Delete(fname);
+            File.Delete(fname);
     }
 
     [Fact]

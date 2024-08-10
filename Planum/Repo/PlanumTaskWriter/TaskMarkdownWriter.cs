@@ -83,7 +83,7 @@ namespace Planum.Repository
         {
             var line = AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
-                GetTaskNameMarkerSymbol(task, overdue, inProgress, warning) +
+                RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(task, overdue, inProgress, warning)) +
                 RepoConfig.TaskNameSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol +
                 task.Name;
@@ -97,7 +97,7 @@ namespace Planum.Repository
             lines.Add(
                 AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
-                GetTaskNameMarkerSymbol(task, overdue, inProgress, warning) +
+                RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(task, overdue, inProgress, warning)) +
                 task.Name);
         }
 
@@ -174,7 +174,7 @@ namespace Planum.Repository
                 else
                     lines.Add(
                         RepoConfig.TaskItemSymbol +
-                        GetTaskNameMarkerSymbol(child, overdue, inProgress, warning) +
+                        RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(child, overdue, inProgress, warning)) +
                         RepoConfig.TaskChildSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol +
                         GetTaskName(child, tasks)
@@ -191,7 +191,7 @@ namespace Planum.Repository
                 else
                     lines.Add(
                         RepoConfig.TaskItemSymbol +
-                        GetTaskNameMarkerSymbol(parent, overdue, inProgress, warning) +
+                        RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(parent, overdue, inProgress, warning)) +
                         RepoConfig.TaskParentSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol +
                         GetTaskName(parent, tasks)
@@ -207,7 +207,7 @@ namespace Planum.Repository
                 string nextStr = GetTaskName(next, tasks);
                 lines.Add(AddLineTabs(level + 1) +
                     RepoConfig.TaskItemSymbol +
-                    GetTaskNameMarkerSymbol(next, overdue, inProgress, warning) +
+                    RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(next, overdue, inProgress, warning)) +
                     RepoConfig.TaskNextSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol +
                     nextStr);
@@ -222,7 +222,7 @@ namespace Planum.Repository
                 lines.Add(
                     AddLineTabs(level) +
                     RepoConfig.TaskItemSymbol +
-                    GetDeadlineMarkerSymbol(deadline) +
+                    RepoConfig.AddCheckbox(GetDeadlineMarkerSymbol(deadline)) +
                     RepoConfig.TaskDeadlineHeaderSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol +
                     deadline.Id.ToString()
@@ -258,7 +258,7 @@ namespace Planum.Repository
                     lines.Add(
                         AddLineTabs(level + 1) +
                         RepoConfig.TaskItemSymbol +
-                        GetEnabledSymbol(deadline.repeated) +
+                        RepoConfig.AddCheckbox(GetEnabledSymbol(deadline.repeated)) +
                         RepoConfig.TaskRepeatTimeSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol +
                         deadline.repeatYears.ToString() + " " +

@@ -3,6 +3,7 @@ using System.Linq;
 using Planum.Model.Entities;
 using Planum.Model.Filters;
 using Planum.Model.Repository;
+using Planum.Repository;
 
 namespace Planum.Model.Managers
 {
@@ -38,7 +39,7 @@ namespace Planum.Model.Managers
             TaskRepo.Delete(tasks.Select(x => x.Id));
         }
 
-        public void Save() => TaskRepo.Save();
-        public void Load() => TaskRepo.Load();
+        public void Save(ref WriteStatus writeStatus, ref ReadStatus readStatus) => TaskRepo.Save(ref writeStatus, ref readStatus);
+        public void Load(ref ReadStatus readStatus) => TaskRepo.Load(ref readStatus);
     }
 }

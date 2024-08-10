@@ -22,12 +22,13 @@ namespace Planum.Config
 
         public string TaskDescriptionNewlineSymbol { get; set; } = "\\";
 
-        public string TaskDummyMarkerSymbol { get; set; } = "[ ] ";
-        public string TaskCompleteMarkerSymbol { get; set; } = "[x] ";
-        public string TaskNotCompleteMarkerSymbol { get; set; } = "[ ] ";
-        public string TaskWarningMarkerSymbol { get; set; } = "[.] ";
-        public string TaskInProgressMarkerSymbol { get; set; } = "[~] ";
-        public string TaskOverdueMarkerSymbol { get; set; } = "[!] ";
+        public string TaskCheckboxStart { get; set; } = "[";
+        public string TaskCheckboxEnd { get; set; } = "] ";
+        public string TaskCompleteMarkerSymbol { get; set; } = "x";
+        public string TaskNotCompleteMarkerSymbol { get; set; } = " ";
+        public string TaskWarningMarkerSymbol { get; set; } = ".";
+        public string TaskInProgressMarkerSymbol { get; set; } = "*";
+        public string TaskOverdueMarkerSymbol { get; set; } = "#";
 
         public string TaskMarkerStartSymbol { get; set; } = "<planum:";
         public string TaskMarkerEndSymbol { get; set; } = ">";
@@ -67,12 +68,13 @@ namespace Planum.Config
 
         public string TaskDescriptionNewlineSymbol { get; set; } = "\\";
 
-        public string TaskDummyMarkerSymbol { get; set; } = "[ ] ";
-        public string TaskCompleteMarkerSymbol { get; set; } = "[x] ";
-        public string TaskNotCompleteMarkerSymbol { get; set; } = "[ ] ";
-        public string TaskWarningMarkerSymbol { get; set; } = "[.] ";
-        public string TaskInProgressMarkerSymbol { get; set; } = "[~] ";
-        public string TaskOverdueMarkerSymbol { get; set; } = "[!] ";
+        public string TaskCheckboxStart { get; set; } = "[";
+        public string TaskCheckboxEnd { get; set; } = "] ";
+        public string TaskCompleteMarkerSymbol { get; set; } = "x";
+        public string TaskNotCompleteMarkerSymbol { get; set; } = " ";
+        public string TaskWarningMarkerSymbol { get; set; } = ".";
+        public string TaskInProgressMarkerSymbol { get; set; } = "*";
+        public string TaskOverdueMarkerSymbol { get; set; } = "#";
 
         public string TaskMarkerStartSymbol { get; set; } = "<planum:";
         public string TaskMarkerEndSymbol { get; set; } = ">";
@@ -94,6 +96,8 @@ namespace Planum.Config
         public string TaskRepeatTimeSymbol { get; set; } = "r";
 
         public string TaskNextSymbol { get; set; } = "n";
+
+        public string AddCheckbox(string marker) => TaskCheckboxStart + marker + TaskCheckboxEnd;
 
         public string AddMarkdownLink(string line, string path) => "[" + line + "](" + path + ")";
         public string ParseMarkdownLink(string line, out string path)
@@ -182,8 +186,9 @@ namespace Planum.Config
             configJsonDTO.TaskItemSymbol = config.TaskItemSymbol;
             configJsonDTO.TaskItemTabSymbol = config.TaskItemTabSymbol;
             configJsonDTO.TaskHeaderDelimeterSymbol = config.TaskHeaderDelimeterSymbol;
+            configJsonDTO.TaskCheckboxStart = config.TaskCheckboxStart;
+            configJsonDTO.TaskCheckboxEnd = config.TaskCheckboxEnd;
             configJsonDTO.TaskDescriptionNewlineSymbol = config.TaskDescriptionNewlineSymbol;
-            configJsonDTO.TaskDummyMarkerSymbol = config.TaskDummyMarkerSymbol;
             configJsonDTO.TaskCompleteMarkerSymbol = config.TaskCompleteMarkerSymbol;
             configJsonDTO.TaskNotCompleteMarkerSymbol = config.TaskNotCompleteMarkerSymbol;
             configJsonDTO.TaskWarningMarkerSymbol = config.TaskWarningMarkerSymbol;
@@ -223,7 +228,9 @@ namespace Planum.Config
             config.TaskItemTabSymbol = configJsonDTO.TaskItemTabSymbol;
             config.TaskHeaderDelimeterSymbol = configJsonDTO.TaskHeaderDelimeterSymbol;
             config.TaskDescriptionNewlineSymbol = configJsonDTO.TaskDescriptionNewlineSymbol;
-            config.TaskDummyMarkerSymbol = configJsonDTO.TaskDummyMarkerSymbol;
+            config.TaskCheckboxStart = configJsonDTO.TaskCheckboxStart;
+            config.TaskCheckboxEnd = configJsonDTO.TaskCheckboxEnd;
+            config.TaskDescriptionNewlineSymbol = configJsonDTO.TaskDescriptionNewlineSymbol;
             config.TaskCompleteMarkerSymbol = configJsonDTO.TaskCompleteMarkerSymbol;
             config.TaskNotCompleteMarkerSymbol = configJsonDTO.TaskNotCompleteMarkerSymbol;
             config.TaskWarningMarkerSymbol = configJsonDTO.TaskWarningMarkerSymbol;

@@ -39,7 +39,7 @@ namespace Planum.Repository
             foreach (string statusMarker in RepoConfig.GetTaskStatusMarkerSymbols())
             {
                 if (line.StartsWith(RepoConfig.TaskItemSymbol +
-                    statusMarker +
+                    RepoConfig.AddCheckbox(statusMarker) +
                     RepoConfig.TaskNameSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol))
                     return true;
@@ -50,12 +50,12 @@ namespace Planum.Repository
         protected string ParseTaskName(string line, ref bool complete)
         {
             if (line.StartsWith(RepoConfig.TaskItemSymbol +
-                RepoConfig.TaskCompleteMarkerSymbol +
+                RepoConfig.AddCheckbox(RepoConfig.TaskCompleteMarkerSymbol) +
                 RepoConfig.TaskNameSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol))
                 complete = true;
             return line.Remove(0, (RepoConfig.TaskItemSymbol +
-            RepoConfig.TaskDummyMarkerSymbol +
+            RepoConfig.AddCheckbox(" ") +
             RepoConfig.TaskNameSymbol +
             RepoConfig.TaskHeaderDelimeterSymbol).Length);
         }
@@ -107,14 +107,14 @@ namespace Planum.Repository
         {
             foreach (string statusMarker in RepoConfig.GetTaskStatusMarkerSymbols())
                 if (line.StartsWith(RepoConfig.TaskItemSymbol +
-                                    statusMarker +
+                                    RepoConfig.AddCheckbox(statusMarker) +
                                     RepoConfig.TaskParentSymbol +
                                     RepoConfig.TaskHeaderDelimeterSymbol))
                     return true;
             return false;
         }
         protected string ParseParentString(string line) => RepoConfig.ParseMarkdownLink(line.Remove(0, (RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDummyMarkerSymbol +
+                        RepoConfig.AddCheckbox(" ") +
                         RepoConfig.TaskParentSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol).Length));
 
@@ -122,14 +122,14 @@ namespace Planum.Repository
         {
             foreach (string statusMarker in RepoConfig.GetTaskStatusMarkerSymbols())
                 if (line.StartsWith(RepoConfig.TaskItemSymbol +
-                                    statusMarker +
+                                    RepoConfig.AddCheckbox(statusMarker) +
                                     RepoConfig.TaskChildSymbol +
                                     RepoConfig.TaskHeaderDelimeterSymbol))
                     return true;
             return false;
         }
         protected string ParseChildString(string line) => RepoConfig.ParseMarkdownLink(line.Remove(0, (RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDummyMarkerSymbol +
+                        RepoConfig.AddCheckbox(" ") +
                         RepoConfig.TaskChildSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol).Length));
 
@@ -159,12 +159,12 @@ namespace Planum.Repository
             // parse checklist name
             if (linesEnumerator.Current.StartsWith(AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
-                RepoConfig.TaskCompleteMarkerSymbol))
+                RepoConfig.AddCheckbox(RepoConfig.TaskCompleteMarkerSymbol)))
                 checklistTask.Tags.Add(DefaultTags.Complete);
 
             checklistTask.Name = linesEnumerator.Current.Remove(0, (AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
-                RepoConfig.TaskCompleteMarkerSymbol).Length);
+                RepoConfig.AddCheckbox(RepoConfig.TaskCompleteMarkerSymbol)).Length);
 
             moveNext = linesEnumerator.MoveNext();
 
@@ -198,7 +198,7 @@ namespace Planum.Repository
         {
             foreach (string statusMarker in RepoConfig.GetTaskStatusMarkerSymbols())
                 if (line.StartsWith(RepoConfig.TaskItemSymbol +
-                                    statusMarker +
+                                    RepoConfig.AddCheckbox(statusMarker) +
                                     RepoConfig.TaskDeadlineHeaderSymbol +
                                     RepoConfig.TaskHeaderDelimeterSymbol))
                     return true;
@@ -258,7 +258,7 @@ namespace Planum.Repository
             foreach (string statusMarker in RepoConfig.GetTaskStatusMarkerSymbols())
                 if (line.StartsWith(AddLineTabs(level) +
                             RepoConfig.TaskItemSymbol +
-                            statusMarker +
+                            RepoConfig.AddCheckbox(statusMarker) +
                             RepoConfig.TaskRepeatTimeSymbol +
                             RepoConfig.TaskHeaderDelimeterSymbol))
                     return true;
@@ -269,7 +269,7 @@ namespace Planum.Repository
             // parse header
             if (line.StartsWith(AddLineTabs(level) +
                         RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskNotCompleteMarkerSymbol +
+                        RepoConfig.AddCheckbox(RepoConfig.TaskNotCompleteMarkerSymbol) +
                         RepoConfig.TaskRepeatTimeSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol))
                 deadline.repeated = false;
@@ -278,7 +278,7 @@ namespace Planum.Repository
 
             line = line.Remove(0, (AddLineTabs(level) +
                         RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDummyMarkerSymbol +
+                        RepoConfig.AddCheckbox(" ") +
                         RepoConfig.TaskRepeatTimeSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol).Length);
 
@@ -291,7 +291,7 @@ namespace Planum.Repository
             foreach (string statusMarker in RepoConfig.GetTaskStatusMarkerSymbols())
                 if (line.StartsWith(AddLineTabs(level) +
                             RepoConfig.TaskItemSymbol +
-                            statusMarker +
+                            RepoConfig.AddCheckbox(statusMarker) +
                             RepoConfig.TaskNextSymbol +
                             RepoConfig.TaskHeaderDelimeterSymbol))
                     return true;
@@ -299,7 +299,7 @@ namespace Planum.Repository
         }
         protected string ParseNextTaskString(string line, int level = 0) => RepoConfig.ParseMarkdownLink(line.Remove(0, (AddLineTabs(level) +
                     RepoConfig.TaskItemSymbol +
-                    RepoConfig.TaskDummyMarkerSymbol +
+                    RepoConfig.AddCheckbox(" ") +
                     RepoConfig.TaskNextSymbol +
                     RepoConfig.TaskHeaderDelimeterSymbol).Length));
 
@@ -310,13 +310,13 @@ namespace Planum.Repository
             // parse header
             var line = linesEnumerator.Current.Remove(0, (AddLineTabs(level) +
                         RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDummyMarkerSymbol +
+                        RepoConfig.AddCheckbox(" ") +
                         RepoConfig.TaskDeadlineHeaderSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol).Length).Trim(' ', '\n');
 
             if (linesEnumerator.Current.StartsWith(AddLineTabs(level) +
                         RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskCompleteMarkerSymbol +
+                        RepoConfig.AddCheckbox(RepoConfig.TaskCompleteMarkerSymbol) +
                         RepoConfig.TaskDeadlineHeaderSymbol +
                         RepoConfig.TaskHeaderDelimeterSymbol))
                 deadline.enabled = false;

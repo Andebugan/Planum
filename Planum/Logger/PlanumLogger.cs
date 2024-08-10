@@ -50,7 +50,7 @@ namespace Planum.Logger
             if (Where == LogWhere.FILE || Where == LogWhere.CONSOLE_AND_FILE)
                 File.AppendAllLinesAsync(LogFilePath, new string[] { logLine }, System.Text.Encoding.UTF8);
             if (Where == LogWhere.CONSOLE || Where == LogWhere.CONSOLE_AND_FILE)
-                Console.WriteLine(logLine);
+                System.Console.WriteLine(logLine);
         }
     }
 }
