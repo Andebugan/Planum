@@ -5,6 +5,7 @@ namespace Planum.Model.Filters
     public class ValueMatch<T> : IValueMatch<T> where T : IComparable
     {
         public T Value { get; set; }
+        public string StringValue { get; set; }
         public MatchType Equal { get; set; }
         public MatchType Lesser { get; set; }
         public MatchType Greater { get; set; }
@@ -13,6 +14,7 @@ namespace Planum.Model.Filters
         public MatchType ComparedStrInValue { get; set; }
 
         public ValueMatch(T value,
+                string stringValue,
                 MatchType equal = MatchType.AND,
                 MatchType lesser = MatchType.IGNORE,
                 MatchType greater = MatchType.IGNORE,
@@ -20,6 +22,7 @@ namespace Planum.Model.Filters
                 MatchType comparedStrInValue = MatchType.IGNORE)
         {
             Value = value;
+            StringValue = stringValue;
             Equal = equal;
             Lesser = lesser;
             Greater = greater;
@@ -30,9 +33,17 @@ namespace Planum.Model.Filters
         public bool Check(T compared)
         {
             bool result = false;
+
+            result = CheckEqual(compared, result);
+            result = CheckLesser(compared, result);
+            result = CheckGreater(compared, result);
+            result = CheckValueStrInCompared(compared, result);
+            result = CheckComparedStrInValue(compared, result);
+
             return result;
         }
 
+        // TODO: add string checks CheckEqualString, CheckLesserString and etc.
         public bool CheckEqual(T compared, bool agg = false)
         {
             if (Equal == MatchType.AND)

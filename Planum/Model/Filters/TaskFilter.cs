@@ -9,6 +9,7 @@ namespace Planum.Model.Filters
     {
         public IValueFilter<Guid> IdFilter { get; set; }
         public IValueFilter<string> NameFilter { get; set; }
+        public IValueFilter<string> TagFilter { get; set; }
         public IValueFilter<string> DescriptionFilter { get; set; }
         public IValueFilter<Guid> ParentFilter { get; set; }
         public IValueFilter<Guid> ChildFilter { get; set; }
@@ -17,6 +18,7 @@ namespace Planum.Model.Filters
         public TaskFilter(
                 IValueFilter<Guid>? idFilter = null,
                 IValueFilter<string>? nameFilter = null,
+                IValueFilter<string>? tagFilter = null,
                 IValueFilter<string>? descriptionFilter = null,
                 IValueFilter<Guid>? parentFilter = null,
                 IValueFilter<Guid>? childFilter = null,
@@ -25,6 +27,7 @@ namespace Planum.Model.Filters
         {
             IdFilter = idFilter is null ? new ValueFilter<Guid>() : idFilter;
             NameFilter = nameFilter is null ? new ValueFilter<string>() : nameFilter;
+            TagFilter = tagFilter is null ? new ValueFilter<string>() : tagFilter;
             DescriptionFilter = descriptionFilter is null ? new ValueFilter<string>() : descriptionFilter;
             ParentFilter = parentFilter is null ? new ValueFilter<Guid>() : parentFilter;
             ChildFilter = childFilter is null ? new ValueFilter<Guid>() : childFilter;
@@ -36,6 +39,7 @@ namespace Planum.Model.Filters
             return tasks.Where(x =>
                     IdFilter.Match(x.Id) &&
                     NameFilter.Match(x.Name) &&
+                    TagFilter.Filter(x.Tags).Any() &&
                     DescriptionFilter.Match(x.Description) &&
                     ParentFilter.Filter(x.Parents).Any() &&
                     ChildFilter.Filter(x.Children).Any() &&

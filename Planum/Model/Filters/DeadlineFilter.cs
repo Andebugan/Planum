@@ -7,6 +7,7 @@ namespace Planum.Model.Filters
 {
     public class DeadlineFilter : IDeadlineFilter
     {
+        public IValueFilter<Guid> IdFilter { get; set; }
         public IValueFilter<bool> EnabledFilter { get; set; }
         public IValueFilter<TimeSpan> WarningFilter { get; set; }
         public IValueFilter<TimeSpan> DurationFilter { get; set; }
@@ -15,8 +16,10 @@ namespace Planum.Model.Filters
         public IValueFilter<int> RepeatYearsFilter { get; set; }
         public IValueFilter<int> RepeatMonthsFilter { get; set; }
         public IValueFilter<DateTime> DeadlineValueFilter { get; set; }
+        public IValueFilter<Guid> DeadlineNextFilter { get; set; }
 
         public DeadlineFilter(
+            IValueFilter<Guid>? idFilter = null,
             IValueFilter<bool>? enabledFilter = null,
             IValueFilter<TimeSpan>? warningFilter = null,
             IValueFilter<TimeSpan>? durationFilter = null,
@@ -24,9 +27,11 @@ namespace Planum.Model.Filters
             IValueFilter<TimeSpan>? repeatSpanFilter = null,
             IValueFilter<int>? repeatYearsFilter = null,
             IValueFilter<int>? repeatMonthsFilter = null,
-            IValueFilter<DateTime>? deadlineValueFilter = null
+            IValueFilter<DateTime>? deadlineValueFilter = null,
+            IValueFilter<Guid>? deadlineNextFilter = null
                 )
         {
+            IdFilter = idFilter is null ? new ValueFilter<Guid>() : idFilter;
             EnabledFilter = enabledFilter is null ? new ValueFilter<bool>() : enabledFilter;
             WarningFilter = warningFilter is null ? new ValueFilter<TimeSpan>() : warningFilter;
             DurationFilter = durationFilter is null ? new ValueFilter<TimeSpan>() : durationFilter;
@@ -35,11 +40,13 @@ namespace Planum.Model.Filters
             RepeatYearsFilter = repeatYearsFilter is null ? new ValueFilter<int>() : repeatYearsFilter;
             RepeatMonthsFilter = repeatMonthsFilter is null ? new ValueFilter<int>() : repeatMonthsFilter;
             DeadlineValueFilter = deadlineValueFilter is null ? new ValueFilter<DateTime>() : deadlineValueFilter;
+            DeadlineNextFilter = deadlineNextFilter is null ? new ValueFilter<Guid>() : deadlineNextFilter;
         }
 
         public IEnumerable<Deadline> Filter(IEnumerable<Deadline> deadlines)
         {
             return deadlines.Where(x =>
+                        IdFilter.Match(x.Id) &&
                         EnabledFilter.Match(x.enabled) &&
                         WarningFilter.Match(x.warningTime) &&
                         DurationFilter.Match(x.duration) &&
@@ -47,7 +54,8 @@ namespace Planum.Model.Filters
                         RepeatSpanFilter.Match(x.repeatSpan) &&
                         RepeatYearsFilter.Match(x.repeatYears) &&
                         RepeatMonthsFilter.Match(x.repeatMonths) &&
-                        DeadlineValueFilter.Match(x.deadline)
+                        DeadlineValueFilter.Match(x.deadline) &&
+                        DeadlineNextFilter.Filter(x.next).Any()
                     );
         }
     }

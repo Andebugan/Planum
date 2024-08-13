@@ -1,8 +1,12 @@
-namespace Planum.Console.Commands
+using System.Collections.Generic;
+
+namespace Planum.Commands
 {
     public interface ICommand
     {
-        public bool CheckCommandMatch(string[] command);
-        public string[] Execute(string[] args);
+        public bool CheckMatch(ref IEnumerator<string> args);
+        public List<string> Execute(ref IEnumerator<string> args);
+
+        public CommandInfo GetCommandInfo();
     }
 }
