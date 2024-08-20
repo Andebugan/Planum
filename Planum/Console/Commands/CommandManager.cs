@@ -1,33 +1,37 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Planum.Commands
 {
     public class CommandManager
     {
-        public IEnumerable<ICommand> Commands { get; set; } = new List<ICommand>();
+        List<ICommand> Commands { get; set; }
 
-        public bool TryExecuteCommand(string[] commandStrings, out List<string> result)
+        public CommandManager(IEnumerable<ICommand> commands) => Commands = commands.ToList();
+
+        public List<string> TryExecuteCommand(string[] commandStrings)
         {
-            result = new List<string>();
-            IEnumerator<string> commandEnumerator = (IEnumerator<string>)(commandStrings.GetEnumerator());
-            if (!commandEnumerator.MoveNext())
-            {
-                commandEnumerator.Dispose();
-                return false;
-            }
+            var result = new List<string>();
+            var commandStringsList = commandStrings.ToList();
+            IEnumerator<string> commandEnumerator = (IEnumerator<string>)(commandStringsList.GetEnumerator());
+            commandEnumerator.MoveNext();
 
+            bool match = false;
             foreach (var command in Commands)
             {
                 if (command.CheckMatch(ref commandEnumerator))
                 {
                     result = command.Execute(ref commandEnumerator);
-                    commandEnumerator.Dispose();
-                    return true;
+                    match = true;
+                    break;
                 }
             }
 
+            if (!match)
+                result.Add(ConsoleSpecial.AddStyle("Unable to find matching command", foregroundColor: ConsoleInfoColors.Warning));
+
             commandEnumerator.Dispose();
-            return false;
+            return result;
         }
     }
 }

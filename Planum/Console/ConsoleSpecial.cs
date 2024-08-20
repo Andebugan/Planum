@@ -1,4 +1,4 @@
-namespace Planum.Interface
+namespace Planum.Commands
 {
     // reset all string: \x1b[0;0m
     public enum TextStyle
@@ -10,7 +10,7 @@ namespace Planum.Interface
         Underline = 4,
         Blinking = 5,
         Inverse = 7,
-        Hidder = 8,
+        Hidden = 8,
         Strikethrough = 9
     }
 
@@ -74,9 +74,17 @@ namespace Planum.Interface
         public static char CrossingRight = '┤';
     }
 
+    public static class ConsoleInfoColors
+    {
+        public static TextForegroundColor Success { get; set; } = TextForegroundColor.BrightGreen;
+        public static TextForegroundColor Info { get; set; } = TextForegroundColor.BrightCyan;
+        public static TextForegroundColor Warning { get; set; } = TextForegroundColor.BrightYellow;
+        public static TextForegroundColor Error { get; set; } = TextForegroundColor.BrightRed;
+    }
+
     public static class ConsoleSpecial
     {
-        public static string AddStyle(string text, TextStyle style, TextForegroundColor foregroundColor, TextBackgroundColor backgroundColor)
+        public static string AddStyle(string text, TextStyle style = TextStyle.Normal, TextForegroundColor foregroundColor = TextForegroundColor.Default, TextBackgroundColor backgroundColor = TextBackgroundColor.Default)
         {
             return $"\x1b[{(int)style};{(int)foregroundColor};{(int)backgroundColor}m" + text + "\x1b[0;0m";
         }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Planum.Commands
 {
@@ -11,27 +13,34 @@ namespace Planum.Commands
             CommandManager = commandManager;
         }
 
-        protected string GetGreeting()
+        void PrintResult(IEnumerable<string> lines)
         {
-            return "" +
-                "╭────╮                                      \n" +
-                "│ ╭╮ │ ╭─╮    ╭────╮ ╭────╮ ╭─╮╭─╮ ╭───────╮\n" +
-                "│ ╰╯ │ │ │    │ ╭╮ │ │ ╭╮ │ │ ││ │ │ ╭╮ ╭╮ │\n" +
-                "│ ╭──╯ │ │    │ ╰╯ │ │ ││ │ │ ││ │ │ ││ ││ │\n" +
-                "│ │    │ ╰──╮ │ ╭╮ │ │ ││ │ │ ╰╯ │ │ ││ ││ │\n" +
-                "╰─╯    ╰────╯ ╰─╯╰─╯ ╰─╯╰─╯ ╰────╯ ╰─╯╰─╯╰─╯ " + "2.0" +
-                "";
+            foreach (var line in lines)
+                Console.WriteLine(line);
+        }
+
+        string GetInput()
+        {
+            Console.Write("\n> ");
+            var line = Console.ReadLine();
+            return line is null ? "" : line;
         }
 
         public void RunConsoleMode()
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            // print greeting
+
+            while (true)
+            {
+                var input = GetInput(); // Split first by " then by ` `
+            }
         }
 
         public void RunCommandMode(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+            List<string> result = CommandManager.TryExecuteCommand(args);
+            PrintResult(result);
         }
     }
 }

@@ -2,9 +2,9 @@ namespace Planum.Commands
 {
     public class OptionInfo
     {
-        string Name { get; set; } = "";
-        string Description { get; set; } = "";
-        string Usage { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Usage { get; set; } = "";
 
         public OptionInfo(string name, string description, string usage)
         {

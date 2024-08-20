@@ -1,5 +1,5 @@
-﻿using System;
-using Planum.Interface;
+﻿using System.Collections.Generic;
+using Planum.Commands;
 
 namespace Planum
 {
@@ -7,10 +7,13 @@ namespace Planum
     {
         static void Main(string[] args)
         {
-            var test = ConsoleSpecial.AddStyle("test ", TextStyle.Normal, TextForegroundColor.Red, TextBackgroundColor.Default);
-            test += ConsoleSpecial.AddStyle("test ", TextStyle.Bold, TextForegroundColor.Blue, TextBackgroundColor.Default);
-            test += ConsoleSpecial.AddStyle("test", TextStyle.Dim, TextForegroundColor.Yellow, TextBackgroundColor.Default);
-            Console.WriteLine(test);    
+            var commands = new List<ICommand>() {
+            };
+
+            var commandManager = new CommandManager(commands);
+            var consoleManager = new ConsoleManager(commandManager);
+
+            consoleManager.RunCommandMode(args);
         }
     }
 }

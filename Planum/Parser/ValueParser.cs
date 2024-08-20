@@ -5,7 +5,9 @@ using System.Linq;
 
 namespace Planum.Parser
 {
-    // how to print datetime: DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.ffffffK");
+    /// <summary>
+    /// Tools for extracting value from string with respect for special cases
+    /// </summary>
     public static class ValueParser
     {
         public static string[] dateFormats = { "d.M.y", "d.M.yyyy", "d.M.yyyy", "d.M" };

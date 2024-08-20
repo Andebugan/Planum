@@ -10,10 +10,12 @@ namespace Planum.Model.Managers
     public class TaskBufferManager
     {
         protected ITaskRepo TaskRepo { get; set; }
+        protected TaskValidationManager TaskValidationManager { get; set; }
 
-        public TaskBufferManager(ITaskRepo planumTaskRepo)
+        public TaskBufferManager(ITaskRepo planumTaskRepo, TaskValidationManager taskValidationManager)
         {
             TaskRepo = planumTaskRepo;
+            TaskValidationManager = taskValidationManager;
         }
 
         public IEnumerable<PlanumTask> Find(ITaskFilter? taskFilter = null)
@@ -25,11 +27,41 @@ namespace Planum.Model.Managers
                 return taskFilter.Filter(tasks);
         }
 
-        public void Add(PlanumTask task) => TaskRepo.Add(task);
-        public void Add(IEnumerable<PlanumTask> tasks) => TaskRepo.Add(tasks);
+        public IEnumerable<TaskValidationResult> Add(PlanumTask task)
+        {
+            var validationResults = new List<TaskValidationResult>();
+            TaskValidationManager.ValidateTask(task, ref validationResults);
+            if (validationResults.Any())
+                TaskRepo.Add(task);
+            return validationResults;
+        }
 
-        public void Update(PlanumTask task) => TaskRepo.Update(task);
-        public void Update(IEnumerable<PlanumTask> tasks) => TaskRepo.Update(tasks);
+        public IEnumerable<TaskValidationResult> Add(IEnumerable<PlanumTask> tasks)
+        {
+            var validationResults = new List<TaskValidationResult>();
+            TaskValidationManager.ValidateTask(tasks, ref validationResults);
+            if (validationResults.Any())
+                TaskRepo.Add(tasks);
+            return validationResults;
+        }
+
+        public IEnumerable<TaskValidationResult> Update(PlanumTask task)
+        {
+            var validationResults = new List<TaskValidationResult>();
+            TaskValidationManager.ValidateTask(task, ref validationResults);
+            if (validationResults.Any())
+                TaskRepo.Update(task);
+            return validationResults;
+        }
+
+        public IEnumerable<TaskValidationResult> Update(IEnumerable<PlanumTask> tasks)
+        {
+            var validationResults = new List<TaskValidationResult>();
+            TaskValidationManager.ValidateTask(tasks, ref validationResults);
+            if (validationResults.Any())
+                TaskRepo.Update(tasks);
+            return validationResults;
+        }
 
         public void Delete(ITaskFilter? taskFilter = null)
         {

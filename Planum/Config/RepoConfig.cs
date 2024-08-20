@@ -11,7 +11,7 @@ namespace Planum.Config
         public string TaskFilename { get; set; } = "";
         public string TaskFileSearchPattern { get; set; } = "";
 
-        public Dictionary<string, List<Guid>> TaskLookupPaths { get; set; } = new Dictionary<string, List<Guid>>();
+        public Dictionary<string, List<Guid>> TaskLookupPaths { get; set; } = new Dictionary<string, List<Guid>>(); // replace with watchfile paths
 
         public string TaskDateTimeWriteFormat { get; set; } = "H:m d.M.y";
         public string TaskTimeSpanWriteFormat { get; set; } = @"d\.h\:m";

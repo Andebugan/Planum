@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace Planum.Repository
 {
+    /// <summary>
+    /// Class for buffered loading, updating and commiting task data
+    /// </summary>
     public class TaskRepo: ITaskRepo
     {
         protected List<PlanumTask> taskBuffer = new List<PlanumTask>();
