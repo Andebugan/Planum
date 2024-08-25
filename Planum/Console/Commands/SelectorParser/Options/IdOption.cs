@@ -8,10 +8,7 @@ namespace Planum.Commands.Selector
 {
     public class SelectorIdOption : SelectorBaseOption
     {
-        public SelectorIdOption(CommandConfig commandConfig) : base(commandConfig)
-        {
-            OptionInfo = new OptionInfo("s", "select task via id or name", "s[match type][logic operator] {value (name or id, full or partial}");
-        }
+        public SelectorIdOption(CommandConfig commandConfig, OptionInfo optionInfo) : base(commandConfig, optionInfo) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result)
         {

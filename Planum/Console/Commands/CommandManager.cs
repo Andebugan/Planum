@@ -5,9 +5,9 @@ namespace Planum.Commands
 {
     public class CommandManager
     {
-        List<ICommand> Commands { get; set; }
+        List<ICommand<ICommandSettings>> Commands { get; set; }
 
-        public CommandManager(IEnumerable<ICommand> commands) => Commands = commands.ToList();
+        public CommandManager(IEnumerable<ICommand<ICommandSettings>> commands) => Commands = commands.ToList();
 
         public List<string> TryExecuteCommand(string[] commandStrings)
         {

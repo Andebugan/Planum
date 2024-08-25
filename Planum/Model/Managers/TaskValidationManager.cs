@@ -29,12 +29,7 @@ namespace Planum.Model.Managers
     
     public class TaskValidationManager
     {
-        TaskBufferManager TaskBufferManager { get; set; }
-
-        public TaskValidationManager(TaskBufferManager taskBufferManager)
-        {
-            TaskBufferManager = taskBufferManager;
-        }
+        public TaskValidationManager() { }
 
         void ValidateChildren(PlanumTask task, IEnumerable<Guid> taskIds, ref List<TaskValidationResult> validationResults)
         {
@@ -66,9 +61,9 @@ namespace Planum.Model.Managers
             }
         }
         
-        public void ValidateTask(PlanumTask task, ref List<TaskValidationResult> validationResults)
+        public void ValidateTask(PlanumTask task, IEnumerable<PlanumTask> tasks, ref List<TaskValidationResult> validationResults)
         {
-            var taskIds = TaskBufferManager.Find().Select(x => x.Id);
+            var taskIds = tasks.Select(x => x.Id);
             ValidateChildren(task, taskIds, ref validationResults);
             ValidateParents(task, taskIds, ref validationResults);
             ValidateDeadlines(task, taskIds, ref validationResults);
@@ -77,7 +72,7 @@ namespace Planum.Model.Managers
         public void ValidateTask(IEnumerable<PlanumTask> tasks, ref List<TaskValidationResult> validationResults)
         {
             foreach (var task in tasks)
-                ValidateTask(task, ref validationResults);
+                ValidateTask(task, tasks, ref validationResults);
         }
     }
 }

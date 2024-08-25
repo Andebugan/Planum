@@ -5,7 +5,7 @@ using Planum.Model.Managers;
 
 namespace Planum.Commands
 {
-    public class CreateCommandSettings
+    public class CreateCommandSettings: ICommandSettings
     {
         TaskBufferManager TaskBufferManager { get; set; }
 

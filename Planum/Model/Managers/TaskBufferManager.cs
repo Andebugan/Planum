@@ -30,7 +30,7 @@ namespace Planum.Model.Managers
         public IEnumerable<TaskValidationResult> Add(PlanumTask task)
         {
             var validationResults = new List<TaskValidationResult>();
-            TaskValidationManager.ValidateTask(task, ref validationResults);
+            TaskValidationManager.ValidateTask(task, Find(), ref validationResults);
             if (validationResults.Any())
                 TaskRepo.Add(task);
             return validationResults;
@@ -48,7 +48,7 @@ namespace Planum.Model.Managers
         public IEnumerable<TaskValidationResult> Update(PlanumTask task)
         {
             var validationResults = new List<TaskValidationResult>();
-            TaskValidationManager.ValidateTask(task, ref validationResults);
+            TaskValidationManager.ValidateTask(task, Find(), ref validationResults);
             if (validationResults.Any())
                 TaskRepo.Update(task);
             return validationResults;

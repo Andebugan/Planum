@@ -3,7 +3,7 @@
 
 ## Project structure
 - [ ] [Config](./Config/Config.md) - saving and loading configuration
-- [ ] [Console](./Console) - console interface and commands for it
+- [ ] [Console](./Console/Console.md) - console interface and commands for it
 - [ ] [Logger](./Logger/Logger.md) - logger wrapper, logger functions
 - [ ] [Model](./Model) - entities and buisness logic
 - [ ] [Parser](./Parser/Parser.md) - specialized string parsers for common values and specific task values
