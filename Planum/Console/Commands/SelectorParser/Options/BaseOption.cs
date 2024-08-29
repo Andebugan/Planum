@@ -4,7 +4,7 @@ using Planum.Model.Filters;
 
 namespace Planum.Commands.Selector
 {
-    public abstract class SelectorBaseOption : IOption<TaskFilter>
+    public abstract class SelectorBaseOption : IOption
     {
         public OptionInfo OptionInfo { get; set; }
         protected CommandConfig CommandConfig { get; set; }

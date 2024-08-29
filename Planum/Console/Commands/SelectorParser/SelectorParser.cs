@@ -8,9 +8,9 @@ namespace Planum.Commands.Selector
     public class SelectorParser
     {
         TaskBufferManager BufferManager { get; set; }
-        public IEnumerable<IOption<TaskFilter>> SelectorOptions { get; set; }
+        public IEnumerable<SelectorBaseOption> SelectorOptions { get; set; }
 
-        public SelectorParser(TaskBufferManager bufferManager, IEnumerable<IOption<TaskFilter>> selectorOptions)
+        public SelectorParser(TaskBufferManager bufferManager, IEnumerable<SelectorBaseOption> selectorOptions)
         {
             BufferManager = bufferManager;
             SelectorOptions = selectorOptions;

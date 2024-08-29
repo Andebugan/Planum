@@ -1,16 +1,23 @@
 using System.Collections.Generic;
 using System.Linq;
+using Planum.Logger;
 
 namespace Planum.Commands
 {
     public class CommandManager
     {
-        List<ICommand<ICommandSettings>> Commands { get; set; }
+        List<ICommand> Commands { get; set; }
+        ILoggerWrapper Logger { get; set; }
 
-        public CommandManager(IEnumerable<ICommand<ICommandSettings>> commands) => Commands = commands.ToList();
-
-        public List<string> TryExecuteCommand(string[] commandStrings)
+        public CommandManager(IEnumerable<ICommand> commands, ILoggerWrapper logger)
         {
+            Commands = commands.ToList();
+            Logger = logger;
+        }
+
+        public List<string> TryExecuteCommand(IEnumerable<string> commandStrings)
+        {
+            Logger.Log(message: "Searching for matching command"); 
             var result = new List<string>();
             var commandStringsList = commandStrings.ToList();
             IEnumerator<string> commandEnumerator = (IEnumerator<string>)(commandStringsList.GetEnumerator());
@@ -19,8 +26,9 @@ namespace Planum.Commands
             bool match = false;
             foreach (var command in Commands)
             {
-                if (command.CheckMatch(ref commandEnumerator))
+                if (command.CheckMatch(commandEnumerator.Current))
                 {
+                    commandEnumerator.MoveNext();
                     result = command.Execute(ref commandEnumerator);
                     match = true;
                     break;
@@ -28,7 +36,10 @@ namespace Planum.Commands
             }
 
             if (!match)
+            {
+                Logger.Log(message: "Matching command not found"); 
                 result.Add(ConsoleSpecial.AddStyle("Unable to find matching command", foregroundColor: ConsoleInfoColors.Warning));
+            }
 
             commandEnumerator.Dispose();
             return result;

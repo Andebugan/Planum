@@ -6,6 +6,7 @@ using Planum.Logger;
 
 namespace Planum.Config
 {
+    ///<summary>Repo config DTO</summary>
     public class RepoConfigJsonDTO
     {
         public string TaskFilename { get; set; } = "";
@@ -52,6 +53,7 @@ namespace Planum.Config
         public string TaskNextSymbol { get; set; } = "n";
     }
 
+    ///<summary>Repository parsing settings config</summary>
     public class RepoConfig
     {
         public string TaskFilename { get; set; }
@@ -97,6 +99,7 @@ namespace Planum.Config
 
         public string TaskNextSymbol { get; set; } = "n";
 
+        ///<summary>Add checkbox to task marker</summary>
         public string AddCheckbox(string marker) => TaskCheckboxStart + marker + TaskCheckboxEnd;
 
         public string AddMarkdownLink(string line, string path) => "[" + line + "](" + path + ")";
@@ -254,20 +257,18 @@ namespace Planum.Config
             return config;
         }
 
-        public static RepoConfig Load(ILoggerWrapper logger)
+        /// <summary>Load repo config to path defined in app config</summary>
+        public static RepoConfig Load(AppConfig appConfig, ILoggerWrapper logger)
         {
-            logger.Log(LogLevel.INFO, "Loading app config");
-            var appConfig = AppConfig.Load(logger);
-            logger.Log(LogLevel.INFO, "Loading repo config");
+            logger.Log("Loading repo config", LogLevel.INFO);
             RepoConfigJsonDTO configDTO = ConfigLoader.LoadConfig<RepoConfigJsonDTO>(appConfig.RepoConfigPath, new RepoConfigJsonDTO(), logger);
             return FromJsonDTO(configDTO);
         }
 
-        public void Save(ILoggerWrapper logger)
+        /// <summary>Save repo config to path defined in app config</summary>
+        public void Save(AppConfig appConfig, ILoggerWrapper logger)
         {
-            logger.Log(LogLevel.INFO, "Loading app config");
-            var appConfig = AppConfig.Load(logger);
-            logger.Log(LogLevel.INFO, "Saving repo config");
+            logger.Log("Saving repo config", LogLevel.INFO);
             ConfigLoader.SaveConfig<RepoConfigJsonDTO>(appConfig.RepoConfigPath, ToJsonDTO(this), logger);
         }
     }

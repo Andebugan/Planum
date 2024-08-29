@@ -381,10 +381,10 @@ namespace Planum.Repository
 
         public Guid ReadTask(ref IEnumerator<string> linesEnumerator, ref IList<TaskReadStatus> statuses, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next)
         {
-            Logger.Log(LogLevel.INFO, "Starting task read");
+            Logger.Log("Starting task read", LogLevel.INFO);
             if (!CheckTaskMarker(linesEnumerator.Current))
             {
-                Logger.Log(LogLevel.WARN, $"Unable to read task marker at {linesEnumerator.Current}");
+                Logger.Log($"Unable to read task marker at {linesEnumerator.Current}", LogLevel.WARN);
                 return Guid.Empty;
             }
             // parse task ID
@@ -438,7 +438,7 @@ namespace Planum.Repository
                     break;
             }
             tasks.Add(task);
-            Logger.Log(LogLevel.INFO, $"Read finished, task: {task.Id} | {task.Name}");
+            Logger.Log($"Read finished, task: {task.Id} | {task.Name}", LogLevel.INFO);
             return task.Id;
         }
 

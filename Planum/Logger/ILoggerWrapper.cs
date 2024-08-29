@@ -12,6 +12,6 @@ namespace Planum.Logger
 
     public interface ILoggerWrapper
     {
-        public void Log(LogLevel level = LogLevel.INFO, string message = "", [CallerLineNumber] int line = 0, [CallerMemberName] string? caller = null);
+        public void Log(string message = "", LogLevel level = LogLevel.INFO, [CallerLineNumber] int line = 0, [CallerMemberName] string? caller = null);
     }
 }

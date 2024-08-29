@@ -2,10 +2,10 @@ using System.Collections.Generic;
 
 namespace Planum.Commands
 {
-    public interface ICommand<T>
+    public interface ICommand
     {
-        public List<IOption<T>> CommandOptions { get; set; }
-        public bool CheckMatch(ref IEnumerator<string> args);
+        public IEnumerable<IOption> CommandOptions { get; }
+        public bool CheckMatch(string value);
         public abstract List<string> Execute(ref IEnumerator<string> args);
     }
 }

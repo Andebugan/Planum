@@ -272,7 +272,7 @@ namespace Planum.Repository
 
         public void WriteTask(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
         {
-            Logger.Log(LogLevel.INFO, $"Starting task write: {task.Id} | {task.Name}");
+            Logger.Log($"Starting task write: {task.Id} | {task.Name}", LogLevel.INFO);
             if (CheckIfChecklist(task))
                 return;
 
@@ -292,7 +292,7 @@ namespace Planum.Repository
             WriteChecklists(lines, task, tasks, overdue, inProgress, warning);
             lines.Add("");
 
-            Logger.Log(LogLevel.INFO, $"Task write finished");
+            Logger.Log($"Task write finished", LogLevel.INFO);
             return;
         }
     }

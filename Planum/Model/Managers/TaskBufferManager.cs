@@ -31,7 +31,7 @@ namespace Planum.Model.Managers
         {
             var validationResults = new List<TaskValidationResult>();
             TaskValidationManager.ValidateTask(task, Find(), ref validationResults);
-            if (validationResults.Any())
+            if (!validationResults.Any())
                 TaskRepo.Add(task);
             return validationResults;
         }

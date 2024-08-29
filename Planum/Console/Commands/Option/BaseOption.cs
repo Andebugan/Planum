@@ -3,7 +3,7 @@ using Planum.Config;
 
 namespace Planum.Commands
 {
-    public abstract class BaseOption<T> : IOption<T>
+    public abstract class BaseOption<T> : IOption
     {
         public OptionInfo OptionInfo { get; set; }
         CommandConfig CommandConfig { get; set; }
