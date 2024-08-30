@@ -33,7 +33,7 @@ namespace Planum.Repository
             {
                 Logger.Log($"Can't read from file, because it does not exist: {path}", LogLevel.WARN);
                 foreach (var taskId in RepoConfig.TaskLookupPaths[path])
-                    readStatus.ReadStatuses.Add(new TaskReadStatus(new PlanumTask(taskId), TaskReadStatusType.UNABLE_TO_FIND_TASK_FILE, path));
+                    readStatus.ReadStatuses.Add(new TaskReadStatus(new PlanumTask(taskId), TaskReadStatusType.UNABLE_TO_FIND_TASK_FILE, path, message: "Unable to find task file"));
                 return;
             }
                 
@@ -115,7 +115,7 @@ namespace Planum.Repository
             if (!File.Exists(path))
             {
                 foreach (var task in tasks)
-                    writeStatus.WriteStatuses.Add(new TaskWriteStatus(task, TaskWriteStatusType.UNABLE_TO_FIND_TASK_FILE, path));
+                    writeStatus.WriteStatuses.Add(new TaskWriteStatus(task, TaskWriteStatusType.UNABLE_TO_FIND_TASK_FILE, path, message: "Unable to find task file"));
                 return;
             }
 

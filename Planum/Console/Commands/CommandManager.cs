@@ -17,7 +17,7 @@ namespace Planum.Commands
 
         public List<string> TryExecuteCommand(IEnumerable<string> commandStrings)
         {
-            Logger.Log(message: "Searching for matching command"); 
+            Logger.Log(message: "Searching for matching command");
             var result = new List<string>();
             var commandStringsList = commandStrings.ToList();
             IEnumerator<string> commandEnumerator = (IEnumerator<string>)(commandStringsList.GetEnumerator());
@@ -37,7 +37,7 @@ namespace Planum.Commands
 
             if (!match)
             {
-                Logger.Log(message: "Matching command not found"); 
+                Logger.Log(message: "Matching command not found");
                 result.Add(ConsoleSpecial.AddStyle("Unable to find matching command", foregroundColor: ConsoleInfoColors.Warning));
             }
 

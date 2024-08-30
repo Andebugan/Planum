@@ -51,7 +51,10 @@ namespace Planum
             var consoleManager = new ConsoleManager(commandManager, logger);
 
             // run
-            consoleManager.RunCommandMode(args);
+            if (args.Length == 0)
+                consoleManager.RunConsoleMode();
+            else
+                consoleManager.RunCommandMode(args);
         }
     }
 }

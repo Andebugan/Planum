@@ -217,7 +217,7 @@ namespace Planum.Repository
                 RepoConfig.TaskHeaderDelimeterSymbol).Length);
             DateTime deadline = DateTime.Today;
             if (!ValueParser.TryParse(ref deadline, line))
-                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_DEADLINE, line: line));
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_DEADLINE, line: line, message: "Unable to parser deadline"));
             return deadline;
         }
 
@@ -233,7 +233,7 @@ namespace Planum.Repository
                 RepoConfig.TaskHeaderDelimeterSymbol).Length);
             TimeSpan warningTime = TimeSpan.Zero;
             if (!ValueParser.TryParse(ref warningTime, line))
-                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_WARNING_TIME, line: line));
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_WARNING_TIME, line: line, message: "Unable to parse warning time"));
             return warningTime;
         }
 
@@ -249,7 +249,7 @@ namespace Planum.Repository
                 RepoConfig.TaskHeaderDelimeterSymbol).Length);
             TimeSpan duration = TimeSpan.Zero;
             if (!ValueParser.TryParse(ref duration, line))
-                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_WARNING_TIME, line: line));
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_DURATION, line: line, message: "Unable to parse duration"));
             return duration;
         }
 
@@ -283,7 +283,7 @@ namespace Planum.Repository
                         RepoConfig.TaskHeaderDelimeterSymbol).Length);
 
             if (!ValueParser.TryParse(ref deadline.repeatSpan, ref deadline.repeatMonths, ref deadline.repeatYears, line))
-                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_REPEAT_PERIOD, line: line));
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_REPEAT_PERIOD, line: line, message: "Unable to parse duration"));
         }
 
         protected bool CheckNext(string line, int level = 0)
@@ -327,7 +327,7 @@ namespace Planum.Repository
 
             if (line != string.Empty && !ValueParser.TryParse(ref deadlineId, line))
             {
-                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_REPEAT_PERIOD, line: line));
+                statuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_PARSE_REPEAT_PERIOD, line: line, message: "Unable to parse repeat period"));
                 deadline.Id = Guid.Empty;
                 return deadline;
             }

@@ -24,7 +24,7 @@ namespace Planum.Commands
 
         string GetInput()
         {
-            Console.Write("\n> ");
+            Console.Write("> ");
             var line = Console.ReadLine();
             return line is null ? "" : line;
         }
@@ -36,11 +36,13 @@ namespace Planum.Commands
 
             while (true)
             {
-                var input = GetInput();
+                var input = GetInput().Trim();
+                if (input == string.Empty)
+                    continue;
                 var quoteSplit = input.Split("\"");
                 bool quotes = false;
                 if (quoteSplit.Length == 0)
-                    return;
+                    continue;
                 if (quoteSplit.First() == string.Empty)
                     quotes = true;
                 IEnumerable<string> args = new List<string>();
