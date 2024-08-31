@@ -5,7 +5,7 @@ using Planum.Model.Managers;
 
 namespace Planum.Commands
 {
-    public class CreateCommandSettings: ICommandSettings
+    public class TaskCommandSettings: ICommandSettings
     {
         TaskBufferManager TaskBufferManager { get; set; }
 
@@ -17,8 +17,9 @@ namespace Planum.Commands
         public List<Guid> Parents = new List<Guid>();
         public List<string> Tags = new List<string>();
         public string Filename = "";
+        public bool Commit = false;
 
-        public CreateCommandSettings(TaskBufferManager taskBufferManager) => TaskBufferManager = taskBufferManager;
+        public TaskCommandSettings(TaskBufferManager taskBufferManager) => TaskBufferManager = taskBufferManager;
         public PlanumTask GetPlanumTask() => new PlanumTask(Id, Name, Description, Deadlines, Children, Parents, Tags);
     }
 }

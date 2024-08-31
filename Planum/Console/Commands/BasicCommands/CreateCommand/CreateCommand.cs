@@ -7,17 +7,17 @@ using Planum.Model.Managers;
 
 namespace Planum.Commands
 {
-    public class CreateCommand : BaseCommand<CreateCommandSettings>
+    public class CreateCommand : BaseCommand<TaskCommandSettings>
     {
         TaskBufferManager TaskBufferManager { get; set; }
 
-        public CreateCommand(TaskBufferManager taskBufferManager, SelectorParser selectorParser, CommandInfo commandInfo, List<BaseOption<CreateCommandSettings>> commandOptions, ILoggerWrapper logger): base(selectorParser, commandInfo, commandOptions, logger) => TaskBufferManager = taskBufferManager;
+        public CreateCommand(TaskBufferManager taskBufferManager, SelectorParser selectorParser, CommandInfo commandInfo, List<BaseOption<TaskCommandSettings>> commandOptions, ILoggerWrapper logger): base(selectorParser, commandInfo, commandOptions, logger) => TaskBufferManager = taskBufferManager;
 
         public override List<string> Execute(ref IEnumerator<string> args)
         {
             Logger.Log("Executing create command");
             var lines = new List<string>();
-            var commandSettings = new CreateCommandSettings(TaskBufferManager);
+            var commandSettings = new TaskCommandSettings(TaskBufferManager);
             if (!ParseSettings(ref args, ref lines, ref commandSettings))
                 return lines;
 

@@ -16,6 +16,6 @@ namespace Planum.Commands
 
         public bool CheckMatch(string value) => value.Trim(' ') == CommandConfig.OptionPrefix + OptionInfo.Name;
 
-        public abstract bool TryParseValue(ref IEnumerator<string> args, ref T result);
+        public abstract bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref T result);
     }
 }

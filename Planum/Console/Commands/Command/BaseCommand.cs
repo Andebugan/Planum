@@ -50,7 +50,7 @@ namespace Planum.Commands
                 else
                     args.MoveNext();
 
-                if (!optionMatches.First().TryParseValue(ref args, ref commandSettings))
+                if (!optionMatches.First().TryParseValue(ref args, ref lines, ref commandSettings))
                 {
                     Logger.Log(message: $"Unable to parser option: {arg} {args.Current}");
                     lines.Add(ConsoleSpecial.AddStyle($"Unable to parse option: {arg} {args.Current}", foregroundColor: ConsoleInfoColors.Error));
