@@ -1,9 +1,7 @@
-# Model Documetation
+# Model
+[back](../Planum.md)
 
-## Entites
-
-## Filters
-
-## Managers
-
-## Repository interface
+- [x] [PlanumTask](./PlanumTask.cs) - main planning entity in the project
+- [x] [Filters](./Filters/Filters.md) - task field filtering
+- [x] [Managers](./Managers/Managers.md) - logic
+- [x] [Repo](./Repo/Repo.md) - repo interfaces for onion architecture

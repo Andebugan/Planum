@@ -1,4 +1,0 @@
-namespace Planum.Commands.Show
-{
-    
-}

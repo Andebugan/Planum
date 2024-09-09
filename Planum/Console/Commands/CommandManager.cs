@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Planum.Logger;
 
-namespace Planum.Commands
+namespace Planum.Console.Commands
 {
     public class CommandManager
     {

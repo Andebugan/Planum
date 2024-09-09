@@ -1,4 +1,5 @@
 # Logger
 [back](../Planum.md)
 
-- [ ] Design better logger loading and using scheme via global config + attributes
+- [x] [ILoggerWrapper](./ILoggerWrapper.cs) - interface for logger realization
+- [x] [PlanumLogger](./PlanumLogger.cs) - simple logger implementation for planum project

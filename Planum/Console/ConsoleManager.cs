@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Planum.Console.Commands;
 using Planum.Logger;
 
-namespace Planum.Commands
+namespace Planum.Console
 {
     public class ConsoleManager 
     {
@@ -19,20 +19,20 @@ namespace Planum.Commands
         void PrintResult(IEnumerable<string> lines)
         {
             foreach (var line in lines)
-                Console.WriteLine(line);
+                System.Console.WriteLine(line);
         }
 
         string GetInput()
         {
-            Console.Write("> ");
-            var line = Console.ReadLine();
+            System.Console.Write("> ");
+            var line = System.Console.ReadLine();
             return line is null ? "" : line;
         }
 
         public void RunConsoleMode()
         {
             Logger.Log(message: "Running console mode");
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            System.Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             while (true)
             {
@@ -62,7 +62,7 @@ namespace Planum.Commands
         public void RunCommandMode(string[] args)
         {
             Logger.Log(message: "Running command mode");
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            System.Console.OutputEncoding = System.Text.Encoding.UTF8;
             List<string> result = CommandManager.TryExecuteCommand(args);
             PrintResult(result);
             Logger.Log(message: "Printing results");

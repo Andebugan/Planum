@@ -1,4 +1,4 @@
-namespace Planum.Commands
+namespace Planum.Console
 {
     // reset all string: \x1b[0;0m
     public enum TextStyle
