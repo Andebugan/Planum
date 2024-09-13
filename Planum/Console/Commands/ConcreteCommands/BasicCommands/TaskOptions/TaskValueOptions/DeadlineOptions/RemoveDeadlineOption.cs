@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Planum.Config;
-using Planum.Model.Entities;
 using Planum.Model.Filters;
 using Planum.Parser;
 
 namespace Planum.Console.Commands.Task
 {
-    public class AddDeadlineOption: BaseOption<TaskCommandSettings>
+    public class RemoveDeadlineOption: BaseOption<TaskCommandSettings>
     {
-        public AddDeadlineOption(OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig) { }
+        public RemoveDeadlineOption(OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
@@ -28,7 +28,7 @@ namespace Planum.Console.Commands.Task
             DeadlineFilter deadlineFilter = new DeadlineFilter(idFilter);
 
             foreach (var task in result.Tasks)
-                task.Deadlines.Add(new Deadline());
+                task.Deadlines = deadlineFilter.Filter(task.Deadlines).ToHashSet();
 
             return true;
         }

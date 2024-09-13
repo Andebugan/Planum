@@ -6,11 +6,11 @@ using Planum.Parser;
 
 namespace Planum.Console.Commands.Task
 {
-    public class ChildRemoveOption: BaseOption<TaskCommandSettings>
+    public class ChildRemoveOption : BaseOption<TaskCommandSettings>
     {
         protected TaskBufferManager TaskBufferManager { get; set; }
 
-        public ChildRemoveOption(TaskBufferManager taskBufferManager, OptionInfo optionInfo, CommandConfig commandConfig): base(optionInfo, commandConfig)
+        public ChildRemoveOption(TaskBufferManager taskBufferManager, OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig)
         {
             TaskBufferManager = taskBufferManager;
         }
@@ -24,7 +24,10 @@ namespace Planum.Console.Commands.Task
                 return false;
             }
             else
-                result.Children = result.Children.Except(children.Select(x => x.Id)).ToList();
+            {
+                foreach (var task in result.Tasks)
+                    task.Children = task.Children.Except(children.Select(x => x.Id)).ToHashSet();
+            }
             return true;
         }
     }

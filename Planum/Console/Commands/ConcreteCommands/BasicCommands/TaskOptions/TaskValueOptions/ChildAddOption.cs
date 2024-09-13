@@ -24,7 +24,10 @@ namespace Planum.Console.Commands.Task
                 return false;
             }
             else
-                result.Children = result.Children.Concat(children.Select(x => x.Id)).ToList();
+            {
+                foreach (var task in result.Tasks)
+                    task.Children = task.Children.Concat(children.Select(x => x.Id)).ToHashSet();
+            }
             return true;
         }
     }

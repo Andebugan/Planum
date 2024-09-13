@@ -9,7 +9,8 @@ namespace Planum.Console.Commands.Task
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
-            result.Name = args.Current;
+            foreach (var task in result.Tasks)
+                task.Name = args.Current;
             return true;
         }
     }

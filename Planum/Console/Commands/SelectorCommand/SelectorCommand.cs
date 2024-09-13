@@ -8,6 +8,7 @@ namespace Planum.Console.Commands.Selector
     public abstract class SelectorCommand<T> : BaseCommand<T>
     {
         List<SelectorBaseOption> selectorOptions;
+
         public override IEnumerable<IOption> CommandOptions
         {
             get => selectorOptions.Select(x => (IOption)x)
@@ -43,7 +44,7 @@ namespace Planum.Console.Commands.Selector
 
                 if (!selectorOption.TryParseValue(ref args, ref taskFilter, matchType, filterType))
                 {
-                    Logger.Log(message: $"Unable to parser selector option: {arg} {args.Current}");
+                    Logger.Log(message: $"Unable to parse selector option: {arg} {args.Current}");
                     lines.Add(ConsoleSpecial.AddStyle($"Unable to parse selector option: {arg} {args.Current}", foregroundColor: ConsoleInfoColors.Error));
                     parsingError = true;
                     break;

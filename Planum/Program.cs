@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
-using Planum.Commands;
-using Planum.Commands.Selector;
 using Planum.Config;
+using Planum.Console;
+using Planum.Console.Commands;
+using Planum.Console.Commands.Selector;
+using Planum.Console.Commands.Task;
 using Planum.Logger;
 using Planum.Model.Managers;
 using Planum.Repository;
@@ -34,14 +36,13 @@ namespace Planum
             var selectorOptions = new List<SelectorBaseOption>() {
                 new SelectorIdOption(commandConfig, new OptionInfo("s", "select task via id or name", "s[match type][logic operator] { value (name or id, full or partial) }"))
             };
-            var selectorParser = new SelectorParser(taskBufferManager, selectorOptions);
 
             // create command
-            var createCommandOptions = new List<BaseOption<CreateCommandSettings>>() {
-                new CreateNameOption(new OptionInfo("n", "specify name of a command", "n [task name]"), commandConfig),
+            var createCommandOptions = new List<BaseOption<TaskCommandSettings>>() {
+                new NameOption(new OptionInfo("n", "specify name of a command", "n [task name]"), commandConfig),
             };
 
-            ICommand createCommand = new CreateCommand(taskBufferManager, selectorParser, new CommandInfo("create", "creates new task", "create [options]"), createCommandOptions, logger);
+            ICommand createCommand = new CreateCommand(taskBufferManager, selectorOptions, new CommandInfo("create", "creates new task", "create [options]"), createCommandOptions, logger);
 
             var commands = new List<ICommand>() {
                 createCommand,

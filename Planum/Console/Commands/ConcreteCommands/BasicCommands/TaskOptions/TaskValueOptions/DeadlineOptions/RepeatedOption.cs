@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
 using Planum.Config;
-using Planum.Model.Entities;
 using Planum.Parser;
 
 namespace Planum.Console.Commands.Task
@@ -19,9 +19,13 @@ namespace Planum.Console.Commands.Task
             }
             else
             {
-                if (result.CurrentDeadline == null)
-                    result.CurrentDeadline = new Deadline();
-                result.CurrentDeadline.repeated = repeated;
+                foreach (var task in result.Tasks)
+                {
+                    var filteredDeadlines = result.DeadlineFilter.Filter(task.Deadlines);
+                    foreach (var deadline in filteredDeadlines)
+                        deadline.repeated = repeated;
+                    task.Deadlines = filteredDeadlines.ToHashSet();
+                }
             }
             return true;
         }

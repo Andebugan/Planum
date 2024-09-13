@@ -1,8 +1,11 @@
 # DeadlineOptions
 [back](../TaskValueOptions.md)
 
+When editing deadlines *for edited tasks* are changed via deadline selector
+
 - [x] [AddDeadlineOption](./AddDeadlineOption.cs)
-- [x] [DeadlineIdOption](./DeadlineIdOption.cs)
+- [x] [RemoveDeadlineOption](./RemoveDeadlineOption.cs)
+
 - [x] [EnabledOption](./EnabledOption.cs)
 - [x] [DurationOption](./DurationOption.cs)
 - [x] [WarningOption](./WarningOption.cs)

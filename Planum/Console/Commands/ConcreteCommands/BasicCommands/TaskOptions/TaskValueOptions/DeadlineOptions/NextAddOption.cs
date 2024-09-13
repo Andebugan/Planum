@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Planum.Config;
-using Planum.Model.Entities;
 using Planum.Model.Managers;
 using Planum.Parser;
 
@@ -26,9 +25,13 @@ namespace Planum.Console.Commands.Task
             }
             else
             {
-                if (result.CurrentDeadline is null)
-                    result.CurrentDeadline = new Deadline();
-                result.CurrentDeadline.next = result.CurrentDeadline.next.Concat(next.Select(x => x.Id)).ToHashSet();
+                foreach (var task in result.Tasks)
+                {
+                    var filteredDeadlines = result.DeadlineFilter.Filter(task.Deadlines);
+                    foreach (var deadline in filteredDeadlines)
+                        deadline.next = next.Select(x => x.Id).ToHashSet();
+                    task.Deadlines = filteredDeadlines.ToHashSet();
+                }
             }
             return true;
         }

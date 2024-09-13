@@ -6,23 +6,17 @@ using Planum.Parser;
 
 namespace Planum.Console.Commands.Selector
 {
-    public class DeadlineWarningOption : BaseOption 
+    public class SelectorDeadlineWarningOption : SelectorBaseOption 
     {
-        public DeadlineWarningOption(CommandConfig commandConfig, OptionInfo optionInfo) : base(commandConfig, optionInfo) { }
+        public SelectorDeadlineWarningOption(CommandConfig commandConfig, OptionInfo optionInfo) : base(commandConfig, optionInfo) { }
 
-        public override bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result)
+        public override bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result, MatchType matchType, MatchFilterType matchFilterType)
         {
-            MatchType matchType = MatchType.IGNORE;
-            MatchFilterType filterType = MatchFilterType.SUBSTRING;
-
-            if (!ExtractOptionParams(ref args, ref matchType, ref filterType))
-                return false;
-
             if (!args.MoveNext())
                 throw new SelectorException("No arguments provided for option", OptionInfo);
 
             TimeSpan warning = TimeSpan.Zero;
-            if (!ValueParser.TryParse(ref warning, args.Current) && filterType != MatchFilterType.SUBSTRING)
+            if (!ValueParser.TryParse(ref warning, args.Current) && matchFilterType != MatchFilterType.SUBSTRING)
                 throw new SelectorException("Unable to parse id selector option", OptionInfo);
 
             IValueMatch<TimeSpan> match = new ValueMatch<TimeSpan>(warning, args.Current);

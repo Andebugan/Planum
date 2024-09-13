@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
 using Planum.Config;
-using Planum.Model.Entities;
 using Planum.Parser;
 
 namespace Planum.Console.Commands.Task
@@ -11,17 +11,21 @@ namespace Planum.Console.Commands.Task
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
-            int months = 0;
-            if (!ValueParser.TryParse(ref months, args.Current))
+            int years = 0;
+            if (!ValueParser.TryParse(ref years, args.Current))
             {
                 lines.Add(ConsoleSpecial.AddStyle($"Unable to parse deadline repeat years from: \"{args.Current}\"", foregroundColor: ConsoleInfoColors.Error));
                 return false;
             }
             else
             {
-                if (result.CurrentDeadline == null)
-                    result.CurrentDeadline = new Deadline();
-                result.CurrentDeadline.repeatMonths = months;
+                foreach (var task in result.Tasks)
+                {
+                    var filteredDeadlines = result.DeadlineFilter.Filter(task.Deadlines);
+                    foreach (var deadline in filteredDeadlines)
+                        deadline.repeatYears = years;
+                    task.Deadlines = filteredDeadlines.ToHashSet();
+                }
             }
             return true;
         }

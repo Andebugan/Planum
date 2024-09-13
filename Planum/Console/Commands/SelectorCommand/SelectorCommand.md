@@ -1,7 +1,9 @@
 # SelectorCommand
 [back](../Commands.md)
 
-- [ ] [SelectorCommand.cs](./SelectorCommand.cs)
+- [x] [SelectorOptions](./SelectorOptions/SelectorOptions.md)
+
+- [x] [SelectorCommand.cs](./SelectorCommand.cs)
 - [x] [SelectorBaseOption.cs](./SelectorBaseOption.cs)
 - [x] [SelectorException.cs](./SelectorException.cs)
 

@@ -7,11 +7,11 @@ using Planum.Model.Managers;
 
 namespace Planum.Console.Commands.Task
 {
-    public class DeleteCommand : SelectorCommand<TaskCommandSettings>
+    public class UpdateCommand : SelectorCommand<TaskCommandSettings>
     {
         TaskBufferManager TaskBufferManager { get; set; }
 
-        public DeleteCommand(TaskBufferManager taskBufferManager, List<SelectorBaseOption> selectorOptions, CommandInfo commandInfo, List<BaseOption<TaskCommandSettings>> commandOptions, ILoggerWrapper logger) : base(selectorOptions, commandInfo, commandOptions, logger)
+        public UpdateCommand(TaskBufferManager taskBufferManager, List<SelectorBaseOption> selectorOptions, CommandInfo commandInfo, List<BaseOption<TaskCommandSettings>> commandOptions, ILoggerWrapper logger) : base(selectorOptions, commandInfo, commandOptions, logger)
         {
             TaskBufferManager = taskBufferManager;
         }
@@ -33,9 +33,17 @@ namespace Planum.Console.Commands.Task
                 return lines;
             }
 
-            var tasksToDelete = TaskBufferManager.Find(taskFilter);
-            TaskBufferManager.Delete(taskFilter);
-            lines.Add(ConsoleSpecial.AddStyle($"Deleted {tasksToDelete.Count()} tasks", foregroundColor: ConsoleInfoColors.Success));
+            var tasksToUpdate = TaskBufferManager.Find(taskFilter).ToList();
+            var commandSettings = new TaskCommandSettings(TaskBufferManager);
+            commandSettings.Tasks = tasksToUpdate.ToList();
+            commandSettings.DeadlineFilter = (DeadlineFilter)taskFilter.DeadlineFilter;
+
+            if (!ParseSettings(ref args, ref lines, ref commandSettings))
+                return lines;
+
+            TaskBufferManager.Update(commandSettings.Tasks);
+
+            lines.Add(ConsoleSpecial.AddStyle($"Updated {tasksToUpdate.Count()} tasks", foregroundColor: ConsoleInfoColors.Success));
 
             return lines;
         }
