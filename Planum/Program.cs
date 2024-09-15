@@ -33,16 +33,16 @@ namespace Planum
 
             // initialize commands
             var commandConfig = CommandConfig.Load(appConfig, logger);
-            var selectorOptions = new List<SelectorBaseOption>() {
-                new SelectorIdOption(commandConfig, new OptionInfo("s", "select task via id or name", "s[match type][logic operator] { value (name or id, full or partial) }"))
-            };
 
-            // create command
-            var createCommandOptions = new List<BaseOption<TaskCommandSettings>>() {
-                new NameOption(new OptionInfo("n", "specify name of a command", "n [task name]"), commandConfig),
-            };
-
-            ICommand createCommand = new CreateCommand(taskBufferManager, selectorOptions, new CommandInfo("create", "creates new task", "create [options]"), createCommandOptions, logger);
+            ICommand createCommand = new CreateCommand(taskBufferManager,
+                    new List<SelectorBaseOption> {
+                        new SelectorIdOption(commandConfig, new OptionInfo("si", "select tasks by id", "si [task id]"))
+                    },
+                    new CommandInfo("create", "creates new task", "create [options]"),
+                    new List<BaseOption<TaskCommandSettings>> {
+                        new NameOption(new OptionInfo("n", "specify task name", "n [task name]"), commandConfig)
+                    },
+                    logger);
 
             var commands = new List<ICommand>() {
                 createCommand,

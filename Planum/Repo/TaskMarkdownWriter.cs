@@ -10,13 +10,11 @@ namespace Planum.Repository
     public class TaskMarkdownWriter
     {
         RepoConfig RepoConfig { get; set; }
-        AppConfig AppConfig { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public TaskMarkdownWriter(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
+        public TaskMarkdownWriter(ILoggerWrapper logger, RepoConfig repoConfig)
         {
             Logger = logger;
-            AppConfig = appConfig;
             RepoConfig = repoConfig;
         }
 
