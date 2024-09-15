@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
+using Planum.Config;
 using Planum.Console.Commands.Selector;
 using Planum.Logger;
-using Planum.Model.Entities;
 using Planum.Model.Filters;
 using Planum.Model.Managers;
 
@@ -11,10 +10,12 @@ namespace Planum.Console.Commands.View
     public class ListCommand : SelectorCommand<ListCommandSettings>
     {
         TaskBufferManager TaskBufferManager;
+        RepoConfig RepoConfig;
 
-        public ListCommand(TaskBufferManager taskBufferManager, List<SelectorBaseOption> selectorOptions, CommandInfo commandInfo, List<BaseOption<ListCommandSettings>> commandOptions, ILoggerWrapper logger) : base(selectorOptions, commandInfo, commandOptions, logger)
+        public ListCommand(RepoConfig repoConfig, TaskBufferManager taskBufferManager, List<SelectorBaseOption> selectorOptions, CommandInfo commandInfo, List<BaseOption<ListCommandSettings>> commandOptions, ILoggerWrapper logger) : base(selectorOptions, commandInfo, commandOptions, logger)
         {
             TaskBufferManager = taskBufferManager;
+            RepoConfig = repoConfig;
         }
 
         public override List<string> Execute(ref IEnumerator<string> args)
@@ -41,17 +42,11 @@ namespace Planum.Console.Commands.View
             if (!ParseSettings(ref args, ref lines, ref listSettings))
                 return lines;
 
+            TaskListWriter listWriter = new TaskListWriter(Logger, RepoConfig);
             foreach (var task in tasksToDisplay)
-            {
-                
-            }
+                listWriter.WriteTask(lines, task, tasks, listSettings);
 
             return lines;
-        }
-
-        void ConvertTaskToListView(PlanumTask task, ref List<string> lines)
-        {
-
         }
     }
 }

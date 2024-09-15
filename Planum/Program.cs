@@ -22,8 +22,8 @@ namespace Planum
             var repoConfig = RepoConfig.Load(appConfig, logger);
 
             // initialize repo
-            var taskReader = new TaskMarkdownReader(logger, appConfig, repoConfig);
-            var taskWriter = new TaskMarkdownWriter(logger, appConfig, repoConfig);
+            var taskReader = new TaskMarkdownReader(logger, repoConfig);
+            var taskWriter = new TaskMarkdownWriter(logger, repoConfig);
             var taskFileManager = new TaskFileManager(appConfig, repoConfig, taskWriter, taskReader, logger);
             var taskRepo = new TaskRepo(taskFileManager);
 

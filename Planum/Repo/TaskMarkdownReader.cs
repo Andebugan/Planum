@@ -9,13 +9,11 @@ namespace Planum.Repository
 {
     public class TaskMarkdownReader
     {
-        AppConfig AppConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public TaskMarkdownReader(ILoggerWrapper logger, AppConfig appConfig, RepoConfig repoConfig)
+        public TaskMarkdownReader(ILoggerWrapper logger, RepoConfig repoConfig)
         {
-            AppConfig = appConfig;
             RepoConfig = repoConfig;
             Logger = logger;
         }

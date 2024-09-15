@@ -6,11 +6,11 @@ using Planum.Repository;
 
 namespace Planum.Console.Commands.Special
 {
-    public class SyncCommand : BaseCommand<SyncCommandSettings>
+    public class SyncCommand : BaseCommand<TaskBufferCommandSettings>
     {
         TaskBufferManager TaskBufferManager { get; set; }
 
-        public SyncCommand(TaskBufferManager taskBufferManager, CommandInfo commandInfo, List<BaseOption<SyncCommandSettings>> commandOptions, ILoggerWrapper logger) : base(commandInfo, commandOptions, logger)
+        public SyncCommand(TaskBufferManager taskBufferManager, CommandInfo commandInfo, List<BaseOption<TaskBufferCommandSettings>> commandOptions, ILoggerWrapper logger) : base(commandInfo, commandOptions, logger)
         {
             TaskBufferManager = taskBufferManager;
         }
