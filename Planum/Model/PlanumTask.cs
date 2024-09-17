@@ -125,6 +125,8 @@ namespace Planum.Model.Entities
         public string Name { get; set; }
         public string Description { get; set; }
 
+        public HashSet<string> SaveFiles { get; set; } = new HashSet<string>();
+
         public HashSet<string> Tags { get; set; } = new HashSet<string>();
         public HashSet<Deadline> Deadlines { get; set; } = new HashSet<Deadline>();
         public HashSet<Guid> Children { get; set; } = new HashSet<Guid>();
@@ -136,7 +138,8 @@ namespace Planum.Model.Entities
                 IEnumerable<Deadline>? deadlines = null,
                 IEnumerable<Guid>? children = null,
                 IEnumerable<Guid>? parents = null,
-                IEnumerable<string>? tags = null)
+                IEnumerable<string>? tags = null,
+                IEnumerable<string>? saveFiles = null)
         {
             Id = id is null ? new Guid() : (Guid)id;
             Name = name;
@@ -149,12 +152,9 @@ namespace Planum.Model.Entities
                 Parents = parents.ToHashSet();
             if (tags is not null)
                 Tags = tags.ToHashSet();
+            if (saveFiles is not null)
+                SaveFiles = saveFiles.ToHashSet();
         }
-
-        public void AddChildren(IEnumerable<Guid> children) => Children = Children.Concat(children).ToHashSet();
-        public void AddChild(Guid child) => Children.Add(child);
-        public void AddParents(IEnumerable<Guid> parents) => Parents = Parents.Concat(parents).ToHashSet();
-        public void AddParent(Guid parent) => Parents.Add(parent);
 
         public override bool Equals(object? obj)
         {
@@ -188,6 +188,8 @@ namespace Planum.Model.Entities
                 hash ^= child.GetHashCode();
             foreach (var tag in Tags)
                 hash ^= tag.GetHashCode();
+            foreach (var saveFile in SaveFiles)
+                hash ^= saveFile.GetHashCode();
             return hash;
         }
 
@@ -287,6 +289,13 @@ namespace Planum.Model.Entities
             foreach (var item in Parents)
                 result += item.ToString() + ", ";
             if (Parents.Count() > 0)
+                result = result.Remove(result.Length - 2, 2);
+            result += "}, ";
+
+            result += "SaveFiles={";
+            foreach (var item in SaveFiles)
+                result += item.ToString() + ", ";
+            if (SaveFiles.Count() > 0)
                 result = result.Remove(result.Length - 2, 2);
             result += "})";
 

@@ -7,6 +7,7 @@ When editing deadlines *for edited tasks* are changed via deadline selector
 - [x] [RemoveDeadlineOption](./RemoveDeadlineOption.cs)
 
 - [x] [EnabledOption](./EnabledOption.cs)
+- [ ] [ValueOption](./ValueOption.cs)
 - [x] [DurationOption](./DurationOption.cs)
 - [x] [WarningOption](./WarningOption.cs)
 - [x] [RepeatSpanOption](./RepeatSpanOption.cs)

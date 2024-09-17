@@ -1,17 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
-using Planum.Console.Commands.Selector;
 using Planum.Logger;
 using Planum.Model.Entities;
 using Planum.Model.Managers;
 
 namespace Planum.Console.Commands.Task
 {
-    public class CreateCommand : SelectorCommand<TaskCommandSettings>
+    public class CreateCommand : BaseCommand<TaskCommandSettings>
     {
         TaskBufferManager TaskBufferManager { get; set; }
 
-        public CreateCommand(TaskBufferManager taskBufferManager, List<SelectorBaseOption> selectorOptions, CommandInfo commandInfo, List<BaseOption<TaskCommandSettings>> commandOptions, ILoggerWrapper logger) : base(selectorOptions, commandInfo, commandOptions, logger)
+        public CreateCommand(TaskBufferManager taskBufferManager, CommandInfo commandInfo, List<BaseOption<TaskCommandSettings>> commandOptions, ILoggerWrapper logger) : base(commandInfo, commandOptions, logger)
         {
             TaskBufferManager = taskBufferManager;
         }

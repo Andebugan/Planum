@@ -7,5 +7,5 @@
 - [x] [Logger](./Logger/Logger.md) - logger wrapper, logger functions
 - [x] [Model](./Model/Model.md) - entities and buisness logic
 - [x] [Parser](./Parser/Parser.md) - specialized string parsers for common values and specific task values
-- [x] [Repo](./Repo/Repo.md) - concrete realization of repository
-    - [ ] Replace links to files in config with links to watch files, containing all information about group of files, when planum is used user can specify what context should be displayed
+- [ ] [Repo](./Repo/Repo.md) - concrete realization of repository
+    - [ ] Replace links to files with recursive markdown directory parsing
