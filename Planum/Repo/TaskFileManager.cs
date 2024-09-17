@@ -28,14 +28,7 @@ namespace Planum.Repository
 
         protected void ReadFromFile(string path, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next, ref ReadStatus readStatus)
         {
-            Logger.Log(message: $"Reading tasks from file: {path}", LogLevel.INFO);
-            if (!File.Exists(path))
-            {
-                Logger.Log($"Can't read from file, because it does not exist: {path}", LogLevel.WARN);
-                foreach (var taskId in RepoConfig.TaskLookupPaths[path])
-                    readStatus.ReadStatuses.Add(new TaskReadStatus(new PlanumTask(taskId), TaskReadStatusType.UNABLE_TO_FIND_TASK_FILE, path, message: "Unable to find task file"));
-                return;
-            }
+            Logger.Log(message: $"Collecting tasks from file: {path}", LogLevel.INFO);
                 
             IEnumerator<string> linesEnumerator = (IEnumerator<string>)(File.ReadAllLines(path).ToList().GetEnumerator());
             while (linesEnumerator.MoveNext() && readStatus.CheckOkStatus())
@@ -49,17 +42,50 @@ namespace Planum.Repository
             Logger.Log($"Task read complete", LogLevel.INFO);
         }
 
+        protected HashSet<string> SearchForMarkdownFiles(string startPath, HashSet<string> filePaths)
+        {
+            List<DirectoryInfo> directoryQueue = new List<DirectoryInfo>();
+
+            var directoryInfo = new DirectoryInfo(startPath);
+            directoryQueue.Add(directoryInfo);
+            IEnumerable<DirectoryInfo> levelQueue = directoryInfo.GetDirectories();
+            while (levelQueue.Any())
+            {
+                IEnumerable<DirectoryInfo> newLevelQueue = new DirectoryInfo[] {};
+                foreach (var dirInfo in levelQueue)
+                {
+                    newLevelQueue = newLevelQueue.Concat(dirInfo.GetDirectories());
+                    directoryQueue.Add(dirInfo);
+                }
+                levelQueue = newLevelQueue;
+            }
+
+            foreach (var dirInfo in directoryQueue)
+            {
+                var files = dirInfo.GetFiles().Where(x => x.Extension == ".md");
+                foreach (var fileInfo in files)
+                    filePaths.Add(fileInfo.FullName);
+            }
+
+            return filePaths;
+        }
+
         public IEnumerable<PlanumTask> Read(ref ReadStatus readStatus)
         {
-            Logger.Log($"Read starting, checking paths in task lookup paths", LogLevel.INFO);
+            Logger.Log($"Read starting", LogLevel.INFO);
 
             IList<PlanumTask> tasks = new List<PlanumTask>();
             Dictionary<Guid, IList<string>> children = new Dictionary<Guid, IList<string>>();
             Dictionary<Guid, IList<string>> parents = new Dictionary<Guid, IList<string>>();
             Dictionary<Guid, IList<string>> next = new Dictionary<Guid, IList<string>>();
 
-            foreach (var path in RepoConfig.TaskLookupPaths.Keys)
+            HashSet<string> filePaths = new HashSet<string>();
+            foreach (var path in RepoConfig.TaskLookupPaths)
+                filePaths = SearchForMarkdownFiles(path, filePaths);
+
+            foreach (var path in filePaths)
                 ReadFromFile(path, tasks, children, parents, next, ref readStatus);
+
             if (readStatus.CheckOkStatus())
                 TaskReader.ParseIdentities(tasks, children, parents, next);
 
@@ -127,8 +153,6 @@ namespace Planum.Repository
             WriteNewToFile(tasks, updatedIds, ref linesEnumerator, ref newLines);
             linesEnumerator.Dispose();
 
-            RepoConfig.TaskLookupPaths[path] = tasks.Select(x => x.Id).ToHashSet();
-
             if (writeStatus.CheckOkStatus())
                 fileLines[path] = newLines;
             Logger.Log($"Write comleted, success: {writeStatus.CheckOkStatus() && readStatus.CheckOkStatus()}", LogLevel.INFO);
@@ -138,13 +162,26 @@ namespace Planum.Repository
         {
             Logger.Log($"Write starting", LogLevel.INFO);
             Dictionary<string, IEnumerable<string>> fileLines = new Dictionary<string, IEnumerable<string>>();
-            foreach (var filepath in RepoConfig.TaskLookupPaths.Keys)
-                WriteToFile(filepath, tasks.Where(x => RepoConfig.TaskLookupPaths[filepath].Contains(x.Id)), ref writeStatus, ref readStatus, ref fileLines);
+
+            var filepaths = new Dictionary<string, List<Guid>>();
+            foreach (var task in tasks)
+            {
+                foreach (var filepath in task.SaveFiles)
+                    if (filepaths.ContainsKey(filepath))
+                        filepaths[filepath].Add(task.Id);
+                    else
+                        filepaths[filepath] = new List<Guid>() { task.Id };
+            }
+
+            foreach (var filepath in filepaths.Keys)
+                WriteToFile(filepath, tasks.Where(x => filepaths[filepath].Contains(x.Id)), ref writeStatus, ref readStatus, ref fileLines);
 
             if (writeStatus.CheckOkStatus())
             {
                 foreach (var fpath in fileLines.Keys)
                     File.WriteAllLines(fpath, fileLines[fpath]);
+                RepoConfig.TaskLookupPaths.Clear();
+                RepoConfig.TaskLookupPaths = fileLines.Keys.ToHashSet();
                 RepoConfig.Save(AppConfig, Logger);
             }
 
