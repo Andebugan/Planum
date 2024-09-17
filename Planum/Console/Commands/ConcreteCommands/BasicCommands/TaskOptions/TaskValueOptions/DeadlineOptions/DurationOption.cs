@@ -20,8 +20,11 @@ namespace Planum.Console.Commands.Task
             else
             {
                 foreach (var task in result.Tasks)
+                {
+                    var filteredDeadlines = result.DeadlineFilter.Filter(task.Deadlines);
                     foreach (var deadline in task.Deadlines)
                         deadline.duration = duration;
+                }
             }
             return true;
         }

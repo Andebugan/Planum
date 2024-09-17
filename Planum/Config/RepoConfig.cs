@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Planum.Logger;
 
@@ -12,7 +10,7 @@ namespace Planum.Config
         public string TaskFilename { get; set; } = "";
         public string TaskFileSearchPattern { get; set; } = "";
 
-        public Dictionary<string, List<Guid>> TaskLookupPaths { get; set; } = new Dictionary<string, List<Guid>>(); // replace with watchfile paths
+        public List<string> TaskLookupPaths { get; set; } = new List<string>();
 
         public string TaskDateTimeWriteFormat { get; set; } = "H:m d.M.y";
         public string TaskTimeSpanWriteFormat { get; set; } = @"d\.h\:m";
@@ -59,7 +57,7 @@ namespace Planum.Config
         public string TaskFilename { get; set; }
         public string TaskFileSearchPattern { get; set; }
 
-        public Dictionary<string, HashSet<Guid>> TaskLookupPaths = new Dictionary<string, HashSet<Guid>>();
+        public HashSet<string> TaskLookupPaths = new HashSet<string>();
 
         public string TaskDateTimeWriteFormat { get; set; } = "H:m d.M.y";
         public string TaskTimeSpanWriteFormat { get; set; } = @"d\.h\:m";
@@ -160,20 +158,6 @@ namespace Planum.Config
             };
         }
 
-        public string GetTaskPath(Guid id)
-        {
-            var paths = TaskLookupPaths.Keys.Where(x => TaskLookupPaths[x].Contains(id));
-            if (paths.Any())
-                return paths.First();
-            return "";
-        }
-
-        public string GetDefaultFilePath()
-        {
-            string savePath = AppContext.BaseDirectory;
-            return Path.Combine(savePath, TaskFilename);
-        }
-
         static RepoConfigJsonDTO ToJsonDTO(RepoConfig config)
         {
             RepoConfigJsonDTO configJsonDTO = new RepoConfigJsonDTO();
@@ -181,8 +165,7 @@ namespace Planum.Config
             configJsonDTO.TaskFilename = config.TaskFilename;
             configJsonDTO.TaskFileSearchPattern = config.TaskFileSearchPattern;
 
-            foreach (var key in config.TaskLookupPaths.Keys)
-                configJsonDTO.TaskLookupPaths[key] = config.TaskLookupPaths[key].ToList();
+            configJsonDTO.TaskLookupPaths = config.TaskLookupPaths.ToList();
 
             configJsonDTO.TaskDateTimeWriteFormat = config.TaskDateTimeWriteFormat;
             configJsonDTO.TaskTimeSpanWriteFormat = config.TaskTimeSpanWriteFormat;
@@ -222,8 +205,7 @@ namespace Planum.Config
             config.TaskFilename = configJsonDTO.TaskFilename;
             config.TaskFileSearchPattern = configJsonDTO.TaskFileSearchPattern;
 
-            foreach (var key in configJsonDTO.TaskLookupPaths.Keys)
-                config.TaskLookupPaths[key] = configJsonDTO.TaskLookupPaths[key].ToHashSet();
+            config.TaskLookupPaths = configJsonDTO.TaskLookupPaths.ToHashSet();
 
             config.TaskDateTimeWriteFormat = configJsonDTO.TaskDateTimeWriteFormat;
             config.TaskTimeSpanWriteFormat = configJsonDTO.TaskTimeSpanWriteFormat;

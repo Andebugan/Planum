@@ -4,6 +4,7 @@ using Planum.Console;
 using Planum.Console.Commands;
 using Planum.Console.Commands.Selector;
 using Planum.Console.Commands.Task;
+using Planum.Console.Commands.View;
 using Planum.Logger;
 using Planum.Model.Managers;
 using Planum.Repository;
@@ -35,7 +36,6 @@ namespace Planum
             var commandConfig = CommandConfig.Load(appConfig, logger);
 
             // selector options
-
             var selectorIdOption = new SelectorIdOption(commandConfig,
                     new OptionInfo("Si", "select by id", "[match type][match filter type] guid"));
             var selectorNameOption = new SelectorNameOption(commandConfig,
@@ -69,59 +69,177 @@ namespace Planum
                     new OptionInfo("SDr", "select by deadline repeat", "[match type][match filter type] bool"));
 
             // basic commands
-            var taskCommitOption = new CommitOption();
-            var taskFilenameOption = new FilenameOption();
+            var taskCommitOption = new CommitOption(new OptionInfo("C", "commit buffer changes into files at the end of command execution", ""), commandConfig);
+            var taskFilenameOption = new FilenameOption(new OptionInfo("F", "specify filename for task to be stored in", " filename"), commandConfig);
 
-            var taskNameOption = new NameOption();
-            var taskDescriptionOption = new DescriptionOption();
-            var taskTagAddOption = new TagAddOption();
-            var taskTagRemoveOption = new TagRemoveOption();
-            var taskChildAddOption = new ChildAddOption();
-            var taskChildRemoveOption = new ChildRemoveOption();
-            var taskParentAddOption = new ParentAddOption();
-            var taskParentRemoveOption = new ParentRemoveOption();
+            var taskNameOption = new NameOption(new OptionInfo("n", "specify task name", " name"), commandConfig);
+            var taskDescriptionOption = new DescriptionOption(new OptionInfo("d", "specify task description", " description"), commandConfig);
+            var taskTagAddOption = new TagAddOption(new OptionInfo("ta", "add new tag to the task", " tag"), commandConfig);
+            var taskTagRemoveOption = new TagRemoveOption(new OptionInfo("tr", "remove tag from the task", " tag"), commandConfig);
+            var taskChildAddOption = new ChildAddOption(taskBufferManager, new OptionInfo("ca", "add child to the task", " fuzzy_guid"), commandConfig);
+            var taskChildRemoveOption = new ChildRemoveOption(taskBufferManager, new OptionInfo("cr", "remove child from the task", " fuzzy_guid"), commandConfig);
+            var taskParentAddOption = new ParentAddOption(taskBufferManager, new OptionInfo("pa", "add parent to the task", " fuzzy_guid"), commandConfig);
+            var taskParentRemoveOption = new ParentRemoveOption(taskBufferManager, new OptionInfo("pr", "remove parent from the task", " fuzzy_guid"), commandConfig);
 
-            var taskAddDeadlineOption = new AddDeadlineOption();
-            var taskDeadlineValueOption = new ValueOption();
-            var taskDeadlineWarningOption = new WarningOption();
-            var taskDeadlineDurationOption = new DurationOption();
-            var taskDeadlineEnabledOption = new EnabledOption();
-            var taskDeadlineNextAddOption = new NextAddOption();
-            var taskDeadlineNextRemoveOption = new NextRemoveOption();
-            var taskDeadlineRemoveDeadlineOption = new RemoveDeadlineOption();
-            var taskDeadlineRepeatSpanOption = new RepeatSpanOption();
-            var taskDeadlineRepeatMonthsOption = new RepeatMonthsOption();
-            var taskDeadlineRepeatYearsOption = new RepeatYearsOption();
-            var taskDeadlineRepeatedOption = new RepeatedOption();
+            var taskAddDeadlineOption = new AddDeadlineOption(new OptionInfo("Da", "add new deadline to the task", ""), commandConfig);
+            var taskDeadlineValueOption = new ValueOption(new OptionInfo("Dv", "specify Deadline deadline value", " datetime"), commandConfig);
+            var taskDeadlineWarningOption = new WarningOption(new OptionInfo("Dw", "specify warning time", " timespan"), commandConfig);
+            var taskDeadlineDurationOption = new DurationOption(new OptionInfo("Dd", "specify duration", " timespan"), commandConfig);
+            var taskDeadlineEnabledOption = new EnabledOption(new OptionInfo("De", "specify enabled", " bool"), commandConfig);
+            var taskDeadlineNextAddOption = new NextAddOption(taskBufferManager, new OptionInfo("Dna", "add task to be executed next after deadline completion", " fuzzy_guid"), commandConfig);
+            var taskDeadlineNextRemoveOption = new NextRemoveOption(taskBufferManager, new OptionInfo("Dnr", "remove next task to be executed after pipeline completion", " fuzzy_guid"), commandConfig);
+            var taskDeadlineRemoveDeadlineOption = new RemoveDeadlineOption(new OptionInfo("Drd", "remove deadline from task", " fuzzy_guid"), commandConfig);
+            var taskDeadlineRepeatSpanOption = new RepeatSpanOption(new OptionInfo("Drs", "specify repeat span", " timespan"), commandConfig);
+            var taskDeadlineRepeatMonthsOption = new RepeatMonthsOption(new OptionInfo("Drm", "specify repeat months", " int"), commandConfig);
+            var taskDeadlineRepeatYearsOption = new RepeatYearsOption(new OptionInfo("Dry", "specify repeat years", " int"), commandConfig);
+            var taskDeadlineRepeatedOption = new RepeatedOption(new OptionInfo("Dr", "enable or disable task repetition", " bool"), commandConfig);
 
             ICommand createCommand = new CreateCommand(taskBufferManager,
                     new CommandInfo("create", "creates new task", "create [options...]"),
-                    new List<BaseOption<TaskCommandSettings>> {
+                    new List<BaseOption<TaskCommandSettings>>
+                    {
+                        taskCommitOption,
+                        taskFilenameOption,
+
+                        taskNameOption,
+                        taskDescriptionOption,
+                        taskTagAddOption,
+                        taskTagRemoveOption,
+                        taskChildAddOption,
+                        taskChildRemoveOption,
+                        taskParentAddOption,
+                        taskParentRemoveOption,
+
+                        taskAddDeadlineOption,
+                        taskDeadlineValueOption,
+                        taskDeadlineWarningOption,
+                        taskDeadlineDurationOption,
+                        taskDeadlineEnabledOption,
+                        taskDeadlineNextAddOption,
+                        taskDeadlineNextRemoveOption,
+                        taskDeadlineRemoveDeadlineOption,
+                        taskDeadlineRepeatSpanOption,
+                        taskDeadlineRepeatMonthsOption,
+                        taskDeadlineRepeatYearsOption,
+                        taskDeadlineRepeatedOption
                     },
                     logger);
 
             ICommand updateCommand = new UpdateCommand(taskBufferManager,
-                    new List<SelectorBaseOption>() {
+                    new List<SelectorBaseOption>()
+                    {
+                        selectorIdOption,
+                        selectorNameOption,
+                        selectorDescriptionOption,
+                        selectorChildOption,
+                        selectorParentOption,
+                        selectorTagOption,
+
+                        selectorDeadlineIdOption,
+                        selectorDeadlineEnabledOption,
+                        selectorDeadlineValueOption,
+                        selectorDeadlineWarningOption,
+                        selectorDeadlineDurationOption,
+                        selectorDeadlineRepeatSpanOption,
+                        selectorDeadlineRepeatMonthsOption,
+                        selectorDeadlineRepeatYearsOption,
+                        selectorDeadlineRepeatedOption
                     },
                     new CommandInfo("update", "update task values", "update [options...]"),
-                    new List<BaseOption<TaskCommandSettings>>() {
+                    new List<BaseOption<TaskCommandSettings>>()
+                    {
+                        taskCommitOption,
+                        taskFilenameOption,
+
+                        taskNameOption,
+                        taskDescriptionOption,
+                        taskTagAddOption,
+                        taskTagRemoveOption,
+                        taskChildAddOption,
+                        taskChildRemoveOption,
+                        taskParentAddOption,
+                        taskParentRemoveOption,
+
+                        taskAddDeadlineOption,
+                        taskDeadlineValueOption,
+                        taskDeadlineWarningOption,
+                        taskDeadlineDurationOption,
+                        taskDeadlineEnabledOption,
+                        taskDeadlineNextAddOption,
+                        taskDeadlineNextRemoveOption,
+                        taskDeadlineRemoveDeadlineOption,
+                        taskDeadlineRepeatSpanOption,
+                        taskDeadlineRepeatMonthsOption,
+                        taskDeadlineRepeatYearsOption,
+                        taskDeadlineRepeatedOption
                     },
                     logger);
 
-            ICommand deleteCommand =  = new DeleteCommand(taskBufferManager,
-                    new List<SelectorBaseOption>() {
+            ICommand deleteCommand = new DeleteCommand(taskBufferManager,
+                    new List<SelectorBaseOption>()
+                    {
+                        selectorIdOption,
+                        selectorNameOption,
+                        selectorDescriptionOption,
+                        selectorChildOption,
+                        selectorParentOption,
+                        selectorTagOption,
+
+                        selectorDeadlineIdOption,
+                        selectorDeadlineEnabledOption,
+                        selectorDeadlineValueOption,
+                        selectorDeadlineWarningOption,
+                        selectorDeadlineDurationOption,
+                        selectorDeadlineRepeatSpanOption,
+                        selectorDeadlineRepeatMonthsOption,
+                        selectorDeadlineRepeatYearsOption,
+                        selectorDeadlineRepeatedOption
                     },
                     new CommandInfo("delete", "delete selected tasks", "delete [options...]"),
-                    new List<BaseOption<TaskCommandSettings>>() {
+                    new List<BaseOption<TaskCommandSettings>>()
+                    {
+                        taskCommitOption
                     },
                     logger);
 
             // special commands
 
             // view commands
+            var listCommand = new ListCommand(repoConfig,
+                    taskBufferManager,
+                    new List<SelectorBaseOption>()
+                    {
+                        selectorIdOption,
+                        selectorNameOption,
+                        selectorDescriptionOption,
+                        selectorChildOption,
+                        selectorParentOption,
+                        selectorTagOption,
 
+                        selectorDeadlineIdOption,
+                        selectorDeadlineEnabledOption,
+                        selectorDeadlineValueOption,
+                        selectorDeadlineWarningOption,
+                        selectorDeadlineDurationOption,
+                        selectorDeadlineRepeatSpanOption,
+                        selectorDeadlineRepeatMonthsOption,
+                        selectorDeadlineRepeatYearsOption,
+                        selectorDeadlineRepeatedOption
+                    },
+                    new CommandInfo("list", "display tasks in list format", " [options...]"),
+                    new List<BaseOption<ListCommandSettings>>()
+                    {
+                    },
+                    logger
+                );
+
+            // console initialization
             var commands = new List<ICommand>() {
                 createCommand,
+                updateCommand,
+                deleteCommand,
+
+                listCommand
             };
 
             var commandManager = new CommandManager(commands, logger);
