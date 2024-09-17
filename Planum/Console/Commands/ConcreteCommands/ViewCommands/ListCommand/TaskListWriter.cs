@@ -70,9 +70,8 @@ namespace Planum.Console.Commands.View
             if (tasks.Where(x => x.Id != task.Id && x.Name == task.Name).Any())
                 line = RepoConfig.AddMarkdownLink(task.Name +
                        RepoConfig.TaskNameIdDelimiter +
-                       task.Id.ToString(), RepoConfig.GetTaskPath(task.Id));
-            line = RepoConfig.AddMarkdownLink(task.Name,
-                   RepoConfig.GetTaskPath(task.Id));
+                       task.Id.ToString(), task.SaveFile);
+            line = RepoConfig.AddMarkdownLink(task.Name, task.SaveFile);
             line = AddStatusColor(line, task, overdue, inProgress, warning);
             return line;
         }

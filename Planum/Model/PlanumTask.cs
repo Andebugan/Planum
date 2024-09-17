@@ -125,7 +125,7 @@ namespace Planum.Model.Entities
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public HashSet<string> SaveFiles { get; set; } = new HashSet<string>();
+        public string SaveFile { get; set; } = "./tasks.md";
 
         public HashSet<string> Tags { get; set; } = new HashSet<string>();
         public HashSet<Deadline> Deadlines { get; set; } = new HashSet<Deadline>();
@@ -139,7 +139,7 @@ namespace Planum.Model.Entities
                 IEnumerable<Guid>? children = null,
                 IEnumerable<Guid>? parents = null,
                 IEnumerable<string>? tags = null,
-                IEnumerable<string>? saveFiles = null)
+                string saveFile = "./tasks.md")
         {
             Id = id is null ? new Guid() : (Guid)id;
             Name = name;
@@ -152,8 +152,7 @@ namespace Planum.Model.Entities
                 Parents = parents.ToHashSet();
             if (tags is not null)
                 Tags = tags.ToHashSet();
-            if (saveFiles is not null)
-                SaveFiles = saveFiles.ToHashSet();
+            SaveFile = saveFile;
         }
 
         public override bool Equals(object? obj)
@@ -188,8 +187,7 @@ namespace Planum.Model.Entities
                 hash ^= child.GetHashCode();
             foreach (var tag in Tags)
                 hash ^= tag.GetHashCode();
-            foreach (var saveFile in SaveFiles)
-                hash ^= saveFile.GetHashCode();
+            hash ^= SaveFile.GetHashCode();
             return hash;
         }
 
@@ -292,12 +290,7 @@ namespace Planum.Model.Entities
                 result = result.Remove(result.Length - 2, 2);
             result += "}, ";
 
-            result += "SaveFiles={";
-            foreach (var item in SaveFiles)
-                result += item.ToString() + ", ";
-            if (SaveFiles.Count() > 0)
-                result = result.Remove(result.Length - 2, 2);
-            result += "})";
+            result += "SaveFile=" + SaveFile;
 
             return result;
         }

@@ -56,9 +56,8 @@ namespace Planum.Repository
             if (tasks.Where(x => x.Id != task.Id && x.Name == task.Name).Any())
                 return RepoConfig.AddMarkdownLink(task.Name +
                        RepoConfig.TaskNameIdDelimiter +
-                       task.Id.ToString(), RepoConfig.GetTaskPath(task.Id));
-            return RepoConfig.AddMarkdownLink(task.Name,
-                   RepoConfig.GetTaskPath(task.Id));
+                       task.Id.ToString(), task.SaveFile);
+            return RepoConfig.AddMarkdownLink(task.Name, task.SaveFile);
         }
 
         protected bool CheckIfChecklist(PlanumTask task)

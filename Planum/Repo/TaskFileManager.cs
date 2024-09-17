@@ -166,11 +166,10 @@ namespace Planum.Repository
             var filepaths = new Dictionary<string, List<Guid>>();
             foreach (var task in tasks)
             {
-                foreach (var filepath in task.SaveFiles)
-                    if (filepaths.ContainsKey(filepath))
-                        filepaths[filepath].Add(task.Id);
-                    else
-                        filepaths[filepath] = new List<Guid>() { task.Id };
+                if (filepaths.ContainsKey(task.SaveFile))
+                    filepaths[task.SaveFile].Add(task.Id);
+                else
+                    filepaths[task.SaveFile] = new List<Guid>() { task.Id };
             }
 
             foreach (var filepath in filepaths.Keys)

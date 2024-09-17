@@ -11,7 +11,6 @@ namespace Planum.Console.Commands.Task
 
         public List<PlanumTask> Tasks { get; set; } = new List<PlanumTask>();
 
-        public string Filename = "";
         public bool Commit = false;
 
         public DeadlineFilter DeadlineFilter { get; set; } = new DeadlineFilter(); // for targeted deadline changes 

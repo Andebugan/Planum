@@ -1,6 +1,11 @@
 # Planum
 [back](../Planum.md)
 
+- [ ] Divide solution into several projects:
+    - [ ] PlanumConsole
+    - [ ] PlanumModel
+    - [ ] PlanumRepo
+
 - [x] [Config](./Config/Config.md) - saving and loading configuration
     - [x] Replace file watch list with simple dotfile with paths to local watchfiles, which will in turn contain paths to wathed task files
 - [ ] [Console](./Console/Console.md) - console interface and commands for it
