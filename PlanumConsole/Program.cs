@@ -223,6 +223,7 @@ namespace Planum
                     },
                     logger);
 
+
             // view commands
             var listCommand = new ListCommand(repoConfig,
                     taskBufferManager,
@@ -258,8 +259,25 @@ namespace Planum
                 updateCommand,
                 deleteCommand,
 
+                saveCommand,
+                loadCommand,
+                dirCommand,
+
                 listCommand
             };
+
+            var helpCommand = new HelpCommand(
+                    commands,
+                    new CommandInfo("help", "display info about commands and their options", " [options...]"),
+                    new List<BaseOption<HelpCommandSettings>>()
+                    {
+                        new HelpShowOptionsOption(new OptionInfo("o", "show options", ""), consoleConfig),
+                        new HelpOptionLikeOption(new OptionInfo("ol", "filter option by name via string (if contains)", " string"), consoleConfig),
+                        new HelpCommandLikeOption(new OptionInfo("cl", "filter commands by name via string (if contains)", " string"), consoleConfig),
+                    },
+                    logger);
+
+            commands.Add(helpCommand);
 
             var commandManager = new CommandManager(commands, logger);
             var consoleManager = new ConsoleManager(commandManager, logger);
