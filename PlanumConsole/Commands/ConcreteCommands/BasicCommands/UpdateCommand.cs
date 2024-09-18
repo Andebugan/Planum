@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Planum.Console.Commands.Selector;
 using Planum.Logger;
 using Planum.Model.Filters;

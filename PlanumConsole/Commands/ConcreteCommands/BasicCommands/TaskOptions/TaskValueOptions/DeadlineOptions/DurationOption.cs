@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Planum.Config;
 using Planum.Parser;
 
@@ -26,6 +24,7 @@ namespace Planum.Console.Commands.Task
                         deadline.duration = duration;
                 }
             }
+
             return true;
         }
     }

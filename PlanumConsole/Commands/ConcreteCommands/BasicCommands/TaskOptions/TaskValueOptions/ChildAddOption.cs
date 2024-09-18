@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Planum.Config;
 using Planum.Model.Managers;
 using Planum.Parser;
@@ -28,6 +26,7 @@ namespace Planum.Console.Commands.Task
                 foreach (var task in result.Tasks)
                     task.Children = task.Children.Concat(children.Select(x => x.Id)).ToHashSet();
             }
+
             return true;
         }
     }

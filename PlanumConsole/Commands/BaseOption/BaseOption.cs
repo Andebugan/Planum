@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Planum.Config;
 
 namespace Planum.Console.Commands

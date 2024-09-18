@@ -2,6 +2,7 @@
 using Planum.Console;
 using Planum.Console.Commands;
 using Planum.Console.Commands.Selector;
+using Planum.Console.Commands.Special;
 using Planum.Console.Commands.Task;
 using Planum.Console.Commands.View;
 using Planum.Logger;
@@ -199,6 +200,28 @@ namespace Planum
                     logger);
 
             // special commands
+            var saveCommand = new SaveCommand(repoConfig,
+                    taskBufferManager,
+                    new CommandInfo("save", "saves current buffer back into the files", ""),
+                    new List<BaseOption<TaskStorageCommandSettings>>() {},
+                    logger);
+
+            var loadCommand = new LoadCommand(repoConfig,
+                    taskBufferManager,
+                    new CommandInfo("load", "loads tasks into buffer from the files", ""),
+                    new List<BaseOption<TaskStorageCommandSettings>>() {},
+                    logger);
+
+            var dirCommand = new DirCommand(repoConfig,
+                    taskBufferManager,
+                    new CommandInfo("dir", "allows editing and listing of directories which will be recursively searched for task files", " [options...]"),
+                    new List<BaseOption<TaskStorageCommandSettings>>() 
+                    {
+                        new AddDirOption(new OptionInfo("a", "add path to directory into lookup paths", "a path"), consoleConfig),
+                        new RemoveDirOption(new OptionInfo("r", "remove path to directory into lookup paths", "r path"), consoleConfig),
+                        new ListDirOption(new OptionInfo("l", "list resulted lookup paths", "l"), consoleConfig)
+                    },
+                    logger);
 
             // view commands
             var listCommand = new ListCommand(repoConfig,
@@ -242,6 +265,8 @@ namespace Planum
             var consoleManager = new ConsoleManager(commandManager, logger);
 
             // run
+            // TODO: CALL LOAD COMMAND HERE
+
             if (args.Length == 0)
                 consoleManager.RunConsoleMode();
             else
