@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Planum.Model.Filters;
 
 namespace Planum.Console.Commands.Selector
@@ -15,11 +14,11 @@ namespace Planum.Console.Commands.Selector
 
     public static class SelectorOptionModifiersParser
     {
-        static Dictionary<string, MatchType> matchTypeParse = new Dictionary<string, MatchType>()
+        static Dictionary<string, ValueMatchType> matchTypeParse = new Dictionary<string, ValueMatchType>()
         {
-            { "+", MatchType.AND },
-            { "*", MatchType.OR },
-            { "!", MatchType.NOT }
+            { "+", ValueMatchType.AND },
+            { "*", ValueMatchType.OR },
+            { "!", ValueMatchType.NOT }
         };
 
         static Dictionary<string, MatchFilterType> matchFilterTypeParse = new Dictionary<string, MatchFilterType>()
@@ -32,9 +31,9 @@ namespace Planum.Console.Commands.Selector
             { ">", MatchFilterType.GREATER }
         };
 
-        public static string ParseSelectorSettings(string selectorOptionName, out MatchType matchType, out MatchFilterType filterType)
+        public static string ParseSelectorSettings(string selectorOptionName, out ValueMatchType matchType, out MatchFilterType filterType)
         {
-            matchType = MatchType.AND;
+            matchType = ValueMatchType.AND;
             foreach (var match in matchTypeParse.Keys)
             {
                 if (selectorOptionName.EndsWith(match))

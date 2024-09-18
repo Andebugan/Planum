@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Planum.Config;
 using Planum.Model.Filters;
 
@@ -7,9 +6,9 @@ namespace Planum.Console.Commands.Selector
     public abstract class SelectorBaseOption : IOption
     {
         public OptionInfo OptionInfo { get; set; }
-        protected CommandConfig CommandConfig { get; set; }
+        protected ConsoleConfig CommandConfig { get; set; }
 
-        public SelectorBaseOption(CommandConfig commandConfig, OptionInfo optionInfo)
+        public SelectorBaseOption(ConsoleConfig commandConfig, OptionInfo optionInfo)
         {
             CommandConfig = commandConfig;
             OptionInfo = optionInfo;
@@ -17,21 +16,21 @@ namespace Planum.Console.Commands.Selector
 
         public string ExtractOptionParams(string selectorHeader)
         {
-            MatchType matchType = MatchType.IGNORE;
+            ValueMatchType matchType = ValueMatchType.IGNORE;
             MatchFilterType filterType = MatchFilterType.SUBSTRING;
 
             return SelectorOptionModifiersParser.ParseSelectorSettings(selectorHeader, out matchType, out filterType);
         }
 
-        public string ExtractOptionParams(string selectorHeader, out MatchType matchType, out MatchFilterType filterType)
+        public string ExtractOptionParams(string selectorHeader, out ValueMatchType matchType, out MatchFilterType filterType)
         {
-            matchType = MatchType.IGNORE;
+            matchType = ValueMatchType.IGNORE;
             filterType = MatchFilterType.SUBSTRING;
 
             return SelectorOptionModifiersParser.ParseSelectorSettings(selectorHeader, out matchType, out filterType);
         }
 
         public bool CheckMatch(string value) => value.Trim(' ') == CommandConfig.OptionPrefix + OptionInfo.Name;
-        public abstract bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result, MatchType matchType, MatchFilterType matchFilterType);
+        public abstract bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result, ValueMatchType matchType, MatchFilterType matchFilterType);
     }
 }

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Planum.Config;
 using Planum.Model.Filters;
 using Planum.Parser;
@@ -9,18 +6,18 @@ namespace Planum.Console.Commands.Task
 {
     public class RemoveDeadlineOption: BaseOption<TaskCommandSettings>
     {
-        public RemoveDeadlineOption(OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig) { }
+        public RemoveDeadlineOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
             Guid id = Guid.Empty;
 
-            MatchType equal = MatchType.IGNORE;
-            MatchType inCompared = MatchType.IGNORE;
+            ValueMatchType equal = ValueMatchType.IGNORE;
+            ValueMatchType inCompared = ValueMatchType.IGNORE;
             if (ValueParser.TryParse(ref id, args.Current))
-               equal = MatchType.NOT;
+               equal = ValueMatchType.NOT;
             else
-                inCompared = MatchType.NOT;
+                inCompared = ValueMatchType.NOT;
 
             ValueMatch<Guid> valueMatch = new ValueMatch<Guid>(id, args.Current, equal: equal, valueStrInCompared: inCompared);
             ValueFilter<Guid> idFilter = new ValueFilter<Guid>();

@@ -1,5 +1,3 @@
-using System;
-
 namespace Planum.Console.Commands.Selector
 {
     [System.Serializable]

@@ -7,7 +7,7 @@ namespace Planum.Console.Commands.Task
 {
     public class EnabledOption: BaseOption<TaskCommandSettings>
     {
-        public EnabledOption(OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig) { }
+        public EnabledOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {

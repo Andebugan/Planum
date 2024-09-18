@@ -6,9 +6,9 @@ namespace Planum.Console.Commands
     public abstract class BaseOption<T> : IOption
     {
         public OptionInfo OptionInfo { get; set; }
-        protected CommandConfig CommandConfig { get; set; }
+        protected ConsoleConfig CommandConfig { get; set; }
 
-        protected BaseOption(OptionInfo optionInfo, CommandConfig commandConfig)
+        protected BaseOption(OptionInfo optionInfo, ConsoleConfig commandConfig)
         {
             OptionInfo = optionInfo;
             CommandConfig = commandConfig;

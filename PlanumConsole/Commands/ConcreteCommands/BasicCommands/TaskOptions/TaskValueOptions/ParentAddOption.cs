@@ -10,7 +10,7 @@ namespace Planum.Console.Commands.Task
     {
         protected TaskBufferManager TaskBufferManager { get; set; }
 
-        public ParentAddOption(TaskBufferManager taskBufferManager, OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig)
+        public ParentAddOption(TaskBufferManager taskBufferManager, OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig)
         {
             TaskBufferManager = taskBufferManager;
         }

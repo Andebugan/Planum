@@ -6,7 +6,7 @@ namespace Planum.Console.Commands.Task
 {
     public class FilenameOption: BaseOption<TaskCommandSettings>
     {
-        public FilenameOption(OptionInfo optionInfo, CommandConfig commandConfig): base(optionInfo, commandConfig) { }
+        public FilenameOption(OptionInfo optionInfo, ConsoleConfig commandConfig): base(optionInfo, commandConfig) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {

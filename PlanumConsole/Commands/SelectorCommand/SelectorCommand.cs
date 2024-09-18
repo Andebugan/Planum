@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Planum.Logger;
 using Planum.Model.Filters;
 
@@ -37,7 +35,7 @@ namespace Planum.Console.Commands.Selector
                 else
                     match = true;
 
-                MatchType matchType;
+                ValueMatchType matchType;
                 MatchFilterType filterType;
                 SelectorBaseOption selectorOption = matchedOptions.First();
                 selectorOption.ExtractOptionParams(arg, out matchType, out filterType);

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Planum.Config;
+﻿using Planum.Config;
 using Planum.Console;
 using Planum.Console.Commands;
 using Planum.Console.Commands.Selector;
@@ -19,80 +18,77 @@ namespace Planum
             var logger = new PlanumLogger(where: LogWhere.CONSOLE, level: LogLevel.INFO);
 
             // config
-            var appConfig = AppConfig.Load(logger);
-            var repoConfig = RepoConfig.Load(appConfig, logger);
+            var consoleConfig = ConsoleConfig.Load("./ConsoleConfig.json", logger);
+            var repoConfig = RepoConfig.Load(consoleConfig.RepoConfigPath, logger);
 
             // repo
             var taskReader = new TaskMarkdownReader(logger, repoConfig);
             var taskWriter = new TaskMarkdownWriter(logger, repoConfig);
-            var taskFileManager = new TaskFileManager(appConfig, repoConfig, taskWriter, taskReader, logger);
+            var taskFileManager = new TaskFileManager(repoConfig, taskWriter, taskReader, logger);
             var taskRepo = new TaskRepo(taskFileManager);
 
             // managers
             var taskValidationManager = new TaskValidationManager();
             var taskBufferManager = new TaskBufferManager(taskRepo, taskValidationManager);
 
-            // commands
-            var commandConfig = CommandConfig.Load(appConfig, logger);
-
             // selector options
-            var selectorIdOption = new SelectorIdOption(commandConfig,
+            var selectorIdOption = new SelectorIdOption(consoleConfig,
                     new OptionInfo("Si", "select by id", "[match type][match filter type] guid"));
-            var selectorNameOption = new SelectorNameOption(commandConfig,
+            var selectorNameOption = new SelectorNameOption(consoleConfig,
                     new OptionInfo("Sn", "select by name", "[match type][match filter type] string"));
-            var selectorDescriptionOption = new SelectorDescriptionOption(commandConfig,
+            var selectorDescriptionOption = new SelectorDescriptionOption(consoleConfig,
                     new OptionInfo("Sd", "select by description", "[match type][match filter type] string"));
-            var selectorChildOption = new SelectorChildOption(commandConfig,
+            var selectorChildOption = new SelectorChildOption(consoleConfig,
                     new OptionInfo("Sc", "select by child id", "[match type][match filter type] guid"));
-            var selectorParentOption = new SelectorParentOption(commandConfig,
+            var selectorParentOption = new SelectorParentOption(consoleConfig,
                     new OptionInfo("Sp", "select by parent id", "[match type][match filter type] guid"));
-            var selectorTagOption = new SelectorTagOption(commandConfig,
+            var selectorTagOption = new SelectorTagOption(consoleConfig,
                     new OptionInfo("St", "select by tag", "[match type][match filter type] string"));
 
-            var selectorDeadlineIdOption = new SelectorDeadlineIdOption(commandConfig,
+            var selectorDeadlineIdOption = new SelectorDeadlineIdOption(consoleConfig,
                     new OptionInfo("SDi", "select by deadline id", "[match type][match filter type] guid"));
-            var selectorDeadlineEnabledOption = new SelectorDeadlineEnabledOption(commandConfig,
+            var selectorDeadlineEnabledOption = new SelectorDeadlineEnabledOption(consoleConfig,
                     new OptionInfo("SDe", "select by deadline enabled", "[match type][match filter type] bool"));
-            var selectorDeadlineValueOption = new SelectorDeadlineValueOption(commandConfig,
+            var selectorDeadlineValueOption = new SelectorDeadlineValueOption(consoleConfig,
                     new OptionInfo("SDv", "select by deadline value", "[match type][match filter type] datetime"));
-            var selectorDeadlineWarningOption = new SelectorDeadlineWarningOption(commandConfig,
+            var selectorDeadlineWarningOption = new SelectorDeadlineWarningOption(consoleConfig,
                     new OptionInfo("SDw", "select by deadline warning", "[match type][match filter type] timespan"));
-            var selectorDeadlineDurationOption = new SelectorDeadlineDurationOption(commandConfig,
+            var selectorDeadlineDurationOption = new SelectorDeadlineDurationOption(consoleConfig,
                     new OptionInfo("SDd", "select by deadline duration", "[match type][match filter type] timespan"));
-            var selectorDeadlineRepeatSpanOption = new SelectorDeadlineRepeatSpanOption(commandConfig,
+            var selectorDeadlineRepeatSpanOption = new SelectorDeadlineRepeatSpanOption(consoleConfig,
                     new OptionInfo("SDrs", "select by deadline repeat span", "[match type][match filter type] timespan"));
-            var selectorDeadlineRepeatMonthsOption = new SelectorDeadlineRepeatMonthsOption(commandConfig,
+            var selectorDeadlineRepeatMonthsOption = new SelectorDeadlineRepeatMonthsOption(consoleConfig,
                     new OptionInfo("SDrm", "select by deadline repeat months", "[match type][match filter type] int"));
-            var selectorDeadlineRepeatYearsOption = new SelectorDeadlineRepeatYearsOption(commandConfig,
+            var selectorDeadlineRepeatYearsOption = new SelectorDeadlineRepeatYearsOption(consoleConfig,
                     new OptionInfo("SDry", "select by deadline years", "[match type][match filter type] int"));
-            var selectorDeadlineRepeatedOption = new SelectorDeadlineRepeatedOption(commandConfig,
+            var selectorDeadlineRepeatedOption = new SelectorDeadlineRepeatedOption(consoleConfig,
                     new OptionInfo("SDr", "select by deadline repeat", "[match type][match filter type] bool"));
 
             // basic commands
-            var taskCommitOption = new CommitOption(new OptionInfo("C", "commit buffer changes into files at the end of command execution", ""), commandConfig);
-            var taskFilenameOption = new FilenameOption(new OptionInfo("F", "specify filename for task to be stored in", " filename"), commandConfig);
+            var taskCommitOption = new CommitOption(new OptionInfo("C", "commit buffer changes into files at the end of command execution", ""), consoleConfig);
+            var taskFilenameOption = new FilenameOption(new OptionInfo("F", "specify filename for task to be stored in", " filename"), consoleConfig);
 
-            var taskNameOption = new NameOption(new OptionInfo("n", "specify task name", " name"), commandConfig);
-            var taskDescriptionOption = new DescriptionOption(new OptionInfo("d", "specify task description", " description"), commandConfig);
-            var taskTagAddOption = new TagAddOption(new OptionInfo("ta", "add new tag to the task", " tag"), commandConfig);
-            var taskTagRemoveOption = new TagRemoveOption(new OptionInfo("tr", "remove tag from the task", " tag"), commandConfig);
-            var taskChildAddOption = new ChildAddOption(taskBufferManager, new OptionInfo("ca", "add child to the task", " fuzzy_guid"), commandConfig);
-            var taskChildRemoveOption = new ChildRemoveOption(taskBufferManager, new OptionInfo("cr", "remove child from the task", " fuzzy_guid"), commandConfig);
-            var taskParentAddOption = new ParentAddOption(taskBufferManager, new OptionInfo("pa", "add parent to the task", " fuzzy_guid"), commandConfig);
-            var taskParentRemoveOption = new ParentRemoveOption(taskBufferManager, new OptionInfo("pr", "remove parent from the task", " fuzzy_guid"), commandConfig);
+            var taskNameOption = new NameOption(new OptionInfo("n", "specify task name", " name"), consoleConfig);
+            var taskDescriptionOption = new DescriptionOption(new OptionInfo("d", "specify task description", " description"), consoleConfig);
+            var taskTagAddOption = new TagAddOption(new OptionInfo("ta", "add new tag to the task", " tag"), consoleConfig);
+            var taskTagRemoveOption = new TagRemoveOption(new OptionInfo("tr", "remove tag from the task", " tag"), consoleConfig);
+            var taskChildAddOption = new ChildAddOption(taskBufferManager, new OptionInfo("ca", "add child to the task", " fuzzy_guid"), consoleConfig);
+            var taskChildRemoveOption = new ChildRemoveOption(taskBufferManager, new OptionInfo("cr", "remove child from the task", " fuzzy_guid"), consoleConfig);
+            var taskParentAddOption = new ParentAddOption(taskBufferManager, new OptionInfo("pa", "add parent to the task", " fuzzy_guid"), consoleConfig);
+            var taskParentRemoveOption = new ParentRemoveOption(taskBufferManager, new OptionInfo("pr", "remove parent from the task", " fuzzy_guid"), consoleConfig);
 
-            var taskAddDeadlineOption = new AddDeadlineOption(new OptionInfo("Da", "add new deadline to the task", ""), commandConfig);
-            var taskDeadlineValueOption = new ValueOption(new OptionInfo("Dv", "specify Deadline deadline value", " datetime"), commandConfig);
-            var taskDeadlineWarningOption = new WarningOption(new OptionInfo("Dw", "specify warning time", " timespan"), commandConfig);
-            var taskDeadlineDurationOption = new DurationOption(new OptionInfo("Dd", "specify duration", " timespan"), commandConfig);
-            var taskDeadlineEnabledOption = new EnabledOption(new OptionInfo("De", "specify enabled", " bool"), commandConfig);
-            var taskDeadlineNextAddOption = new NextAddOption(taskBufferManager, new OptionInfo("Dna", "add task to be executed next after deadline completion", " fuzzy_guid"), commandConfig);
-            var taskDeadlineNextRemoveOption = new NextRemoveOption(taskBufferManager, new OptionInfo("Dnr", "remove next task to be executed after pipeline completion", " fuzzy_guid"), commandConfig);
-            var taskDeadlineRemoveDeadlineOption = new RemoveDeadlineOption(new OptionInfo("Drd", "remove deadline from task", " fuzzy_guid"), commandConfig);
-            var taskDeadlineRepeatSpanOption = new RepeatSpanOption(new OptionInfo("Drs", "specify repeat span", " timespan"), commandConfig);
-            var taskDeadlineRepeatMonthsOption = new RepeatMonthsOption(new OptionInfo("Drm", "specify repeat months", " int"), commandConfig);
-            var taskDeadlineRepeatYearsOption = new RepeatYearsOption(new OptionInfo("Dry", "specify repeat years", " int"), commandConfig);
-            var taskDeadlineRepeatedOption = new RepeatedOption(new OptionInfo("Dr", "enable or disable task repetition", " bool"), commandConfig);
+            var taskAddDeadlineOption = new AddDeadlineOption(new OptionInfo("Da", "add new deadline to the task", ""), consoleConfig);
+            var taskDeadlineValueOption = new ValueOption(new OptionInfo("Dv", "specify Deadline deadline value", " datetime"), consoleConfig);
+            var taskDeadlineWarningOption = new WarningOption(new OptionInfo("Dw", "specify warning time", " timespan"), consoleConfig);
+            var taskDeadlineDurationOption = new DurationOption(new OptionInfo("Dd", "specify duration", " timespan"), consoleConfig);
+            var taskDeadlineEnabledOption = new EnabledOption(new OptionInfo("De", "specify enabled", " bool"), consoleConfig);
+            var taskDeadlineNextAddOption = new NextAddOption(taskBufferManager, new OptionInfo("Dna", "add task to be executed next after deadline completion", " fuzzy_guid"), consoleConfig);
+            var taskDeadlineNextRemoveOption = new NextRemoveOption(taskBufferManager, new OptionInfo("Dnr", "remove next task to be executed after pipeline completion", " fuzzy_guid"), consoleConfig);
+            var taskDeadlineRemoveDeadlineOption = new RemoveDeadlineOption(new OptionInfo("Drd", "remove deadline from task", " fuzzy_guid"), consoleConfig);
+            var taskDeadlineRepeatSpanOption = new RepeatSpanOption(new OptionInfo("Drs", "specify repeat span", " timespan"), consoleConfig);
+            var taskDeadlineRepeatMonthsOption = new RepeatMonthsOption(new OptionInfo("Drm", "specify repeat months", " int"), consoleConfig);
+            var taskDeadlineRepeatYearsOption = new RepeatYearsOption(new OptionInfo("Dry", "specify repeat years", " int"), consoleConfig);
+            var taskDeadlineRepeatedOption = new RepeatedOption(new OptionInfo("Dr", "enable or disable task repetition", " bool"), consoleConfig);
 
             ICommand createCommand = new CreateCommand(taskBufferManager,
                     new CommandInfo("create", "creates new task", "create [options...]"),

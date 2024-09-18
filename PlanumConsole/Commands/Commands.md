@@ -1,5 +1,5 @@
 # Command
-[back](../Console.md)
+[back](../PlanumConsole.md)
 
 - [ ] Add suggestions (Unable find command, do you mean: ...?)
 

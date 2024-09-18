@@ -8,7 +8,7 @@ namespace Planum.Console.Commands.Task
 {
     public class RepeatSpanOption: BaseOption<TaskCommandSettings>
     {
-        public RepeatSpanOption(OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig) { }
+        public RepeatSpanOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {

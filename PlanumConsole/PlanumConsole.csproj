@@ -1,5 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\PlanumModel\PlanumModel.csproj" />
+    <ProjectReference Include="..\PlanumRepo\PlanumRepo.csproj" />
+    <ProjectReference Include="..\PlanumLogger\PlanumLogger.csproj" />
+    <ProjectReference Include="..\PlanumConfig\PlanumConfig.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>

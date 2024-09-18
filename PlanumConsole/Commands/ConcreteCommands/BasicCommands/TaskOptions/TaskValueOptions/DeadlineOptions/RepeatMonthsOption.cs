@@ -7,7 +7,7 @@ namespace Planum.Console.Commands.Task
 {
     public class RepeatMonthsOption: BaseOption<TaskCommandSettings>
     {
-        public RepeatMonthsOption(OptionInfo optionInfo, CommandConfig commandConfig) : base(optionInfo, commandConfig) { }
+        public RepeatMonthsOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {

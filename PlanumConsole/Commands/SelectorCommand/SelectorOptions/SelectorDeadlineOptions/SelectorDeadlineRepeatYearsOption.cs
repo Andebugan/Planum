@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Planum.Config;
 using Planum.Model.Filters;
 using Planum.Parser;
@@ -7,9 +6,9 @@ namespace Planum.Console.Commands.Selector
 {
     public class SelectorDeadlineRepeatYearsOption : SelectorBaseOption
     {
-        public SelectorDeadlineRepeatYearsOption(CommandConfig commandConfig, OptionInfo optionInfo) : base(commandConfig, optionInfo) { }
+        public SelectorDeadlineRepeatYearsOption(ConsoleConfig commandConfig, OptionInfo optionInfo) : base(commandConfig, optionInfo) { }
 
-        public override bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result, MatchType matchType, MatchFilterType matchFilterType)
+        public override bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result, ValueMatchType matchType, MatchFilterType matchFilterType)
         {
             if (!args.MoveNext())
                 throw new SelectorException("No arguments provided for option", OptionInfo);
