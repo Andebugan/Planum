@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Planum.Logger;
+﻿using Planum.Logger;
 
 namespace Planum.Config
 {
     ///<summary>Repo config DTO</summary>
     public class RepoConfigJsonDTO
     {
-        public string TaskFilename { get; set; } = "";
-        public string TaskFileSearchPattern { get; set; } = "";
+        public string TaskFileFilterPattern { get; set; } = "*.md";
 
         public List<string> TaskLookupPaths { get; set; } = new List<string>();
 
@@ -54,8 +51,9 @@ namespace Planum.Config
     ///<summary>Repository parsing settings config</summary>
     public class RepoConfig
     {
-        public string TaskFilename { get; set; }
-        public string TaskFileSearchPattern { get; set; }
+        public string RepoConfigPath { get; set; } = "./RepoConfig.json";
+
+        public string TaskFileFilterPattern { get; set; } = "*.md";
 
         public HashSet<string> TaskLookupPaths = new HashSet<string>();
 
@@ -141,10 +139,9 @@ namespace Planum.Config
             }
         }
 
-        public RepoConfig()
+        public RepoConfig(string repoConfigPath = "")
         {
-            TaskFilename = "tasks.md";
-            TaskFileSearchPattern = "*.md";
+            RepoConfigPath = repoConfigPath;
         }
 
         public string[] GetTaskStatusMarkerSymbols()
@@ -162,8 +159,7 @@ namespace Planum.Config
         {
             RepoConfigJsonDTO configJsonDTO = new RepoConfigJsonDTO();
 
-            configJsonDTO.TaskFilename = config.TaskFilename;
-            configJsonDTO.TaskFileSearchPattern = config.TaskFileSearchPattern;
+            configJsonDTO.TaskFileFilterPattern = config.TaskFileFilterPattern;
 
             configJsonDTO.TaskLookupPaths = config.TaskLookupPaths.ToList();
 
@@ -202,8 +198,7 @@ namespace Planum.Config
         {
             RepoConfig config = new RepoConfig();
             
-            config.TaskFilename = configJsonDTO.TaskFilename;
-            config.TaskFileSearchPattern = configJsonDTO.TaskFileSearchPattern;
+            config.TaskFileFilterPattern = configJsonDTO.TaskFileFilterPattern;
 
             config.TaskLookupPaths = configJsonDTO.TaskLookupPaths.ToHashSet();
 
@@ -240,18 +235,20 @@ namespace Planum.Config
         }
 
         /// <summary>Load repo config to path defined in app config</summary>
-        public static RepoConfig Load(AppConfig appConfig, ILoggerWrapper logger)
+        public static RepoConfig Load(string repoConfigPath, ILoggerWrapper logger)
         {
             logger.Log("Loading repo config", LogLevel.INFO);
-            RepoConfigJsonDTO configDTO = ConfigLoader.LoadConfig<RepoConfigJsonDTO>(appConfig.RepoConfigPath, new RepoConfigJsonDTO(), logger);
-            return FromJsonDTO(configDTO);
+            RepoConfigJsonDTO configDTO = ConfigLoader.LoadConfig<RepoConfigJsonDTO>(repoConfigPath, new RepoConfigJsonDTO(), logger);
+            var repoConfig = FromJsonDTO(configDTO);
+            repoConfig.RepoConfigPath = repoConfigPath;
+            return repoConfig;
         }
 
         /// <summary>Save repo config to path defined in app config</summary>
-        public void Save(AppConfig appConfig, ILoggerWrapper logger)
+        public void Save(ILoggerWrapper logger)
         {
             logger.Log("Saving repo config", LogLevel.INFO);
-            ConfigLoader.SaveConfig<RepoConfigJsonDTO>(appConfig.RepoConfigPath, ToJsonDTO(this), logger);
+            ConfigLoader.SaveConfig<RepoConfigJsonDTO>(RepoConfigPath, ToJsonDTO(this), logger);
         }
     }
 }

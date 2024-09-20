@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Planum.Model.Entities;
 
 namespace Planum.Model.Filters

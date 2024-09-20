@@ -1,5 +1,5 @@
 # Filters
-[back](../Model.md)
+[back](../PlanumModel.md)
 
 Filters are used for fuzzy field search in task sets
 

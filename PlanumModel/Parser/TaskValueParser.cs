@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Planum.Model.Entities;
 
-namespace Planum.Parser {
+namespace Planum.Parser
+{
     public static class TaskValueParser {
         public static IEnumerable<PlanumTask> ParseIdentity(string id, string name, IEnumerable<PlanumTask> taskBuffer) {
             Guid guid = new Guid();

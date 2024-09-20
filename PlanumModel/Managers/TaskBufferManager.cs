@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Planum.Model.Entities;
+﻿using Planum.Model.Entities;
 using Planum.Model.Filters;
 using Planum.Model.Repository;
 using Planum.Repository;

@@ -1,8 +1,6 @@
-using System;
-
 namespace Planum.Model.Filters
 {
-    public enum MatchType
+    public enum ValueMatchType
     {
         AND,
         OR,
@@ -14,12 +12,12 @@ namespace Planum.Model.Filters
     {
         public T Value { get; set; }
 
-        public MatchType Equal { get; set; }
-        public MatchType Lesser { get; set; }
-        public MatchType Greater { get; set; }
+        public ValueMatchType Equal { get; set; }
+        public ValueMatchType Lesser { get; set; }
+        public ValueMatchType Greater { get; set; }
 
-        public MatchType ValueStrInCompared { get; set; }
-        public MatchType ComparedStrInValue { get; set; }
+        public ValueMatchType ValueStrInCompared { get; set; }
+        public ValueMatchType ComparedStrInValue { get; set; }
 
         public bool Check(T compared);
     }

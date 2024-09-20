@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Planum.Repository
 {
     public class WriteStatus

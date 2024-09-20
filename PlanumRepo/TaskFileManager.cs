@@ -1,25 +1,19 @@
 ﻿using Planum.Config;
 using Planum.Logger;
 using Planum.Model.Entities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 #nullable enable
 
 namespace Planum.Repository
 {
     public class TaskFileManager: ITaskFileManager
     {
-        AppConfig AppConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
         TaskMarkdownWriter TaskWriter { get; set; }
         TaskMarkdownReader TaskReader { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public TaskFileManager(AppConfig appConfig, RepoConfig repoConfig, TaskMarkdownWriter taskWriter, TaskMarkdownReader taskReader, ILoggerWrapper logger)
+        public TaskFileManager(RepoConfig repoConfig, TaskMarkdownWriter taskWriter, TaskMarkdownReader taskReader, ILoggerWrapper logger)
         {
-            AppConfig = appConfig;
             RepoConfig = repoConfig;
             TaskWriter = taskWriter;
             TaskReader = taskReader;
@@ -181,7 +175,7 @@ namespace Planum.Repository
                     File.WriteAllLines(fpath, fileLines[fpath]);
                 RepoConfig.TaskLookupPaths.Clear();
                 RepoConfig.TaskLookupPaths = fileLines.Keys.ToHashSet();
-                RepoConfig.Save(AppConfig, Logger);
+                RepoConfig.Save(Logger);
             }
 
             Logger.Log($"Write finished", LogLevel.INFO);

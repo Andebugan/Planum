@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Planum.Model.Filters
 {
     public interface IValueFilter<T> where T : IComparable 
