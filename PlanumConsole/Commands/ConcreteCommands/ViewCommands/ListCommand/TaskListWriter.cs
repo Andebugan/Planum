@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Planum.Config;
 using Planum.Logger;
 using Planum.Model.Entities;
@@ -92,7 +89,7 @@ namespace Planum.Console.Commands.View
         }
 
         protected void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(
-                ConsoleSpecial.AddStyle(RepoConfig.TaskMarkerStartSymbol + task.Id.ToString() + RepoConfig.TaskMarkerEndSymbol, style: TextStyle.Dim, foregroundColor: TextForegroundColor.White)
+                ConsoleSpecial.AddStyle(RepoConfig.TaskMarkerStartSymbol + task.Id.ToString() + RepoConfig.TaskMarkerEndSymbol, style: TextStyle.Bold, foregroundColor: TextForegroundColor.White)
                 );
 
         protected void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
@@ -100,8 +97,7 @@ namespace Planum.Console.Commands.View
             lines.Add(AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(task, overdue, inProgress, warning)) +
-                RepoConfig.TaskNameSymbol +
-                RepoConfig.TaskHeaderDelimeterSymbol +
+                ConsoleSpecial.AddStyle(RepoConfig.TaskNameSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                 GetTaskName(task, tasks, overdue, inProgress, warning));
         }
 
@@ -122,8 +118,7 @@ namespace Planum.Console.Commands.View
                     lines.Add(
                             AddLineTabs(level) +
                             RepoConfig.TaskItemSymbol +
-                            RepoConfig.TaskTagSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
+                            ConsoleSpecial.AddStyle(RepoConfig.TaskTagSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                             tag);
             }
         }
@@ -139,7 +134,7 @@ namespace Planum.Console.Commands.View
 
                 var tmpLine = AddLineTabs(level) +
                     RepoConfig.TaskItemSymbol +
-                    RepoConfig.TaskDescriptionSymbol +
+                    ConsoleSpecial.AddStyle(RepoConfig.TaskDescriptionSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                     RepoConfig.TaskHeaderDelimeterSymbol +
                     descriptionLines[0];
 
@@ -188,8 +183,7 @@ namespace Planum.Console.Commands.View
                     lines.Add(
                         RepoConfig.TaskItemSymbol +
                         RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(child, overdue, inProgress, warning)) +
-                        RepoConfig.TaskChildSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        ConsoleSpecial.AddStyle(RepoConfig.TaskChildSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                         GetTaskName(child, tasks, overdue, inProgress, warning)
                         );
             }
@@ -205,8 +199,7 @@ namespace Planum.Console.Commands.View
                     lines.Add(
                         RepoConfig.TaskItemSymbol +
                         RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(parent, overdue, inProgress, warning)) +
-                        RepoConfig.TaskParentSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        ConsoleSpecial.AddStyle(RepoConfig.TaskParentSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                         GetTaskName(parent, tasks, overdue, inProgress, warning)
                         );
             }
@@ -221,8 +214,7 @@ namespace Planum.Console.Commands.View
                 lines.Add(AddLineTabs(level + 1) +
                     RepoConfig.TaskItemSymbol +
                     RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(next, overdue, inProgress, warning)) +
-                    RepoConfig.TaskNextSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
+                    ConsoleSpecial.AddStyle(RepoConfig.TaskNextSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                     nextStr);
             }
         }
@@ -238,16 +230,14 @@ namespace Planum.Console.Commands.View
                     AddLineTabs(level) +
                     RepoConfig.TaskItemSymbol +
                     RepoConfig.AddCheckbox(GetDeadlineMarkerSymbol(deadline)) +
-                    RepoConfig.TaskDeadlineHeaderSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
+                    ConsoleSpecial.AddStyle(RepoConfig.TaskDeadlineHeaderSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                     deadline.Id.ToString()
                     );
                 // deadline
                 deadlineLines.Add(
                     AddLineTabs(level + 1) +
                     RepoConfig.TaskItemSymbol +
-                    RepoConfig.TaskDeadlineSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
+                    ConsoleSpecial.AddStyle(RepoConfig.TaskDeadlineSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                     deadline.deadline.ToString(RepoConfig.TaskDateTimeWriteFormat)
                     );
                 // warning time
@@ -255,8 +245,7 @@ namespace Planum.Console.Commands.View
                     deadlineLines.Add(
                         AddLineTabs(level + 1) +
                         RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskWarningTimeSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        ConsoleSpecial.AddStyle(RepoConfig.TaskWarningTimeSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                         deadline.warningTime.ToString(RepoConfig.TaskTimeSpanWriteFormat)
                         );
                 // duration
@@ -264,8 +253,7 @@ namespace Planum.Console.Commands.View
                     deadlineLines.Add(
                         AddLineTabs(level + 1) +
                         RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDurationTimeSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        ConsoleSpecial.AddStyle(RepoConfig.TaskDurationTimeSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                         deadline.duration.ToString(RepoConfig.TaskTimeSpanWriteFormat)
                         );
                 // repeat
@@ -274,8 +262,7 @@ namespace Planum.Console.Commands.View
                     var repeatLine = AddLineTabs(level + 1) +
                         RepoConfig.TaskItemSymbol +
                         RepoConfig.AddCheckbox(GetEnabledSymbol(deadline.repeated)) +
-                        RepoConfig.TaskRepeatTimeSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
+                        ConsoleSpecial.AddStyle(RepoConfig.TaskRepeatTimeSymbol + RepoConfig.TaskHeaderDelimeterSymbol, TextStyle.Bold, TextForegroundColor.Yellow) +
                         deadline.repeatYears.ToString() + " " +
                         deadline.repeatMonths.ToString() + " " +
                         deadline.repeatSpan.ToString(RepoConfig.TaskTimeSpanWriteFormat);
