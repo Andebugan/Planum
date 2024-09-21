@@ -18,6 +18,7 @@ note.md
 .vs/*
 bin
 obj
+core
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

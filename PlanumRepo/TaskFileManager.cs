@@ -38,6 +38,7 @@ namespace Planum.Repository
 
         protected HashSet<string> SearchForMarkdownFiles(string startPath, HashSet<string> filePaths)
         {
+            Logger.Log("Searching for markdown files", LogLevel.INFO);
             List<DirectoryInfo> directoryQueue = new List<DirectoryInfo>();
 
             var directoryInfo = new DirectoryInfo(startPath);
@@ -61,6 +62,7 @@ namespace Planum.Repository
                     filePaths.Add(fileInfo.FullName);
             }
 
+            Logger.Log("Search complete", LogLevel.INFO);
             return filePaths;
         }
 

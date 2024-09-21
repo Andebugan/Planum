@@ -241,6 +241,7 @@ namespace Planum.Config
             RepoConfigJsonDTO configDTO = ConfigLoader.LoadConfig<RepoConfigJsonDTO>(repoConfigPath, new RepoConfigJsonDTO(), logger);
             var repoConfig = FromJsonDTO(configDTO);
             repoConfig.RepoConfigPath = repoConfigPath;
+            logger.Log("Repo config loaded", LogLevel.INFO);
             return repoConfig;
         }
 
@@ -249,6 +250,7 @@ namespace Planum.Config
         {
             logger.Log("Saving repo config", LogLevel.INFO);
             ConfigLoader.SaveConfig<RepoConfigJsonDTO>(RepoConfigPath, ToJsonDTO(this), logger);
+            logger.Log("Repo config saved", LogLevel.INFO);
         }
     }
 }
