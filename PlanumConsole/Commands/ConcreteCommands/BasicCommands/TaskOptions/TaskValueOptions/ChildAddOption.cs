@@ -15,6 +15,12 @@ namespace Planum.Console.Commands.Task
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
+            if (!args.MoveNext())
+            {
+                lines.Add(ConsoleSpecial.AddStyle($"No arguments provided for option: {OptionInfo.Name}", foregroundColor: ConsoleInfoColors.Error));
+                return false;
+            }
+
             var children = TaskValueParser.ParseIdentity(args.Current, args.Current, TaskBufferManager.Find());
             if (!children.Any())
             {

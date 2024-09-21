@@ -8,6 +8,12 @@ namespace Planum.Console.Commands.Task
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
+            if (!args.MoveNext())
+            {
+                lines.Add(ConsoleSpecial.AddStyle($"No arguments provided for option: {OptionInfo.Name}", foregroundColor: ConsoleInfoColors.Error));
+                return false;
+            }
+
             var fullfilepath = Path.Combine(args.Current);
             var relativeFilepath = Path.Combine(Directory.GetCurrentDirectory(), args.Current);
             if (!File.Exists(fullfilepath) && !File.Exists(relativeFilepath))
@@ -19,7 +25,6 @@ namespace Planum.Console.Commands.Task
             foreach (var task in result.Tasks)
                 task.SaveFile = args.Current;
 
-            args.MoveNext();
             return true;
         }
     }

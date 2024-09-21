@@ -10,8 +10,10 @@ namespace Planum.Console.Commands.Special
         {
             if (!args.MoveNext())
             {
+                lines.Add(ConsoleSpecial.AddStyle($"No arguments provided for option: {OptionInfo.Name}", foregroundColor: ConsoleInfoColors.Error));
                 return false;
             }
+
             result.CommandNameLikeString = args.Current;
             return true;
         }
