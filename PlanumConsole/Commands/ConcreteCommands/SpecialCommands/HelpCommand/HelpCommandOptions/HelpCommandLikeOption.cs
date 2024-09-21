@@ -8,7 +8,10 @@ namespace Planum.Console.Commands.Special
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref HelpCommandSettings result)
         {
-            args.MoveNext();
+            if (!args.MoveNext())
+            {
+                return false;
+            }
             result.CommandNameLikeString = args.Current;
             return true;
         }

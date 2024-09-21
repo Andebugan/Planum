@@ -4,18 +4,25 @@ using Planum.Parser;
 
 namespace Planum.Console.Commands.Selector
 {
-    public class SelectorDeadlineDurationOption : SelectorBaseOption 
+    public class SelectorDeadlineDurationOption : SelectorBaseOption
     {
         public SelectorDeadlineDurationOption(ConsoleConfig commandConfig, OptionInfo optionInfo) : base(commandConfig, optionInfo) { }
 
-        public override bool TryParseValue(ref IEnumerator<string> args, ref TaskFilter result, ValueMatchType matchType, MatchFilterType matchFilterType)
+        public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskFilter result, ValueMatchType matchType, MatchFilterType matchFilterType)
+
         {
             if (!args.MoveNext())
-                throw new SelectorException("No arguments provided for option", OptionInfo);
+            {
+                lines.Add(ConsoleSpecial.AddStyle($"No arguments provided for option: {OptionInfo.Name}", foregroundColor: ConsoleInfoColors.Error));
+                return false;
+            }
 
             TimeSpan duration = TimeSpan.Zero;
             if (!ValueParser.TryParse(ref duration, args.Current) && matchFilterType != MatchFilterType.SUBSTRING)
-                throw new SelectorException("Unable to parse id selector option", OptionInfo);
+            {
+                lines.Add(ConsoleSpecial.AddStyle($"Unable to parse child selector option: {args.Current}", foregroundColor: ConsoleInfoColors.Error));
+                return false;
+            }
 
             IValueMatch<TimeSpan> match = new ValueMatch<TimeSpan>(duration, args.Current);
 

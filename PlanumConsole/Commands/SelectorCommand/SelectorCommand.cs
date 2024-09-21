@@ -40,7 +40,7 @@ namespace Planum.Console.Commands.Selector
                 SelectorBaseOption selectorOption = matchedOptions.First();
                 selectorOption.ExtractOptionParams(arg, out matchType, out filterType);
 
-                if (!selectorOption.TryParseValue(ref args, ref taskFilter, matchType, filterType))
+                if (!selectorOption.TryParseValue(ref args, ref lines, ref taskFilter, matchType, filterType))
                 {
                     Logger.Log(message: $"Unable to parse selector option: {arg} {args.Current}");
                     lines.Add(ConsoleSpecial.AddStyle($"Unable to parse selector option: {arg} {args.Current}", foregroundColor: ConsoleInfoColors.Error));

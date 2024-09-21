@@ -14,6 +14,7 @@ namespace Planum.Console.Commands.Task
                 lines.Add(ConsoleSpecial.AddStyle($"Unable to parse commit option value: \"{args.Current}\"", foregroundColor: ConsoleInfoColors.Error));
                 return false;
             }
+            args.MoveNext();
             return true;
         }
     }

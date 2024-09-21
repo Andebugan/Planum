@@ -19,6 +19,7 @@ namespace Planum.Console.Commands.Task
             foreach (var task in result.Tasks)
                 task.SaveFile = args.Current;
 
+            args.MoveNext();
             return true;
         }
     }
