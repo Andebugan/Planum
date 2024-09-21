@@ -92,7 +92,7 @@ namespace Planum
             var taskDeadlineRepeatedOption = new RepeatedOption(new OptionInfo("Dr", "enable or disable task repetition", " bool"), consoleConfig);
 
             ICommand createCommand = new CreateCommand(taskBufferManager,
-                    new CommandInfo("create", "creates new task", "create [options...]"),
+                    new CommandInfo("create", "creates new task", " [options...]"),
                     new List<BaseOption<TaskCommandSettings>>
                     {
                         taskCommitOption,
@@ -142,7 +142,7 @@ namespace Planum
                         selectorDeadlineRepeatYearsOption,
                         selectorDeadlineRepeatedOption
                     },
-                    new CommandInfo("update", "update task values", "update [options...]"),
+                    new CommandInfo("update", "update task values", " [options...]"),
                     new List<BaseOption<TaskCommandSettings>>()
                     {
                         taskCommitOption,
@@ -192,7 +192,7 @@ namespace Planum
                         selectorDeadlineRepeatYearsOption,
                         selectorDeadlineRepeatedOption
                     },
-                    new CommandInfo("delete", "delete selected tasks", "delete [options...]"),
+                    new CommandInfo("delete", "delete selected tasks", " [options...]"),
                     new List<BaseOption<TaskCommandSettings>>()
                     {
                         taskCommitOption
@@ -203,26 +203,30 @@ namespace Planum
             var saveCommand = new SaveCommand(repoConfig,
                     taskBufferManager,
                     new CommandInfo("save", "saves current buffer back into the files", ""),
-                    new List<BaseOption<TaskStorageCommandSettings>>() {},
+                    new List<BaseOption<TaskStorageCommandSettings>>() { },
                     logger);
 
             var loadCommand = new LoadCommand(repoConfig,
                     taskBufferManager,
                     new CommandInfo("load", "loads tasks into buffer from the files", ""),
-                    new List<BaseOption<TaskStorageCommandSettings>>() {},
+                    new List<BaseOption<TaskStorageCommandSettings>>() { },
                     logger);
 
             var dirCommand = new DirCommand(repoConfig,
                     taskBufferManager,
                     new CommandInfo("dir", "allows editing and listing of directories which will be recursively searched for task files", " [options...]"),
-                    new List<BaseOption<TaskStorageCommandSettings>>() 
+                    new List<BaseOption<TaskStorageCommandSettings>>()
                     {
-                        new AddDirOption(new OptionInfo("a", "add path to directory into lookup paths", "a path"), consoleConfig),
-                        new RemoveDirOption(new OptionInfo("r", "remove path to directory into lookup paths", "r path"), consoleConfig),
-                        new ListDirOption(new OptionInfo("l", "list resulted lookup paths", "l"), consoleConfig)
+                        new AddDirOption(new OptionInfo("a", "add path to directory into lookup paths", " path"), consoleConfig),
+                        new RemoveDirOption(new OptionInfo("r", "remove path to directory into lookup paths", " path"), consoleConfig),
+                        new ListDirOption(new OptionInfo("l", "list resulted lookup paths", ""), consoleConfig)
                     },
                     logger);
 
+            var exitCommand = new ExitCommand(repoConfig,
+                    new CommandInfo("exit", "exit from app", ""),
+                    new List<BaseOption<ExitCommandSettings>>(),
+                    logger);
 
             // view commands
             var listCommand = new ListCommand(repoConfig,
@@ -262,6 +266,7 @@ namespace Planum
                 saveCommand,
                 loadCommand,
                 dirCommand,
+                exitCommand,
 
                 listCommand
             };
@@ -279,11 +284,8 @@ namespace Planum
 
             commands.Add(helpCommand);
 
-            var commandManager = new CommandManager(commands, logger);
+            var commandManager = new CommandManager(commands, exitCommand, logger);
             var consoleManager = new ConsoleManager(commandManager, logger);
-
-            // run
-            // TODO: CALL LOAD COMMAND HERE
 
             if (args.Length == 0)
                 consoleManager.RunConsoleMode();

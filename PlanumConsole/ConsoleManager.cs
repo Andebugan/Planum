@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Planum.Console.Commands;
 using Planum.Logger;
 
@@ -34,7 +32,7 @@ namespace Planum.Console
             Logger.Log(message: "Running console mode");
             System.Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            while (true)
+            while (!CommandManager.IsExit)
             {
                 var input = GetInput().Trim();
                 if (input == string.Empty)
@@ -57,6 +55,7 @@ namespace Planum.Console
                 List<string> result = CommandManager.TryExecuteCommand(args);
                 PrintResult(result);
             }
+            Logger.Log(message: "Console mode exit");
         }
 
         public void RunCommandMode(string[] args)

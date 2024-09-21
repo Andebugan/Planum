@@ -27,8 +27,8 @@ namespace Planum.Console.Commands.Special
 
             foreach (var command in displayedCommands)
             {
-                lines.Add(ConsoleSpecial.AddStyle(command.CommandInfo.Name, TextStyle.Bold, TextForegroundColor.BrightYellow) +
-                        ConsoleSpecial.AddStyle(command.CommandInfo.Usage, foregroundColor: TextForegroundColor.Yellow) + " - " + command.CommandInfo.Description);
+                lines.Add(ConsoleSpecial.AddStyle(command.CommandInfo.Name, TextStyle.Bold, TextForegroundColor.BrightCyan) +
+                        ConsoleSpecial.AddStyle(command.CommandInfo.Usage, foregroundColor: TextForegroundColor.BrightYellow) + " - " + command.CommandInfo.Description);
 
                 IEnumerable<IOption> options = new List<IOption>();
                 if (commandSettings.ShowOptions)
@@ -42,8 +42,8 @@ namespace Planum.Console.Commands.Special
                 foreach (var option in options)
                 {
                     lines.Add("    " + 
-                            ConsoleSpecial.AddStyle(option.OptionInfo.Name, TextStyle.Bold, TextForegroundColor.BrightCyan) +
-                            option.OptionInfo.Usage +
+                            ConsoleSpecial.AddStyle(option.OptionInfo.Name, TextStyle.Bold, TextForegroundColor.BrightYellow) +
+                            ConsoleSpecial.AddStyle(option.OptionInfo.Usage, TextStyle.Dim, TextForegroundColor.Yellow) +
                             " - " +
                             option.OptionInfo.Description);
                 }

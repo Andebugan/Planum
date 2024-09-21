@@ -26,7 +26,9 @@ namespace Planum.Config
         public static ConsoleConfig Load(string commandConfigPath, ILoggerWrapper logger)
         {
             logger.Log("Loading command config", LogLevel.INFO);
-            return ConfigLoader.LoadConfig<ConsoleConfig>(commandConfigPath, new ConsoleConfig(), logger);
+            var config = ConfigLoader.LoadConfig<ConsoleConfig>(commandConfigPath, new ConsoleConfig(), logger);
+            logger.Log("Command config loaded", LogLevel.INFO);
+            return config;
         }
 
         /// <summary>Save command config to path defined in app config</summary>
@@ -34,6 +36,8 @@ namespace Planum.Config
         {
             logger.Log("Saving command config", LogLevel.INFO);
             ConfigLoader.SaveConfig<ConsoleConfig>(ConsoleConfigPath, this, logger);
+            logger.Log("Command config saved", LogLevel.INFO);
+
         }
     }
 }

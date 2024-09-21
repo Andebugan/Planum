@@ -24,7 +24,7 @@ namespace Planum.Console.Commands.Selector
 
             bool parsingError = false;
 
-            do
+            while (!match && !parsingError && args.MoveNext())
             {
                 match = false;
                 string arg = args.Current;
@@ -48,7 +48,6 @@ namespace Planum.Console.Commands.Selector
                     break;
                 }
             }
-            while (!match && !parsingError && args.MoveNext());
 
             return !parsingError;
         }

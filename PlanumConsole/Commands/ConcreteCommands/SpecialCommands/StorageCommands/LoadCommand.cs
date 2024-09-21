@@ -16,6 +16,37 @@ namespace Planum.Console.Commands.Special
             RepoConfig = repoConfig;
         }
 
+        public List<string> Execute(TaskStorageCommandSettings commandSettings)
+        {
+            Logger.Log("Executing load command without pasring");
+            var lines = new List<string>();
+
+            var saveWriteStatus = new WriteStatus();
+            var saveReadStatus = new ReadStatus();
+
+            var loadReadStatus = new ReadStatus();
+            TaskBufferManager.Load(ref loadReadStatus);
+            if (!loadReadStatus.CheckOkStatus())
+            {
+                foreach (var status in loadReadStatus.ReadStatuses.Where(x => x.Status != TaskReadStatusType.OK))
+                {
+                    lines.Add(ConsoleSpecial.AddStyle($"Unable to read task on save:", TextStyle.Normal, TextForegroundColor.Red));
+                    lines.Add(ConsoleSpecial.AddStyle($"    message: {status.Message}", TextStyle.Normal));
+                    string id = status.Victim is null ? "" : status.Victim.Id.ToString();
+                    lines.Add(ConsoleSpecial.AddStyle($"    id:      {id}", TextStyle.Normal));
+                    string name = status.Victim is null ? "" : status.Victim.Name;
+                    lines.Add(ConsoleSpecial.AddStyle($"    name:    {name}", TextStyle.Normal));
+                    lines.Add(ConsoleSpecial.AddStyle($"    file:    {status.FilePath}", TextStyle.Normal));
+                    lines.Add(ConsoleSpecial.AddStyle($"    line num:{status.LineNumber}", TextStyle.Normal));
+                    lines.Add(ConsoleSpecial.AddStyle($"    line:    {status.Line}", TextStyle.Normal));
+                }
+            }
+
+            Logger.Log("Successfully executed load command without parsing");
+            return lines;
+
+        }
+
         public override List<string> Execute(ref IEnumerator<string> args)
         {
             Logger.Log("Executing load command");

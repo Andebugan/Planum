@@ -27,23 +27,23 @@ namespace Planum.Console.Commands
         protected bool ParseSettings(ref IEnumerator<string> args, ref List<string> lines, ref T commandSettings)
         {
             Logger.Log(message: "Parsing command settings");
-            bool match = false;
+
+            bool match = true;
             bool parsingError = false;
 
-            do
+            while (match && !parsingError && args.MoveNext())
             {
                 var arg = args.Current;
                 var optionMatches = commandOptions.Where(x => x.CheckMatch(arg));
-                match = true;
+                match = optionMatches.Any();
+                Logger.Log(arg);
+                Logger.Log(optionMatches.Count().ToString());
                 if (!optionMatches.Any())
                 {
                     Logger.Log(message: $"Unable to find option: {arg}");
                     lines.Add(ConsoleSpecial.AddStyle($"Unable to find option: {arg}", foregroundColor: ConsoleInfoColors.Error));
-                    match = false;
                     break;
                 }
-                else
-                    args.MoveNext();
 
                 if (!optionMatches.First().TryParseValue(ref args, ref lines, ref commandSettings))
                 {
@@ -53,7 +53,6 @@ namespace Planum.Console.Commands
                     break;
                 }
             }
-            while (!match && !parsingError && args.MoveNext());
 
             return !parsingError;
         }
