@@ -1,4 +1,5 @@
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Managers;
 using Planum.Parser;
 
@@ -8,7 +9,7 @@ namespace Planum.Console.Commands.Task
     {
         protected TaskBufferManager TaskBufferManager { get; set; }
 
-        public ChildAddOption(TaskBufferManager taskBufferManager, OptionInfo optionInfo, ConsoleConfig commandConfig): base(optionInfo, commandConfig)
+        public ChildAddOption(ILoggerWrapper logger, TaskBufferManager taskBufferManager, OptionInfo optionInfo, ConsoleConfig commandConfig): base(logger, optionInfo, commandConfig)
         {
             TaskBufferManager = taskBufferManager;
         }

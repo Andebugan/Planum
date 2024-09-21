@@ -1,4 +1,5 @@
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Filters;
 using Planum.Parser;
 
@@ -6,7 +7,7 @@ namespace Planum.Console.Commands.Selector
 {
     public class SelectorDeadlineRepeatMonthsOption : SelectorBaseOption
     {
-        public SelectorDeadlineRepeatMonthsOption(ConsoleConfig commandConfig, OptionInfo optionInfo) : base(commandConfig, optionInfo) { }
+        public SelectorDeadlineRepeatMonthsOption(ILoggerWrapper logger, ConsoleConfig commandConfig, OptionInfo optionInfo) : base(logger, commandConfig, optionInfo) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskFilter result, ValueMatchType matchType, MatchFilterType matchFilterType)
         {

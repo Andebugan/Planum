@@ -41,7 +41,6 @@ namespace Planum.Model.Filters
             return result;
         }
 
-        // TODO: add string checks CheckEqualString, CheckLesserString and etc.
         public bool CheckEqual(T compared, bool agg = false)
         {
             if (Equal == ValueMatchType.AND)

@@ -1,4 +1,5 @@
-﻿using Planum.Model.Entities;
+﻿using Planum.Logger;
+using Planum.Model.Entities;
 using Planum.Model.Filters;
 using Planum.Model.Repository;
 using Planum.Repository;
@@ -7,11 +8,13 @@ namespace Planum.Model.Managers
 {
     public class TaskBufferManager
     {
+        protected ILoggerWrapper Logger { get; set; }
         protected ITaskRepo TaskRepo { get; set; }
         protected TaskValidationManager TaskValidationManager { get; set; }
 
-        public TaskBufferManager(ITaskRepo planumTaskRepo, TaskValidationManager taskValidationManager)
+        public TaskBufferManager(ILoggerWrapper logger, ITaskRepo planumTaskRepo, TaskValidationManager taskValidationManager)
         {
+            Logger = logger;
             TaskRepo = planumTaskRepo;
             TaskValidationManager = taskValidationManager;
         }
@@ -38,7 +41,7 @@ namespace Planum.Model.Managers
         {
             var validationResults = new List<TaskValidationResult>();
             TaskValidationManager.ValidateTask(tasks, ref validationResults);
-            if (validationResults.Any())
+            if (!validationResults.Any())
                 TaskRepo.Add(tasks);
             return validationResults;
         }
@@ -64,6 +67,7 @@ namespace Planum.Model.Managers
         public void Delete(ITaskFilter? taskFilter = null)
         {
             var tasks = TaskRepo.Get();
+            
             if (taskFilter is not null)
                 tasks = taskFilter.Filter(tasks);
             TaskRepo.Delete(tasks.Select(x => x.Id));

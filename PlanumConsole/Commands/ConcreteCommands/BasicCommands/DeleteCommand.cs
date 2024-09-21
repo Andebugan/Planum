@@ -20,7 +20,7 @@ namespace Planum.Console.Commands.Task
         {
             Logger.Log("Executing delete command");
             var lines = new List<string>();
-            TaskFilter taskFilter = new TaskFilter();
+            TaskFilter taskFilter = new TaskFilter(Logger);
             bool match = false;
 
             if (!ParseSelectorSettings(ref args, ref lines, ref taskFilter, ref match))

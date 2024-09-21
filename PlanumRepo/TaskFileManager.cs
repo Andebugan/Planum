@@ -39,6 +39,12 @@ namespace Planum.Repository
         protected HashSet<string> SearchForMarkdownFiles(string startPath, HashSet<string> filePaths)
         {
             Logger.Log("Searching for markdown files", LogLevel.INFO);
+            if (File.Exists(startPath))
+            {
+                filePaths.Add(startPath);
+                return filePaths;
+            }
+
             List<DirectoryInfo> directoryQueue = new List<DirectoryInfo>();
 
             var directoryInfo = new DirectoryInfo(startPath);
@@ -77,7 +83,12 @@ namespace Planum.Repository
 
             HashSet<string> filePaths = new HashSet<string>();
             foreach (var path in RepoConfig.TaskLookupPaths)
-                filePaths = SearchForMarkdownFiles(path, filePaths);
+            {
+                if (!File.Exists(path) && !Directory.Exists(path))
+                    readStatus.ReadStatuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_FIND_TASK_FILE, path, message: "Unable to find path of directory: \"{}\""));
+                else
+                    filePaths = SearchForMarkdownFiles(path, filePaths);
+            }
 
             foreach (var path in filePaths)
                 ReadFromFile(path, tasks, children, parents, next, ref readStatus);

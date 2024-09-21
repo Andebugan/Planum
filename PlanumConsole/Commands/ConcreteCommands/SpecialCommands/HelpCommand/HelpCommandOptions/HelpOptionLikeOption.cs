@@ -1,11 +1,11 @@
 using Planum.Config;
+using Planum.Logger;
 
 namespace Planum.Console.Commands.Special
 {
     public class HelpOptionLikeOption: BaseOption<HelpCommandSettings>
     {
-        public HelpOptionLikeOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
-
+        public HelpOptionLikeOption(ILoggerWrapper logger, OptionInfo optionInfo, ConsoleConfig commandConfig) : base(logger, optionInfo, commandConfig) { }
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref HelpCommandSettings result)
         {
             if (!args.MoveNext())

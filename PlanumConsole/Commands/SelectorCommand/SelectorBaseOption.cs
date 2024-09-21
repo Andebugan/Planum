@@ -1,4 +1,5 @@
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Filters;
 
 namespace Planum.Console.Commands.Selector
@@ -7,9 +8,11 @@ namespace Planum.Console.Commands.Selector
     {
         public OptionInfo OptionInfo { get; set; }
         protected ConsoleConfig CommandConfig { get; set; }
+        protected ILoggerWrapper Logger { get; set; }
 
-        public SelectorBaseOption(ConsoleConfig commandConfig, OptionInfo optionInfo)
+        public SelectorBaseOption(ILoggerWrapper logger, ConsoleConfig commandConfig, OptionInfo optionInfo)
         {
+            Logger = logger;
             CommandConfig = commandConfig;
             OptionInfo = optionInfo;
         }

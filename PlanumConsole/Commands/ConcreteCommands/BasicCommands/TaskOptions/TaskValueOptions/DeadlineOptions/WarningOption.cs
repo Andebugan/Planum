@@ -1,12 +1,12 @@
 using Planum.Config;
+using Planum.Logger;
 using Planum.Parser;
 
 namespace Planum.Console.Commands.Task
 {
     public class WarningOption: BaseOption<TaskCommandSettings>
     {
-        public WarningOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
-
+        public WarningOption(ILoggerWrapper logger, OptionInfo optionInfo, ConsoleConfig commandConfig) : base(logger, optionInfo, commandConfig) { }
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
             if (!args.MoveNext())

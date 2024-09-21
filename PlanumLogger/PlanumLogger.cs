@@ -49,5 +49,13 @@ namespace Planum.Logger
             if (Where == LogWhere.CONSOLE || Where == LogWhere.CONSOLE_AND_FILE)
                 System.Console.WriteLine(logLine);
         }
+
+        public void Log(object obj, LogLevel level = LogLevel.INFO, [CallerLineNumber] int line = 0, [CallerMemberName] string? caller = null)
+        {
+            var objStr = obj.ToString();
+            if (objStr is null)
+                objStr = "null";
+            Log(objStr, level, line, caller);
+        }
     }
 }

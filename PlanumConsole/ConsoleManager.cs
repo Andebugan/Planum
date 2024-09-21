@@ -34,24 +34,19 @@ namespace Planum.Console
 
             while (!CommandManager.IsExit)
             {
-                var input = GetInput().Trim();
-                if (input == string.Empty)
-                    continue;
-                var quoteSplit = input.Split("\"");
-                bool quotes = false;
-                if (quoteSplit.Length == 0)
-                    continue;
-                if (quoteSplit.First() == string.Empty)
-                    quotes = true;
+                var inputString = GetInput().Trim();
+                var inputArgs = inputString.Split("\"");
+                bool insideQuotes = inputString.StartsWith('"');
                 IEnumerable<string> args = new List<string>();
-                foreach (var split in quoteSplit)
+                foreach (var inputArg in inputArgs)
                 {
-                    if (quotes)
-                        args = args.Append(split);
-                    else
-                        args = args.Concat(split.Split(' '));
-                    quotes = !quotes;
+                    if (insideQuotes)
+                        args = args.Append(inputArg);
+                    else if (inputArg.Trim().Length > 0)
+                        args = args.Concat(inputArg.Split(' ').Where(x => x.Length > 0));
+                    insideQuotes = !insideQuotes;
                 }
+
                 List<string> result = CommandManager.TryExecuteCommand(args);
                 PrintResult(result);
             }

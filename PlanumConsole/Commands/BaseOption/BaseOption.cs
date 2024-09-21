@@ -1,14 +1,17 @@
 using Planum.Config;
+using Planum.Logger;
 
 namespace Planum.Console.Commands
 {
     public abstract class BaseOption<T> : IOption
     {
         public OptionInfo OptionInfo { get; set; }
+        protected ILoggerWrapper Logger { get; set; }
         protected ConsoleConfig ConsoleConfig { get; set; }
 
-        protected BaseOption(OptionInfo optionInfo, ConsoleConfig commandConfig)
+        protected BaseOption(ILoggerWrapper logger, OptionInfo optionInfo, ConsoleConfig commandConfig)
         {
+            Logger = logger;
             OptionInfo = optionInfo;
             ConsoleConfig = commandConfig;
         }

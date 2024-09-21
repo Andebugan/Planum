@@ -1,4 +1,5 @@
 using Planum.Config;
+using Planum.Logger;
 using Planum.Model.Filters;
 using Planum.Parser;
 
@@ -6,7 +7,7 @@ namespace Planum.Console.Commands.Task
 {
     public class RemoveDeadlineOption: BaseOption<TaskCommandSettings>
     {
-        public RemoveDeadlineOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
+        public RemoveDeadlineOption(ILoggerWrapper logger, OptionInfo optionInfo, ConsoleConfig commandConfig) : base(logger, optionInfo, commandConfig) { }
 
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
@@ -26,9 +27,9 @@ namespace Planum.Console.Commands.Task
                 inCompared = ValueMatchType.NOT;
 
             ValueMatch<Guid> valueMatch = new ValueMatch<Guid>(id, args.Current, equal: equal, valueStrInCompared: inCompared);
-            ValueFilter<Guid> idFilter = new ValueFilter<Guid>();
+            ValueFilter<Guid> idFilter = new ValueFilter<Guid>(Logger);
             idFilter.AddMatch(valueMatch);
-            DeadlineFilter deadlineFilter = new DeadlineFilter(idFilter);
+            DeadlineFilter deadlineFilter = new DeadlineFilter(Logger, idFilter);
 
             foreach (var task in result.Tasks)
                 task.Deadlines = deadlineFilter.Filter(task.Deadlines).ToHashSet();

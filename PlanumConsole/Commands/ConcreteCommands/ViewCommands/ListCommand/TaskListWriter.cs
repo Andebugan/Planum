@@ -97,12 +97,12 @@ namespace Planum.Console.Commands.View
 
         protected void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
         {
-            var line = AddLineTabs(level) +
+            lines.Add(AddLineTabs(level) +
                 RepoConfig.TaskItemSymbol +
                 RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(task, overdue, inProgress, warning)) +
                 RepoConfig.TaskNameSymbol +
                 RepoConfig.TaskHeaderDelimeterSymbol +
-                GetTaskName(task, tasks, overdue, inProgress, warning);
+                GetTaskName(task, tasks, overdue, inProgress, warning));
         }
 
         protected void WriteChecklistName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)

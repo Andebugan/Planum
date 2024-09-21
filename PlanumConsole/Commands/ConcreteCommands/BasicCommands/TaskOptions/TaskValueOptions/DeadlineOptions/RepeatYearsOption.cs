@@ -1,12 +1,12 @@
 using Planum.Config;
+using Planum.Logger;
 using Planum.Parser;
 
 namespace Planum.Console.Commands.Task
 {
     public class RepeatYearsOption: BaseOption<TaskCommandSettings>
     {
-        public RepeatYearsOption(OptionInfo optionInfo, ConsoleConfig commandConfig) : base(optionInfo, commandConfig) { }
-
+        public RepeatYearsOption(ILoggerWrapper logger, OptionInfo optionInfo, ConsoleConfig commandConfig) : base(logger, optionInfo, commandConfig) { }
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
             if (!args.MoveNext())

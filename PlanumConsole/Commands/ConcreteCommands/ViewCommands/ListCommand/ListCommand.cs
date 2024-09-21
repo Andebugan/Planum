@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Planum.Config;
 using Planum.Console.Commands.Selector;
 using Planum.Logger;
@@ -22,7 +21,7 @@ namespace Planum.Console.Commands.View
         {
             Logger.Log("Executing list command");
             var lines = new List<string>();
-            TaskFilter taskFilter = new TaskFilter();
+            TaskFilter taskFilter = new TaskFilter(Logger);
             bool match = false;
 
             if (!ParseSelectorSettings(ref args, ref lines, ref taskFilter, ref match))
@@ -36,7 +35,11 @@ namespace Planum.Console.Commands.View
             }
 
             var tasks = TaskBufferManager.Find();
-            var tasksToDisplay = TaskBufferManager.Find(taskFilter);
+            Logger.Log(tasks.Count().ToString());
+
+            var tasksToDisplay = taskFilter.Filter(tasks);
+            Logger.Log(tasksToDisplay.Count().ToString());
+
             var listSettings = new ListCommandSettings();
 
             if (!ParseSettings(ref args, ref lines, ref listSettings))

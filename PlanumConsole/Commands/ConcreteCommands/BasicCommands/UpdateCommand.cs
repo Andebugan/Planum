@@ -18,7 +18,7 @@ namespace Planum.Console.Commands.Task
         {
             Logger.Log("Executing delete command");
             var lines = new List<string>();
-            TaskFilter taskFilter = new TaskFilter();
+            TaskFilter taskFilter = new TaskFilter(Logger);
             bool match = false;
 
             if (!ParseSelectorSettings(ref args, ref lines, ref taskFilter, ref match))
@@ -32,7 +32,7 @@ namespace Planum.Console.Commands.Task
             }
 
             var tasksToUpdate = TaskBufferManager.Find(taskFilter).ToList();
-            var commandSettings = new TaskCommandSettings(TaskBufferManager);
+            var commandSettings = new TaskCommandSettings(TaskBufferManager, Logger);
             commandSettings.Tasks = tasksToUpdate.ToList();
             commandSettings.DeadlineFilter = (DeadlineFilter)taskFilter.DeadlineFilter;
 

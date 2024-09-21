@@ -1,11 +1,11 @@
 using Planum.Config;
+using Planum.Logger;
 
 namespace Planum.Console.Commands.Task
 {
     public class TagRemoveOption: BaseOption<TaskCommandSettings>
     {
-        public TagRemoveOption(OptionInfo optionInfo, ConsoleConfig commandConfig): base(optionInfo, commandConfig) { }
-
+        public TagRemoveOption(ILoggerWrapper logger, OptionInfo optionInfo, ConsoleConfig commandConfig) : base(logger, optionInfo, commandConfig) { }
         public override bool TryParseValue(ref IEnumerator<string> args, ref List<string> lines, ref TaskCommandSettings result)
         {
             if (!args.MoveNext())

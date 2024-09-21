@@ -17,12 +17,15 @@ namespace Planum.Console.Commands.Task
         {
             Logger.Log("Executing create command");
             var lines = new List<string>();
-            var commandSettings = new TaskCommandSettings(TaskBufferManager);
+            var commandSettings = new TaskCommandSettings(TaskBufferManager, Logger);
             commandSettings.Tasks.Add(new PlanumTask());
             if (!ParseSettings(ref args, ref lines, ref commandSettings))
                 return lines;
 
             var newTasks = commandSettings.Tasks;
+            foreach (var task in newTasks)
+                task.Id = Guid.NewGuid();
+
             var validationResults = TaskBufferManager.Add(newTasks);
             if (validationResults.Any())
                 foreach (var result in validationResults)

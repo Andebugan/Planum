@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Planum.Logger;
 using Planum.Model.Entities;
 using Planum.Model.Filters;
 using Planum.Model.Managers;
@@ -13,8 +13,12 @@ namespace Planum.Console.Commands.Task
 
         public bool Commit = false;
 
-        public DeadlineFilter DeadlineFilter { get; set; } = new DeadlineFilter(); // for targeted deadline changes 
+        public DeadlineFilter DeadlineFilter { get; set; }
  
-        public TaskCommandSettings(TaskBufferManager taskBufferManager) => TaskBufferManager = taskBufferManager;
+        public TaskCommandSettings(TaskBufferManager taskBufferManager, ILoggerWrapper logger)
+        {
+            TaskBufferManager = taskBufferManager;
+            DeadlineFilter = new DeadlineFilter(logger);
+        }
     }
 }

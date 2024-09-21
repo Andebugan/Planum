@@ -1,4 +1,5 @@
-﻿using Planum.Model.Entities;
+﻿using Planum.Logger;
+using Planum.Model.Entities;
 using Planum.Model.Repository;
 #nullable enable
 
@@ -9,11 +10,16 @@ namespace Planum.Repository
     /// </summary>
     public class TaskRepo: ITaskRepo
     {
+        protected ILoggerWrapper Logger;
         protected List<PlanumTask> taskBuffer = new List<PlanumTask>();
         protected List<PlanumTask> taskOldBuffer = new List<PlanumTask>();
         ITaskFileManager FileManager { get; set; }
 
-        public TaskRepo(ITaskFileManager taskFileManager) => FileManager = taskFileManager;
+        public TaskRepo(ILoggerWrapper logger, ITaskFileManager taskFileManager)
+        {
+            Logger = logger;
+            FileManager = taskFileManager;
+        }
 
         public void Save(ref WriteStatus writeStatus, ref ReadStatus readStatus)
         {
@@ -31,6 +37,7 @@ namespace Planum.Repository
         public IEnumerable<PlanumTask> GetDiff() => taskBuffer.Where(x => !taskOldBuffer.Contains(x));
 
         public void Add(PlanumTask task) => taskBuffer.Add(task);
+
         public void Add(IEnumerable<PlanumTask> tasks) => taskBuffer = taskBuffer.Concat(tasks).ToList();
 
         public void Update(PlanumTask task) => Update(new PlanumTask[] { task });

@@ -36,8 +36,6 @@ namespace Planum.Console.Commands
                 var arg = args.Current;
                 var optionMatches = commandOptions.Where(x => x.CheckMatch(arg));
                 match = optionMatches.Any();
-                Logger.Log(arg);
-                Logger.Log(optionMatches.Count().ToString());
                 if (!optionMatches.Any())
                 {
                     Logger.Log(message: $"Unable to find option: {arg}");
