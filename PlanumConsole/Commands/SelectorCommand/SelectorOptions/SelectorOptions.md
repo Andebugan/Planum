@@ -1,11 +1,11 @@
 # SelectorOptions
 [back](../SelectorCommand.md)
 
-- [x] [SelectorDeadlineOptions](./SelectorDeadlineOptions/SelectorDeadlineOptions.md)
+- [SelectorDeadlineOptions](./SelectorDeadlineOptions/SelectorDeadlineOptions.md)
 
-- [x] [SelectorIdOption.cs](./SelectorIdOption.cs)
-- [x] [SelectorNameOption.cs](./SelectorNameOption.cs)
-- [x] [SelectorDescriptionOption.cs](./SelectorDescriptionOption.cs)
-- [x] [SelectorParentOption.cs](./SelectorParentOption.cs)
-- [x] [SelectorChildOption.cs](./SelectorChildOption.cs)
-- [x] [SelectorTagOption.cs](./SelectorTagOption.cs)
+- [SelectorIdOption.cs](./SelectorIdOption.cs)
+- [SelectorNameOption.cs](./SelectorNameOption.cs)
+- [SelectorDescriptionOption.cs](./SelectorDescriptionOption.cs)
+- [SelectorParentOption.cs](./SelectorParentOption.cs)
+- [SelectorChildOption.cs](./SelectorChildOption.cs)
+- [SelectorTagOption.cs](./SelectorTagOption.cs)

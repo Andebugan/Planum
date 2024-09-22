@@ -3,8 +3,8 @@
 
 Interfaces for onion architecture and status carriers implementation
 
-- [x] [ITaskRepo](./ITaskRepo.cs) - task repo interface for one way dependency
-- [x] [ReadStatus](./ReadStatus.cs) - global read operation status
-- [x] [WriteStatus](./WriteStatus.cs) - global write operation status
-- [x] [TaskReadStatus](./TaskReadStatus.cs) - read status for specific task
-- [x] [TaskWriteStatus](./TaskWriteStatus.cs) - write status for specific task
+- [ITaskRepo](./ITaskRepo.cs) - task repo interface for one way dependency
+- [ReadStatus](./ReadStatus.cs) - global read operation status
+- [WriteStatus](./WriteStatus.cs) - global write operation status
+- [TaskReadStatus](./TaskReadStatus.cs) - read status for specific task
+- [TaskWriteStatus](./TaskWriteStatus.cs) - write status for specific task

@@ -3,7 +3,7 @@
 
 Generic value filters
 
-- [x] [IValueFilter](./IValueFilter.cs) - filter value
-- [x] [IValueMatch](./IValueMatch.cs) - specify match value and logic match type (AND, OR, NONE, NOT)
-- [x] [ValueFilter](./ValueFilter.cs) - IValueFilter implementation
-- [x] [ValueMatch](./ValueMatch.cs) - IValueMatch implementation
+- [IValueFilter](./IValueFilter.cs) - filter value
+- [IValueMatch](./IValueMatch.cs) - specify match value and logic match type (AND, OR, NONE, NOT)
+- [ValueFilter](./ValueFilter.cs) - IValueFilter implementation
+- [ValueMatch](./ValueMatch.cs) - IValueMatch implementation
