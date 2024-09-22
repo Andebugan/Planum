@@ -1,9 +1,21 @@
+using Planum.Logger;
+using Planum.Model.Entities;
+
 namespace Planum.Model.Exporters
 {
     public class TaskMarkdownExporter
     {
+        protected ModelConfig ModelConfig { get; set; }
+        protected ILoggerWrapper Logger { get; set; }
+
+        public TaskMarkdownExporter(ModelConfig modelConfig, ILoggerWrapper logger)
+        {
+            ModelConfig = modelConfig;
+            Logger = logger;
+        }
+
         ///<summary>Add checkbox to task marker</summary>
-        protected string AddCheckbox(string marker) => TaskCheckboxStart + marker + TaskCheckboxEnd;
+        protected string AddCheckbox(string marker) => ModelConfig.TaskCheckboxStart + marker + ModelConfig.TaskCheckboxEnd;
 
         protected string AddMarkdownLink(string line, string path) => "[" + line + "](" + path + ")";
         protected string ParseMarkdownLink(string line, out string path)
@@ -36,7 +48,7 @@ namespace Planum.Model.Exporters
         {
             id = "";
             name = "";
-            var split = line.Trim(' ', '\n').Split(TaskNameIdDelimiter);
+            var split = line.Trim(' ', '\n').Split(ModelConfig.TaskNameIdDelimiter);
             if (split.Length == 1)
                 name = split[0];
             else if (split.Length == 2)
@@ -46,48 +58,37 @@ namespace Planum.Model.Exporters
             }
         }
 
-        protected string[] GetTaskStatusMarkerSymbols()
-        {
-            return new string[] {
-                TaskNotCompleteMarkerSymbol,
-                TaskWarningMarkerSymbol,
-                TaskCompleteMarkerSymbol,
-                TaskInProgressMarkerSymbol,
-                TaskOverdueMarkerSymbol,
-            };
-        }
-
-        protected string GetTaskNameMarkerSymbol(PlanumTask task, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning)
+        protected string GetMarkerSymbol()
         {
             if (task.Tags.Contains(DefaultTags.Complete))
-                return RepoConfig.TaskCompleteMarkerSymbol;
+                return ModelConfig.TaskCompleteMarkerSymbol;
             else if (overdue.Contains(task.Id))
-                return RepoConfig.TaskOverdueMarkerSymbol;
+                return ModelConfig.TaskOverdueMarkerSymbol;
             else if (inProgress.Contains(task.Id))
-                return RepoConfig.TaskInProgressMarkerSymbol;
+                return ModelConfig.TaskInProgressMarkerSymbol;
             else if (warning.Contains(task.Id))
-                return RepoConfig.TaskWarningMarkerSymbol;
-            return RepoConfig.TaskNotCompleteMarkerSymbol;
+                return ModelConfig.TaskWarningMarkerSymbol;
+            return ModelConfig.TaskNotCompleteMarkerSymbol;
         }
 
         protected string GetDeadlineMarkerSymbol(Deadline deadline)
         {
             if (!deadline.enabled)
-                return RepoConfig.TaskCompleteMarkerSymbol;
+                return ModelConfig.TaskCompleteMarkerSymbol;
             else if (deadline.Overdue())
-                return RepoConfig.TaskOverdueMarkerSymbol;
+                return ModelConfig.TaskOverdueMarkerSymbol;
             else if (deadline.InProgress())
-                return RepoConfig.TaskInProgressMarkerSymbol;
+                return ModelConfig.TaskInProgressMarkerSymbol;
             else if (deadline.Warning())
-                return RepoConfig.TaskWarningMarkerSymbol;
-            return RepoConfig.TaskNotCompleteMarkerSymbol;
+                return ModelConfig.TaskWarningMarkerSymbol;
+            return ModelConfig.TaskNotCompleteMarkerSymbol;
         }
 
         protected string GetEnabledSymbol(bool enabled)
         {
             if (enabled)
-                return RepoConfig.TaskCompleteMarkerSymbol;
-            return RepoConfig.TaskNotCompleteMarkerSymbol;
+                return ModelConfig.TaskCompleteMarkerSymbol;
+            return ModelConfig.TaskNotCompleteMarkerSymbol;
         }
 
         public string GetTaskName(PlanumTask task, IEnumerable<PlanumTask> tasks)

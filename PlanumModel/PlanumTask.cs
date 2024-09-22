@@ -1,11 +1,16 @@
 ﻿#nullable enable
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Planum.Model.Entities
 {
+    public enum TaskStatus
+    {
+        DISABLED,
+        NOT_STARTED,
+        IN_PROGRESS,
+        WARNING,
+        OVERDUE
+    }
+
     public static class DefaultTags
     {
         public static string Complete = "complete";
@@ -58,9 +63,18 @@ namespace Planum.Model.Entities
             return Equals((Deadline)obj);
         }
 
-        public bool Warning() => (deadline - duration - warningTime) < DateTime.Now; 
-        public bool InProgress() => (deadline - duration) < DateTime.Now; 
-        public bool Overdue() => DateTime.Now > deadline;
+        public TaskStatus GetDeadlineStatus()
+        {
+            if (!enabled)
+                return TaskStatus.DISABLED;
+            else if ((deadline - duration - warningTime) < DateTime.Now)
+                return TaskStatus.WARNING;
+            else if ((deadline - duration) < DateTime.Now)
+                return TaskStatus.IN_PROGRESS;
+            else if (DateTime.Now > deadline)
+                return TaskStatus.OVERDUE;
+            return TaskStatus.NOT_STARTED;
+        }
 
         public bool Equals(Deadline compared)
         {
@@ -191,28 +205,36 @@ namespace Planum.Model.Entities
             return hash;
         }
 
-        public static void CalculateTimeConstraints(IEnumerable<PlanumTask> tasks, out IEnumerable<Guid> overdue, out IEnumerable<Guid> inProgress, out IEnumerable<Guid> warning)
+        public TaskStatus GetTaskStatus()
         {
-            overdue = new List<Guid>();
-            inProgress = new List<Guid>();
-            warning = new List<Guid>();
+            var statuses = Deadlines.Select(x => x.GetDeadlineStatus());
+            if (statuses.Any(x => x == TaskStatus.OVERDUE))
+                return TaskStatus.OVERDUE;
+            else if (statuses.Any(x => x == TaskStatus.IN_PROGRESS))
+                return TaskStatus.IN_PROGRESS;
+            else if (statuses.Any(x => x == TaskStatus.WARNING))
+                return TaskStatus.WARNING;
+            else if (statuses.Any(x => x == TaskStatus.NOT_STARTED))
+                return TaskStatus.NOT_STARTED;
+            else 
+                return TaskStatus.DISABLED;
+        }
+
+        public static Dictionary<Guid, TaskStatus> GetTaskStatuses(IEnumerable<PlanumTask> tasks)
+        {
+            Dictionary<Guid, TaskStatus> statuses = new Dictionary<Guid, TaskStatus>();
+            foreach (var task in tasks)
+                statuses[task.Id] = task.GetTaskStatus();
 
             foreach (var task in tasks)
-            {
-                if (task.Deadlines.Where(x => x.Overdue() && x.enabled).Any())
-                    overdue = overdue.Append(task.Id).Concat(task.Parents);
-                else if (!overdue.Contains(task.Id) && task.Deadlines.Where(x => x.InProgress() && x.enabled).Any())
-                    inProgress = inProgress.Append(task.Id).Concat(task.Parents);
-                else if (!inProgress.Contains(task.Id) && !overdue.Contains(task.Id) && task.Deadlines.Where(x => x.Warning() && x.enabled).Any())
-                    warning = warning.Append(task.Id).Concat(task.Parents);
-            }
+                foreach (var child in task.Children)
+                    if (statuses[child] > statuses[task.Id])
+                    {
+                        statuses[task.Id] = statuses[child];
+                        break;
+                    }
 
-            inProgress = inProgress.Except(overdue);
-            warning = warning.Except(overdue);
-
-            overdue = overdue.Distinct();
-            inProgress = inProgress.Distinct();
-            warning = warning.Distinct();
+            return statuses;
         }
 
         public static IEnumerable<PlanumTask> UpdateRelatives(IEnumerable<PlanumTask> tasks)
