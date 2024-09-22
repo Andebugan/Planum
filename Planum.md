@@ -6,13 +6,16 @@ In options enumerator is not moved after argument is parsed - need to check if i
 
 - [Config](./PlanumConfig/PlanumConfig.md) - saving and loading configuration
 - [Console](./PlanumConsole/PlanumConsole.md) - console interface and commands for it
+    - [Console testing](./PlanumConsole_Test/PlanumConsole_Test.md) - test console
 - [Logger](./PlanumLogger/PlanumLogger.md) - logger wrapper, logger functions
 - [Model](./PlanumModel/PlanumModel.md) - entities and buisness logic
+    - [Test Model](./PlanumModel_Test/PlanumModel_Test.md) - test model
 - [Repo](./PlanumRepo/PlanumRepo.md) - concrete implementation of repository
+    - [Test Repo](./PlanumRepo_Test/PlanumRepo_Test.md) - test repository
 
 ## TODO
 - Refactor
-    - Move markdown exporter into model (as task method) + refactor
+    - Move markdown exporter into model (as task method) + refactor - [MarkdownExporter](./PlanumModel/Exporters/TaskMarkdownExporter.cs)
 - Testing
     - Model
     - Repo
