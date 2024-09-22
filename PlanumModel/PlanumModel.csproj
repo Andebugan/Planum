@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PlanumLogger\PlanumLogger.csproj" />
+    <ProjectReference Include="..\PlanumConfig\PlanumConfig.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
