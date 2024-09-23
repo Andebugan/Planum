@@ -2,7 +2,7 @@
 
 namespace Planum.Model.Entities
 {
-    public enum TaskStatus
+    public enum PlanumTaskStatus
     {
         DISABLED,
         NOT_STARTED,
@@ -63,17 +63,17 @@ namespace Planum.Model.Entities
             return Equals((Deadline)obj);
         }
 
-        public TaskStatus GetDeadlineStatus()
+        public PlanumTaskStatus GetDeadlineStatus()
         {
             if (!enabled)
-                return TaskStatus.DISABLED;
+                return PlanumTaskStatus.DISABLED;
             else if ((deadline - duration - warningTime) < DateTime.Now)
-                return TaskStatus.WARNING;
+                return PlanumTaskStatus.WARNING;
             else if ((deadline - duration) < DateTime.Now)
-                return TaskStatus.IN_PROGRESS;
+                return PlanumTaskStatus.IN_PROGRESS;
             else if (DateTime.Now > deadline)
-                return TaskStatus.OVERDUE;
-            return TaskStatus.NOT_STARTED;
+                return PlanumTaskStatus.OVERDUE;
+            return PlanumTaskStatus.NOT_STARTED;
         }
 
         public bool Equals(Deadline compared)
@@ -205,24 +205,24 @@ namespace Planum.Model.Entities
             return hash;
         }
 
-        public TaskStatus GetTaskStatus()
+        public PlanumTaskStatus GetTaskStatus()
         {
             var statuses = Deadlines.Select(x => x.GetDeadlineStatus());
-            if (statuses.Any(x => x == TaskStatus.OVERDUE))
-                return TaskStatus.OVERDUE;
-            else if (statuses.Any(x => x == TaskStatus.IN_PROGRESS))
-                return TaskStatus.IN_PROGRESS;
-            else if (statuses.Any(x => x == TaskStatus.WARNING))
-                return TaskStatus.WARNING;
-            else if (statuses.Any(x => x == TaskStatus.NOT_STARTED))
-                return TaskStatus.NOT_STARTED;
+            if (statuses.Any(x => x == PlanumTaskStatus.OVERDUE))
+                return PlanumTaskStatus.OVERDUE;
+            else if (statuses.Any(x => x == PlanumTaskStatus.IN_PROGRESS))
+                return PlanumTaskStatus.IN_PROGRESS;
+            else if (statuses.Any(x => x == PlanumTaskStatus.WARNING))
+                return PlanumTaskStatus.WARNING;
+            else if (statuses.Any(x => x == PlanumTaskStatus.NOT_STARTED))
+                return PlanumTaskStatus.NOT_STARTED;
             else 
-                return TaskStatus.DISABLED;
+                return PlanumTaskStatus.DISABLED;
         }
 
-        public static Dictionary<Guid, TaskStatus> GetTaskStatuses(IEnumerable<PlanumTask> tasks)
+        public static Dictionary<Guid, PlanumTaskStatus> GetTaskStatuses(IEnumerable<PlanumTask> tasks)
         {
-            Dictionary<Guid, TaskStatus> statuses = new Dictionary<Guid, TaskStatus>();
+            Dictionary<Guid, PlanumTaskStatus> statuses = new Dictionary<Guid, PlanumTaskStatus>();
             foreach (var task in tasks)
                 statuses[task.Id] = task.GetTaskStatus();
 

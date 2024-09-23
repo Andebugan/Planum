@@ -18,87 +18,21 @@ namespace Planum.Model.Exporters
         protected string AddCheckbox(string marker) => ModelConfig.TaskCheckboxStart + marker + ModelConfig.TaskCheckboxEnd;
 
         protected string AddMarkdownLink(string line, string path) => "[" + line + "](" + path + ")";
-        protected string ParseMarkdownLink(string line, out string path)
-        {
-            path = "";
-            var split = line.Trim('[', ')').Split("](");
-            if (split.Length == 2)
-            {
-                path = split[1];
-                return split[0];
-            }
-            else if (split.Length == 1)
-                return split[0];
-            return "";
-        }
 
-        protected string ParseMarkdownLink(string line)
+        protected string GetMarkerSymbol(PlanumTaskStatus status)
         {
-            var split = line.Trim('[', ')').Split("](");
-            if (split.Length == 2)
-            {
-                return split[0];
-            }
-            else if (split.Length == 1)
-                return split[0];
-            return "";
-        }
-
-        protected void ParseTaskName(string line, out string id, out string name)
-        {
-            id = "";
-            name = "";
-            var split = line.Trim(' ', '\n').Split(ModelConfig.TaskNameIdDelimiter);
-            if (split.Length == 1)
-                name = split[0];
-            else if (split.Length == 2)
-            {
-                name = split[0];
-                id = split[1];
-            }
-        }
-
-        protected string GetMarkerSymbol()
-        {
-            if (task.Tags.Contains(DefaultTags.Complete))
+            if (status == PlanumTaskStatus.DISABLED)
                 return ModelConfig.TaskCompleteMarkerSymbol;
-            else if (overdue.Contains(task.Id))
+            else if (status == PlanumTaskStatus.OVERDUE)
                 return ModelConfig.TaskOverdueMarkerSymbol;
-            else if (inProgress.Contains(task.Id))
+            else if (status == PlanumTaskStatus.IN_PROGRESS)
                 return ModelConfig.TaskInProgressMarkerSymbol;
-            else if (warning.Contains(task.Id))
+            else if (status == PlanumTaskStatus.WARNING)
                 return ModelConfig.TaskWarningMarkerSymbol;
             return ModelConfig.TaskNotCompleteMarkerSymbol;
         }
 
-        protected string GetDeadlineMarkerSymbol(Deadline deadline)
-        {
-            if (!deadline.enabled)
-                return ModelConfig.TaskCompleteMarkerSymbol;
-            else if (deadline.Overdue())
-                return ModelConfig.TaskOverdueMarkerSymbol;
-            else if (deadline.InProgress())
-                return ModelConfig.TaskInProgressMarkerSymbol;
-            else if (deadline.Warning())
-                return ModelConfig.TaskWarningMarkerSymbol;
-            return ModelConfig.TaskNotCompleteMarkerSymbol;
-        }
-
-        protected string GetEnabledSymbol(bool enabled)
-        {
-            if (enabled)
-                return ModelConfig.TaskCompleteMarkerSymbol;
-            return ModelConfig.TaskNotCompleteMarkerSymbol;
-        }
-
-        public string GetTaskName(PlanumTask task, IEnumerable<PlanumTask> tasks)
-        {
-            if (tasks.Where(x => x.Id != task.Id && x.Name == task.Name).Any())
-                return RepoConfig.AddMarkdownLink(task.Name +
-                       RepoConfig.TaskNameIdDelimiter +
-                       task.Id.ToString(), task.SaveFile);
-            return RepoConfig.AddMarkdownLink(task.Name, task.SaveFile);
-        }
+        protected string GetTaskName(PlanumTask task) => AddMarkdownLink(task.Name, task.SaveFile);
 
         protected bool CheckIfChecklist(PlanumTask task)
         {
@@ -111,199 +45,94 @@ namespace Planum.Model.Exporters
         {
             var tabs = "";
             for (int i = 0; i < level; i++)
-                tabs += RepoConfig.TaskItemTabSymbol;
+                tabs += ModelConfig.TaskItemTabSymbol;
             return tabs;
         }
 
-        protected void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(RepoConfig.TaskMarkerStartSymbol + task.Id.ToString() + RepoConfig.TaskMarkerEndSymbol);
-        protected void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
+        protected string AddTaskItem(string symbol, string value, int level = 0, PlanumTaskStatus? status = null)
         {
-            var line = AddLineTabs(level) +
-                RepoConfig.TaskItemSymbol +
-                RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(task, overdue, inProgress, warning)) +
-                RepoConfig.TaskNameSymbol +
-                RepoConfig.TaskHeaderDelimeterSymbol +
-                task.Name;
-            if (tasks.Where(x => x.Id != task.Id && x.Name == task.Name).Any())
-                line += RepoConfig.TaskNameIdDelimiter + task.Id.ToString();
-            lines.Add(line);
+            var line = AddLineTabs(level) + ModelConfig.TaskItemSymbol;
+            if (status is not null)
+                line += AddCheckbox(GetMarkerSymbol((PlanumTaskStatus)status));
+            line += symbol + ModelConfig.TaskHeaderDelimeterSymbol + value;
+            return line;
         }
 
-        protected void WriteChecklistName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
-        {
-            lines.Add(
-                AddLineTabs(level) +
-                RepoConfig.TaskItemSymbol +
-                RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(task, overdue, inProgress, warning)) +
-                task.Name);
-        }
+        protected void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(ModelConfig.TaskMarkerStartSymbol + task.Id.ToString() + ModelConfig.TaskMarkerEndSymbol);
+
+        protected void WriteName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0) => lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name + ModelConfig.TaskNameIdDelimiter + task.Id, level));
+
+        protected void WriteChecklistName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0) => lines.Add(AddTaskItem("", task.Name, level, status));
 
         protected void WriteTags(IList<string> lines, PlanumTask task, int level = 0)
         {
             foreach (var tag in task.Tags)
-            {
                 if (tag != DefaultTags.Checklist && tag != DefaultTags.Complete)
-                    lines.Add(
-                            AddLineTabs(level) +
-                            RepoConfig.TaskItemSymbol +
-                            RepoConfig.TaskTagSymbol +
-                            RepoConfig.TaskHeaderDelimeterSymbol +
-                            tag);
-            }
+                    lines.Add(AddTaskItem(ModelConfig.TaskTagSymbol, tag, level));
         }
 
-        protected void WriteDescription(IList<string> lines, PlanumTask task, int level = 0)
-        {
-            if (task.Description != string.Empty)
-            {
-                var descriptionLines = task.Description.Split(RepoConfig.TaskDescriptionNewlineSymbol);
+        protected void WriteDescription(IList<string> lines, PlanumTask task, int level = 0) => lines.Add(AddTaskItem(ModelConfig.TaskDescriptionSymbol, task.Description, level));
 
-                if (descriptionLines.Count() <= 0)
-                    return;
-
-                var tmpLine = AddLineTabs(level) +
-                    RepoConfig.TaskItemSymbol +
-                    RepoConfig.TaskDescriptionSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
-                    descriptionLines[0];
-
-                if (descriptionLines.Count() > 1)
-                    tmpLine = tmpLine + RepoConfig.TaskDescriptionNewlineSymbol;
-                lines.Add(tmpLine);
-                if (descriptionLines.Count() == 1)
-                    return;
-
-                for (int i = 1; i < descriptionLines.Count() - 1; i++)
-                    lines.Add(AddLineTabs(level + 1) +
-                        descriptionLines[i] +
-                        RepoConfig.TaskDescriptionNewlineSymbol
-                    );
-
-                lines.Add(AddLineTabs(level + 1) +
-                    descriptionLines[descriptionLines.Length - 1]
-                );
-            }
-        }
-
-        protected void WriteChecklists(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
+        protected void WriteChecklists(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
         {
             foreach (var checklist in tasks.Where(x => x.Tags.Contains(DefaultTags.Checklist) && task.Children.Contains(x.Id)))
             {
                 // name
-                WriteChecklistName(lines, checklist, tasks, overdue, inProgress, warning, level);
+                WriteChecklistName(lines, checklist, statuses[checklist.Id], level);
                 // tags
                 WriteTags(lines, task, level + 1);
                 // description
                 WriteDescription(lines, checklist, level + 1);
                 // deadlines
-                WriteDeadlines(lines, checklist, tasks, overdue, inProgress, warning, level + 1);
+                WriteDeadlines(lines, checklist, tasks, statuses, level + 1);
                 // checklists
-                WriteChecklists(lines, checklist, tasks, overdue, inProgress, warning, level + 1);
+                WriteChecklists(lines, checklist, tasks, statuses, level + 1);
             }
         }
 
-        protected void WriteChildren(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning)
+        protected void WriteChildren(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
         {
             foreach (var child in tasks.Where(x => task.Children.Contains(x.Id)))
-            {
                 if (CheckIfChecklist(child))
                     continue;
                 else
-                    lines.Add(
-                        RepoConfig.TaskItemSymbol +
-                        RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(child, overdue, inProgress, warning)) +
-                        RepoConfig.TaskChildSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
-                        GetTaskName(child, tasks)
-                        );
-            }
+                    lines.Add(AddTaskItem(ModelConfig.TaskChildSymbol, GetTaskName(child), level, statuses[child.Id]));
         }
 
-        protected void WriteParents(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning)
+        protected void WriteParents(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
         {
             foreach (var parent in tasks.Where(x => task.Parents.Contains(x.Id)))
-            {
                 if (CheckIfChecklist(parent))
                     continue;
                 else
-                    lines.Add(
-                        RepoConfig.TaskItemSymbol +
-                        RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(parent, overdue, inProgress, warning)) +
-                        RepoConfig.TaskParentSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
-                        GetTaskName(parent, tasks)
-                        );
-            }
+                    lines.Add(AddTaskItem(ModelConfig.TaskParentSymbol, GetTaskName(parent), level, statuses[parent.Id]));
         }
 
-        protected void WriteNext(IList<string> lines, Deadline deadline, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
+        protected void WriteNext(IList<string> lines, Deadline deadline, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
         {
-            var nextTasks = tasks.Where(x => deadline.next.Contains(x.Id));
-            foreach (var next in nextTasks)
-            {
-                string nextStr = GetTaskName(next, tasks);
-                lines.Add(AddLineTabs(level + 1) +
-                    RepoConfig.TaskItemSymbol +
-                    RepoConfig.AddCheckbox(GetTaskNameMarkerSymbol(next, overdue, inProgress, warning)) +
-                    RepoConfig.TaskNextSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
-                    nextStr);
-            }
+            foreach (var next in tasks.Where(x => deadline.next.Contains(x.Id)))
+                lines.Add(AddTaskItem(ModelConfig.TaskNextSymbol, GetTaskName(next), level, statuses[next.Id]));
         }
 
-        protected void WriteDeadlines(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, IEnumerable<Guid> overdue, IEnumerable<Guid> inProgress, IEnumerable<Guid> warning, int level = 0)
+        protected void WriteDeadlines(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
         {
             foreach (var deadline in task.Deadlines)
             {
                 // header
-                lines.Add(
-                    AddLineTabs(level) +
-                    RepoConfig.TaskItemSymbol +
-                    RepoConfig.AddCheckbox(GetDeadlineMarkerSymbol(deadline)) +
-                    RepoConfig.TaskDeadlineHeaderSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
-                    deadline.Id.ToString()
-                    );
+                lines.Add(AddTaskItem(ModelConfig.TaskDeadlineHeaderSymbol, deadline.Id.ToString(), level, deadline.GetDeadlineStatus()));
                 // deadline
-                lines.Add(
-                    AddLineTabs(level + 1) +
-                    RepoConfig.TaskItemSymbol +
-                    RepoConfig.TaskDeadlineSymbol +
-                    RepoConfig.TaskHeaderDelimeterSymbol +
-                    deadline.deadline.ToString(RepoConfig.TaskDateTimeWriteFormat)
-                    );
+                lines.Add(AddTaskItem(ModelConfig.TaskDeadlineSymbol, deadline.deadline.ToString(ModelConfig.TaskDateTimeWriteFormat), level + 1, deadline.GetDeadlineStatus()));
                 // warning time
                 if (deadline.warningTime != TimeSpan.Zero)
-                    lines.Add(
-                        AddLineTabs(level + 1) +
-                        RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskWarningTimeSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
-                        deadline.warningTime.ToString(RepoConfig.TaskTimeSpanWriteFormat)
-                        );
+                    lines.Add(AddTaskItem(ModelConfig.TaskWarningTimeSymbol, deadline.warningTime.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1, deadline.GetDeadlineStatus()));
                 // duration
                 if (deadline.duration != TimeSpan.Zero)
-                    lines.Add(
-                        AddLineTabs(level + 1) +
-                        RepoConfig.TaskItemSymbol +
-                        RepoConfig.TaskDurationTimeSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
-                        deadline.duration.ToString(RepoConfig.TaskTimeSpanWriteFormat)
-                        );
+                    lines.Add(AddTaskItem(ModelConfig.TaskDurationTimeSymbol, deadline.duration.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1, deadline.GetDeadlineStatus()));
                 // repeat
                 if (deadline.repeatSpan != TimeSpan.Zero && deadline.repeatMonths > 0 && deadline.repeatYears > 0)
-                    lines.Add(
-                        AddLineTabs(level + 1) +
-                        RepoConfig.TaskItemSymbol +
-                        RepoConfig.AddCheckbox(GetEnabledSymbol(deadline.repeated)) +
-                        RepoConfig.TaskRepeatTimeSymbol +
-                        RepoConfig.TaskHeaderDelimeterSymbol +
-                        deadline.repeatYears.ToString() + " " +
-                        deadline.repeatMonths.ToString() + " " +
-                        deadline.repeatSpan.ToString(RepoConfig.TaskTimeSpanWriteFormat)
-                        );
+                    lines.Add(AddTaskItem(ModelConfig.TaskRepeatTimeSymbol, deadline.repeatYears.ToString() + " " + deadline.repeatMonths.ToString() + " " + deadline.repeatSpan.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1, deadline.GetDeadlineStatus()));
                 // next
-                WriteNext(lines, deadline, tasks, overdue, inProgress, warning, level);
+                WriteNext(lines, deadline, tasks, statuses, level);
             }
         }
 
@@ -313,20 +142,16 @@ namespace Planum.Model.Exporters
             if (CheckIfChecklist(task))
                 return;
 
-            IEnumerable<Guid> overdue;
-            IEnumerable<Guid> inProgress;
-            IEnumerable<Guid> warning;
-
-            PlanumTask.CalculateTimeConstraints(tasks, out overdue, out inProgress, out warning);
+            var statuses = PlanumTask.GetTaskStatuses(tasks);
 
             WriteTaskHeader(lines, task);
-            WriteName(lines, task, tasks, overdue, inProgress, warning);
+            WriteName(lines, task, statuses[task.Id]);
             WriteTags(lines, task);
             WriteDescription(lines, task);
-            WriteParents(lines, task, tasks, overdue, inProgress, warning);
-            WriteChildren(lines, task, tasks, overdue, inProgress, warning);
-            WriteDeadlines(lines, task, tasks, overdue, inProgress, warning);
-            WriteChecklists(lines, task, tasks, overdue, inProgress, warning);
+            WriteParents(lines, task, tasks, statuses);
+            WriteChildren(lines, task, tasks, statuses);
+            WriteDeadlines(lines, task, tasks, statuses);
+            WriteChecklists(lines, task, tasks, statuses);
             lines.Add("");
 
             Logger.Log($"Task write finished", LogLevel.INFO);
