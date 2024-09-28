@@ -21,7 +21,7 @@ namespace Planum.Model.Exporters
 
         protected string GetMarkerSymbol(PlanumTaskStatus status)
         {
-            if (status == PlanumTaskStatus.DISABLED)
+            if (status == PlanumTaskStatus.COMPLETE)
                 return ModelConfig.TaskCompleteMarkerSymbol;
             else if (status == PlanumTaskStatus.OVERDUE)
                 return ModelConfig.TaskOverdueMarkerSymbol;
@@ -60,7 +60,13 @@ namespace Planum.Model.Exporters
 
         protected void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(ModelConfig.TaskMarkerStartSymbol + task.Id.ToString() + ModelConfig.TaskMarkerEndSymbol);
 
-        protected void WriteName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0) => lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name + ModelConfig.TaskNameIdDelimiter + task.Id, level));
+        protected void WriteName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0)
+        {
+            if (level > 0)
+                lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name + ModelConfig.TaskNameIdDelimiter + task.Id, level, status));
+            else
+                lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name, level, status));
+        }
 
         protected void WriteChecklistName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0) => lines.Add(AddTaskItem("", task.Name, level, status));
 

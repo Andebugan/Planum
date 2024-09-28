@@ -16,11 +16,12 @@ namespace Planum.Model
 
         public string TaskCheckboxStart { get; set; } = "[";
         public string TaskCheckboxEnd { get; set; } = "] ";
-        public string TaskCompleteMarkerSymbol { get; set; } = "x";
-        public string TaskNotCompleteMarkerSymbol { get; set; } = " ";
+
         public string TaskWarningMarkerSymbol { get; set; } = ".";
         public string TaskInProgressMarkerSymbol { get; set; } = "*";
         public string TaskOverdueMarkerSymbol { get; set; } = "#";
+        public string TaskCompleteMarkerSymbol { get; set; } = "x";
+        public string TaskNotCompleteMarkerSymbol { get; set; } = " ";
 
         public string TaskMarkerStartSymbol { get; set; } = "<planum:";
         public string TaskMarkerEndSymbol { get; set; } = ">";

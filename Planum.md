@@ -14,10 +14,8 @@ In options enumerator is not moved after argument is parsed - need to check if i
     - [Test Repo](./PlanumRepo_Test/PlanumRepo_Test.md) - test repository
 
 ## TODO
-- Refactor
-    - Move markdown exporter into model (as task method) + refactor - [MarkdownExporter](./PlanumModel/Exporters/TaskMarkdownExporter.cs)
 - Testing
-    - Model
+    - Model <<< currently need to write tests for markdown model
     - Repo
     - Console
 - Add password tags and hashed storage (password managers)
