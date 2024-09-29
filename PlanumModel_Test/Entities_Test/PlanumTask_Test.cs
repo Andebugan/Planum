@@ -186,7 +186,7 @@ namespace PlanumModel_Test.Entities_Test
                 var completeDeadlines = new HashSet<Deadline> { new Deadline {
                     enabled = false
                 }};
-               
+
                 var notStartedDeadlines = new HashSet<Deadline> { new Deadline {
                     enabled = true,
                     deadline = DateTime.Now.AddDays(5),
