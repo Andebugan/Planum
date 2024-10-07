@@ -105,8 +105,8 @@ namespace PlanumModel_Test.Exporters_Test
                 {
                     $"<planum:{task.Id.ToString()}>",
                     $"- [ ] n: {task.Name}",
-                    $"- [ ] p: [{parentTask.Name}]({parentTask.SaveFile})",
-                    $"- [ ] c: [{childTask.Name}]({childTask.SaveFile})",
+                    $"- [ ] p: [{parentTask.Name} | {parentTask.Id.ToString()}]({parentTask.SaveFile})",
+                    $"- [ ] c: [{childTask.Name} | {childTask.Id.ToString()}]({childTask.SaveFile})",
                     $"- [ ] {checklistBaseTask.Name}",
                     $"  - [ ] {checklistFirstLevelTask.Name}",
                     "",
@@ -312,9 +312,7 @@ namespace PlanumModel_Test.Exporters_Test
                     deadline = DateTime.Now.AddDays(5),
                     warningTime = new TimeSpan(2, 0, 0, 0),
                     duration = new TimeSpan(2, 0, 0, 0),
-                    repeatSpan = new TimeSpan(1, 2, 3, 0),
-                    repeatMonths = 1,
-                    repeatYears = 2,
+                    repeatSpan = new RepeatSpan(2, 1, new TimeSpan(1, 2, 3, 0)),
                     repeated = true
                 };
                
@@ -380,7 +378,7 @@ namespace PlanumModel_Test.Exporters_Test
                     $"- [ ] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     $"  - w: {deadline.warningTime.ToString(@"d\.h\:m")}",
                     $"  - d: {deadline.duration.ToString(@"d\.h\:m")}",
-                    $"  - [ ] n: [{nextTask.Name}]({nextTask.SaveFile})",
+                    $"  - [ ] n: [{nextTask.Name} | {nextTask.Id.ToString()}]({nextTask.SaveFile})",
                     "",
                 };
 

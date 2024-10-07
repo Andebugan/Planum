@@ -2,31 +2,66 @@ using Planum.Model.Entities;
 
 namespace Planum.Parser
 {
-    public static class TaskValueParser {
-        public static IEnumerable<PlanumTask> ParseIdentity(string id, string name, IEnumerable<PlanumTask> taskBuffer) {
+    public static class TaskValueParser
+    {
+        public static IEnumerable<Guid> ParseIdentity(string id, string name, Dictionary<Guid, string> tasks)
+        {
             Guid guid = new Guid();
             // try parse guid
-            if (ValueParser.TryParse(ref guid, id)) {
-                return taskBuffer.Where(x => x.Id == guid);
-            }
+            if (ValueParser.TryParse(ref guid, id))
+                return tasks.Keys.Where(x => x == guid);
 
-            IEnumerable<PlanumTask> tasks;
             if (id != string.Empty)
             {
-                tasks = taskBuffer.Where(x => x.Id.ToString().StartsWith(id));
-                if (tasks.Any())
-                    return tasks;
+                var idMatches = tasks.Keys.Where(x => x.ToString().StartsWith(id));
+                if (idMatches.Any())
+                    return idMatches;
             }
 
-            tasks = taskBuffer.Where(x => x.Name == name);
-            if (tasks.Any())
-                return tasks;
+            var nameMatches = tasks.Where(x => x.Value == name).ToDictionary();
+            if (nameMatches.Any())
+                return nameMatches.Keys;
 
-            tasks = taskBuffer.Where(x => x.Name.StartsWith(name));
-            if (tasks.Any())
-                return tasks;
+            nameMatches = tasks.Where(x => x.Value.StartsWith(name)).ToDictionary();
+            if (nameMatches.Any())
+                return nameMatches.Keys;
 
-            return tasks;
+            return new List<Guid>();
+        }
+
+        public static bool TryParseRepeat(ref RepeatSpan repeatSpan, string data)
+        {
+            data = data.Trim(' ', '\n');
+            var split = data.Split(' ').AsEnumerable();
+            IEnumerator<string> dataEnumerator = (IEnumerator<string>)split.GetEnumerator();
+            dataEnumerator.MoveNext();
+
+            var tmp_months = 0;
+            var tmp_years = 0;
+
+            // months
+            if (int.TryParse(dataEnumerator.Current, out tmp_months))
+            {
+                repeatSpan.Months = tmp_months;
+                if (!dataEnumerator.MoveNext())
+                    return true;
+            }
+
+            // years
+            if (int.TryParse(dataEnumerator.Current, out tmp_years))
+            {
+                repeatSpan.Months = tmp_years;
+                repeatSpan.Years = tmp_months;
+                if (!dataEnumerator.MoveNext())
+                    return true;
+            }
+
+            // timespan
+            TimeSpan span = TimeSpan.Zero;
+            if (!ValueParser.TryParse(ref span, dataEnumerator.Current))
+                return false;
+            repeatSpan.Span = span;
+            return true;
         }
     }
 }

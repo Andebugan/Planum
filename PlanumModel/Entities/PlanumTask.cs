@@ -63,13 +63,7 @@ namespace Planum.Model.Entities
 
         public bool Equals(PlanumTask compared)
         {
-            if (Id != compared.Id || Name != compared.Name || Description != compared.Description)
-                return false;
-
-            if (Deadlines.Except(compared.Deadlines).Any()) return false;
-            if (Children.Except(compared.Children).Any()) return false;
-            if (Parents.Except(compared.Parents).Any()) return false;
-            return true;
+            return GetHashCode() == this.GetHashCode();
         }
 
         public override int GetHashCode()

@@ -12,9 +12,7 @@ namespace Planum.Model.Filters
         public IValueFilter<TimeSpan> WarningFilter { get; set; }
         public IValueFilter<TimeSpan> DurationFilter { get; set; }
         public IValueFilter<bool> RepeatedFilter { get; set; }
-        public IValueFilter<TimeSpan> RepeatSpanFilter { get; set; }
-        public IValueFilter<int> RepeatYearsFilter { get; set; }
-        public IValueFilter<int> RepeatMonthsFilter { get; set; }
+        public IValueFilter<RepeatSpan> RepeatSpanFilter { get; set; }
         public IValueFilter<DateTime> DeadlineValueFilter { get; set; }
         public IValueFilter<Guid> DeadlineNextFilter { get; set; }
 
@@ -25,9 +23,7 @@ namespace Planum.Model.Filters
             IValueFilter<TimeSpan>? warningFilter = null,
             IValueFilter<TimeSpan>? durationFilter = null,
             IValueFilter<bool>? repeatedFilter = null,
-            IValueFilter<TimeSpan>? repeatSpanFilter = null,
-            IValueFilter<int>? repeatYearsFilter = null,
-            IValueFilter<int>? repeatMonthsFilter = null,
+            IValueFilter<RepeatSpan>? repeatSpanFilter = null,
             IValueFilter<DateTime>? deadlineValueFilter = null,
             IValueFilter<Guid>? deadlineNextFilter = null
                 )
@@ -38,9 +34,7 @@ namespace Planum.Model.Filters
             WarningFilter = warningFilter is null ? new ValueFilter<TimeSpan>(Logger) : warningFilter;
             DurationFilter = durationFilter is null ? new ValueFilter<TimeSpan>(Logger) : durationFilter;
             RepeatedFilter = repeatedFilter is null ? new ValueFilter<bool>(Logger) : repeatedFilter;
-            RepeatSpanFilter = repeatSpanFilter is null ? new ValueFilter<TimeSpan>(Logger) : repeatSpanFilter;
-            RepeatYearsFilter = repeatYearsFilter is null ? new ValueFilter<int>(Logger) : repeatYearsFilter;
-            RepeatMonthsFilter = repeatMonthsFilter is null ? new ValueFilter<int>(Logger) : repeatMonthsFilter;
+            RepeatSpanFilter = repeatSpanFilter is null ? new ValueFilter<RepeatSpan>(Logger) : repeatSpanFilter;
             DeadlineValueFilter = deadlineValueFilter is null ? new ValueFilter<DateTime>(Logger) : deadlineValueFilter;
             DeadlineNextFilter = deadlineNextFilter is null ? new ValueFilter<Guid>(Logger) : deadlineNextFilter;
         }
@@ -54,8 +48,6 @@ namespace Planum.Model.Filters
                         DurationFilter.Match(x.duration) &&
                         RepeatedFilter.Match(x.repeated) &&
                         RepeatSpanFilter.Match(x.repeatSpan) &&
-                        RepeatYearsFilter.Match(x.repeatYears) &&
-                        RepeatMonthsFilter.Match(x.repeatMonths) &&
                         DeadlineValueFilter.Match(x.deadline) &&
                         (!x.next.Any() || DeadlineNextFilter.Filter(x.next).Any())
                     );

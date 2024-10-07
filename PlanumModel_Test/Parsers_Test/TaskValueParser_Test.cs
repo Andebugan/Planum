@@ -1,4 +1,3 @@
-using System.Collections;
 using Planum.Model.Entities;
 using Planum.Parser;
 
@@ -25,13 +24,15 @@ namespace PlanumModel_Test.Parsers_Test
                 notMatchedTask,
             };
 
-            IEnumerable<PlanumTask> expectedTasks = new List<PlanumTask> {
-                fullMatchTask,
-                idMatchTask
+            IEnumerable<Guid> expectedTasks = new List<Guid> {
+                fullMatchTask.Id,
             };
 
+            Dictionary<Guid, string> tasksDict = new Dictionary<Guid, string>();
+            foreach (var task in tasks) tasksDict[task.Id] = task.Name;
+
             // Act
-            var actualTasks = TaskValueParser.ParseIdentity(id.ToString(), name, tasks); 
+            var actualTasks = TaskValueParser.ParseIdentity(id.ToString(), name, tasksDict); 
 
             // Assert
             Assert.Equal(expectedTasks, actualTasks);
@@ -44,22 +45,16 @@ namespace PlanumModel_Test.Parsers_Test
         public void TryParseRepeat_Test(string data, int year, int months, int days, int hours, int minutes)
         {
             // Arrange
-            Deadline expectedDeadline = new Deadline(
-                repeatSpan: new TimeSpan(days, hours, minutes, 0),
-                repeatYears: year,
-                repeatMonths: months
-            );
+            var expectedSpan = new RepeatSpan(year, months, new TimeSpan(days, hours, minutes, 0));
 
-            Deadline actualDeadline = new Deadline();
+            RepeatSpan actualSpan = new RepeatSpan();
 
             // Act
-            var result = TaskValueParser.TryParseRepeat(ref actualDeadline, data);
+            var result = TaskValueParser.TryParseRepeat(ref actualSpan, data);
 
             // Assert
             Assert.True(result);
-            Assert.Equal(expectedDeadline.repeatYears, actualDeadline.repeatYears);
-            Assert.Equal(expectedDeadline.repeatMonths, actualDeadline.repeatMonths);
-            Assert.Equal(expectedDeadline.repeatSpan, actualDeadline.repeatSpan);
+            Assert.Equal(expectedSpan, actualSpan);
         }
     }
 }

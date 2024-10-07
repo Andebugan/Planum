@@ -9,9 +9,7 @@ namespace Planum.Model.Entities
         public TimeSpan duration;
 
         public bool repeated;
-        public TimeSpan repeatSpan;
-        public int repeatYears;
-        public int repeatMonths;
+        public RepeatSpan repeatSpan;
 
         public HashSet<Guid> next;
 
@@ -20,9 +18,7 @@ namespace Planum.Model.Entities
                 TimeSpan? warningTime = null,
                 TimeSpan? duration = null,
                 bool repeated = false,
-                TimeSpan? repeatSpan = null,
-                int repeatYears = 0,
-                int repeatMonths = 0,
+                RepeatSpan? repeatSpan = null,
                 HashSet<Guid>? next = null)
         {
             Id = Guid.NewGuid();
@@ -33,9 +29,7 @@ namespace Planum.Model.Entities
             this.duration = duration is null ? TimeSpan.Zero : (TimeSpan)duration;
 
             this.repeated = repeated;
-            this.repeatSpan = repeatSpan is null ? TimeSpan.Zero : (TimeSpan)repeatSpan;
-            this.repeatYears = repeatYears;
-            this.repeatMonths = repeatMonths;
+            this.repeatSpan = (RepeatSpan)(repeatSpan is null ? new RepeatSpan() : repeatSpan);
             this.next = next is null ? new HashSet<Guid>() : next;
         }
 
@@ -59,22 +53,7 @@ namespace Planum.Model.Entities
             return PlanumTaskStatus.NOT_STARTED;
         }
 
-        public bool Equals(Deadline compared)
-        {
-            return enabled == compared.enabled &&
-                deadline.Year == compared.deadline.Year &&
-                deadline.Month == compared.deadline.Month &&
-                deadline.Day == compared.deadline.Day &&
-                deadline.Hour == compared.deadline.Hour &&
-                deadline.Minute == compared.deadline.Minute &&
-                TimeSpan.Equals(warningTime, compared.warningTime) &&
-                TimeSpan.Equals(duration, compared.duration) &&
-                repeated == compared.repeated &&
-                TimeSpan.Equals(repeatSpan, compared.repeatSpan) &&
-                repeatYears == compared.repeatYears &&
-                repeatMonths == compared.repeatMonths &&
-                next.SequenceEqual(compared.next);
-        }
+        public bool Equals(Deadline compared) => GetHashCode() == this.GetHashCode();
 
         public override int GetHashCode()
         {
@@ -88,8 +67,6 @@ namespace Planum.Model.Entities
             hash ^= duration.GetHashCode();
             hash ^= repeated.GetHashCode();
             hash ^= repeatSpan.GetHashCode();
-            hash ^= repeatYears.GetHashCode();
-            hash ^= repeatMonths.GetHashCode();
             hash ^= next.GetHashCode();
             return hash;
         }
@@ -106,12 +83,7 @@ namespace Planum.Model.Entities
                 result += $", duration={duration.ToString()}";
             if (repeated)
                 result += $", repeated={repeated.ToString()}";
-            if (repeatSpan != TimeSpan.Zero)
-                result += $", repeatSpan={repeatSpan.ToString()}";
-            if (repeatYears > 0)
-                result += $", repeatYears={repeatYears.ToString()}";
-            if (repeatMonths > 0)
-                result += $", repeatMonths={repeatMonths.ToString()}";
+            result += $", repeatSpan={repeatSpan.ToString()}";
             if (next.Any())
             {
                 result += ", next={";
@@ -125,6 +97,4 @@ namespace Planum.Model.Entities
             return result;
         }
     }
-
-
 }

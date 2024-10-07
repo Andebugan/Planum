@@ -32,7 +32,7 @@ namespace Planum.Model.Exporters
             return ModelConfig.TaskNotCompleteMarkerSymbol;
         }
 
-        protected string GetTaskName(PlanumTask task) => AddMarkdownLink(task.Name, task.SaveFile);
+        protected string GetTaskName(PlanumTask task) => AddMarkdownLink($"{task.Name} | {task.Id.ToString()}", task.SaveFile);
 
         protected bool CheckIfChecklist(PlanumTask task)
         {
@@ -54,7 +54,9 @@ namespace Planum.Model.Exporters
             var line = AddLineTabs(level) + ModelConfig.TaskItemSymbol;
             if (status is not null)
                 line += AddCheckbox(GetMarkerSymbol((PlanumTaskStatus)status));
-            line += symbol + ModelConfig.TaskHeaderDelimeterSymbol + value;
+            if (symbol != "")
+                line += symbol + ModelConfig.TaskHeaderDelimeterSymbol;
+            line += value;
             return line;
         }
 
@@ -63,21 +65,28 @@ namespace Planum.Model.Exporters
         protected void WriteName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0)
         {
             if (level > 0)
-                lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name + ModelConfig.TaskNameIdDelimiter + task.Id, level, status));
+                lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name + ModelConfig.TaskValueIdDelimiter + task.Id, level, status));
             else
                 lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name, level, status));
         }
 
-        protected void WriteChecklistName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0) => lines.Add(AddTaskItem("", task.Name, level, status));
+        protected void WriteChecklistName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0)
+        {
+            lines.Add(AddTaskItem("", task.Name, level, status));
+        }
 
         protected void WriteTags(IList<string> lines, PlanumTask task, int level = 0)
         {
-            foreach (var tag in task.Tags)
-                if (tag != DefaultTags.Checklist && tag != DefaultTags.Complete)
-                    lines.Add(AddTaskItem(ModelConfig.TaskTagSymbol, tag, level));
+            var tags = task.Tags.Except(new string[] { DefaultTags.Checklist });
+            if (tags.Any())
+                lines.Add(AddTaskItem(ModelConfig.TaskTagSymbol, string.Join(", ", tags), level));
         }
 
-        protected void WriteDescription(IList<string> lines, PlanumTask task, int level = 0) => lines.Add(AddTaskItem(ModelConfig.TaskDescriptionSymbol, task.Description, level));
+        protected void WriteDescription(IList<string> lines, PlanumTask task, int level = 0)
+        {
+            if (task.Description.Trim() != "")
+                lines.Add(AddTaskItem(ModelConfig.TaskDescriptionSymbol, task.Description, level));
+        }
 
         protected void WriteChecklists(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
         {
@@ -125,20 +134,27 @@ namespace Planum.Model.Exporters
             foreach (var deadline in task.Deadlines)
             {
                 // header
-                lines.Add(AddTaskItem(ModelConfig.TaskDeadlineHeaderSymbol, deadline.Id.ToString(), level, deadline.GetDeadlineStatus()));
-                // deadline
-                lines.Add(AddTaskItem(ModelConfig.TaskDeadlineSymbol, deadline.deadline.ToString(ModelConfig.TaskDateTimeWriteFormat), level + 1, deadline.GetDeadlineStatus()));
+                lines.Add(AddTaskItem(
+                            ModelConfig.TaskDeadlineHeaderSymbol,
+                            $"{deadline.deadline.ToString(ModelConfig.TaskDateTimeWriteFormat)}{ModelConfig.TaskValueIdDelimiter}{deadline.Id.ToString()}",
+                            level, deadline.GetDeadlineStatus()));
                 // warning time
                 if (deadline.warningTime != TimeSpan.Zero)
-                    lines.Add(AddTaskItem(ModelConfig.TaskWarningTimeSymbol, deadline.warningTime.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1, deadline.GetDeadlineStatus()));
+                    lines.Add(AddTaskItem(ModelConfig.TaskWarningTimeSymbol, deadline.warningTime.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1));
                 // duration
                 if (deadline.duration != TimeSpan.Zero)
-                    lines.Add(AddTaskItem(ModelConfig.TaskDurationTimeSymbol, deadline.duration.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1, deadline.GetDeadlineStatus()));
+                    lines.Add(AddTaskItem(ModelConfig.TaskDurationTimeSymbol, deadline.duration.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1));
                 // repeat
-                if (deadline.repeatSpan != TimeSpan.Zero && deadline.repeatMonths > 0 && deadline.repeatYears > 0)
-                    lines.Add(AddTaskItem(ModelConfig.TaskRepeatTimeSymbol, deadline.repeatYears.ToString() + " " + deadline.repeatMonths.ToString() + " " + deadline.repeatSpan.ToString(ModelConfig.TaskTimeSpanWriteFormat), level + 1, deadline.GetDeadlineStatus()));
+                if (deadline.repeatSpan.Span != TimeSpan.Zero && deadline.repeatSpan.Months > 0 && deadline.repeatSpan.Months > 0)
+                {
+                    var status = PlanumTaskStatus.DISABLED;
+                    if (deadline.repeated)
+                        status = PlanumTaskStatus.COMPLETE;
+                    string repeat = deadline.repeatSpan.ToString();
+                    lines.Add(AddTaskItem(ModelConfig.TaskRepeatTimeSymbol, repeat, level + 1, status));
+                }
                 // next
-                WriteNext(lines, deadline, tasks, statuses, level);
+                WriteNext(lines, deadline, tasks, statuses, level + 1);
             }
         }
 

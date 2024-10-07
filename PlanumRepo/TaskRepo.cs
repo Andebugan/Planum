@@ -21,15 +21,15 @@ namespace Planum.Repository
             FileManager = taskFileManager;
         }
 
-        public void Save(ref WriteStatus writeStatus, ref ReadStatus readStatus)
+        public void Save()
         {
-            FileManager.Write(taskBuffer, ref writeStatus, ref readStatus);
+            FileManager.Write(taskBuffer);
             taskOldBuffer = taskBuffer;
         }
 
-        public void Load(ref ReadStatus readStatus)
+        public void Load()
         {
-            taskBuffer = FileManager.Read(ref readStatus).ToList();
+            taskBuffer = FileManager.Read().ToList();
             taskOldBuffer = taskBuffer;
         }
 
@@ -37,7 +37,6 @@ namespace Planum.Repository
         public IEnumerable<PlanumTask> GetDiff() => taskBuffer.Where(x => !taskOldBuffer.Contains(x));
 
         public void Add(PlanumTask task) => taskBuffer.Add(task);
-
         public void Add(IEnumerable<PlanumTask> tasks) => taskBuffer = taskBuffer.Concat(tasks).ToList();
 
         public void Update(PlanumTask task) => Update(new PlanumTask[] { task });

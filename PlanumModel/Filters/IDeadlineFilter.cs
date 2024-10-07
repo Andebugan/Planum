@@ -10,9 +10,7 @@ namespace Planum.Model.Filters
         IValueFilter<TimeSpan> WarningFilter { get; set; }
         IValueFilter<TimeSpan> DurationFilter { get; set; }
         IValueFilter<bool> RepeatedFilter { get; set; }
-        IValueFilter<TimeSpan> RepeatSpanFilter { get; set; }
-        IValueFilter<int> RepeatMonthsFilter { get; set; }
-        IValueFilter<int> RepeatYearsFilter { get; set; }
+        IValueFilter<RepeatSpan> RepeatSpanFilter { get; set; }
 
         IEnumerable<Deadline> Filter(IEnumerable<Deadline> deadlines);
     }

@@ -1,12 +1,11 @@
 using Planum.Model.Entities;
-using Planum.Repository;
 
 namespace Planum.Model.Repository
 {
     public interface ITaskRepo
     {
-        public void Save(ref WriteStatus writeStatus, ref ReadStatus readStatus);
-        public void Load(ref ReadStatus readStatus);
+        public void Save();
+        public void Load();
 
         public IEnumerable<PlanumTask> Get();
         public IEnumerable<PlanumTask> GetDiff();

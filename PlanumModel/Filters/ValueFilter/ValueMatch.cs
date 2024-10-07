@@ -52,6 +52,9 @@ namespace Planum.Model.Filters
             return agg;
         }
 
+        /// <summary>
+        /// Checks if value is lesser than compared
+        /// </summary>
         public bool CheckLesser(T compared, bool agg = false)
         {
             if (Lesser == ValueMatchType.AND)
@@ -63,6 +66,9 @@ namespace Planum.Model.Filters
             return agg;
         }
 
+        /// <summary>
+        /// Checks if value is greater than compared
+        /// </summary>
         public bool CheckGreater(T compared, bool agg = false)
         {
             if (Lesser == ValueMatchType.AND)

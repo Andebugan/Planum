@@ -17,9 +17,9 @@ namespace Planum.Model
         public string TaskCheckboxStart { get; set; } = "[";
         public string TaskCheckboxEnd { get; set; } = "] ";
 
-        public string TaskWarningMarkerSymbol { get; set; } = ".";
-        public string TaskInProgressMarkerSymbol { get; set; } = "*";
-        public string TaskOverdueMarkerSymbol { get; set; } = "#";
+        public string TaskWarningMarkerSymbol { get; set; } = "w";
+        public string TaskInProgressMarkerSymbol { get; set; } = "I";
+        public string TaskOverdueMarkerSymbol { get; set; } = "O";
         public string TaskCompleteMarkerSymbol { get; set; } = "x";
         public string TaskNotCompleteMarkerSymbol { get; set; } = " ";
 
@@ -27,7 +27,7 @@ namespace Planum.Model
         public string TaskMarkerEndSymbol { get; set; } = ">";
 
         public string TaskNameSymbol { get; set; } = "n";
-        public string TaskNameIdDelimiter { get; set; } = " | ";
+        public string TaskValueIdDelimiter { get; set; } = " | ";
 
         public string TaskTagSymbol { get; set; } = "t";
         public string TaskDescriptionSymbol { get; set; } = "d";
@@ -36,10 +36,9 @@ namespace Planum.Model
         public string TaskChildSymbol { get; set; } = "c";
 
         public string TaskDeadlineHeaderSymbol { get; set; } = "D";
-        public string TaskDeadlineSymbol { get; set; } = "d";
 
         public string TaskWarningTimeSymbol { get; set; } = "w";
-        public string TaskDurationTimeSymbol { get; set; } = "du";
+        public string TaskDurationTimeSymbol { get; set; } = "d";
         public string TaskRepeatTimeSymbol { get; set; } = "r";
 
         public string TaskNextSymbol { get; set; } = "n";

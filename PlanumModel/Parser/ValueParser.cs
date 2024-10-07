@@ -7,13 +7,13 @@ namespace Planum.Parser
     /// </summary>
     public static class ValueParser
     {
-        public static string[] dateFormats = { "d.M.y", "d.M.yyyy", "d.M.yyyy", "d.M" };
+        public static string[] dateFormats = { "d.M.y", "d.M.yyyy", "d.M" };
         public static string[] timeFormats = { "H:m" };
 
         public static Dictionary<string, DateTime> dateStringFormats = new Dictionary<string, DateTime>() {
             { "yesterday", DateTime.Today.AddDays(-1) },
             { "today", DateTime.Today },
-            { "tomorrow", DateTime.Today.AddDays(1)  },
+            { "tomorrow", DateTime.Today.AddDays(1) },
         };
 
         public static Dictionary<string, DayOfWeek> dayOfWeekStringFormats = new Dictionary<string, DayOfWeek>() {
@@ -85,37 +85,6 @@ namespace Planum.Parser
                     return true;
             }
             return false;
-        }
-
-        public static bool TryParse(ref TimeSpan timeSpan, ref int months, ref int years, string data)
-        {
-            data = data.Trim(' ', '\n');
-            var split = data.Split(' ').AsEnumerable();
-            IEnumerator<string> dataEnumerator = (IEnumerator<string>)split.GetEnumerator();
-            dataEnumerator.MoveNext();
-            
-            var tmp_months = 0;
-            var tmp_years = 0;
-
-            // months
-            if (int.TryParse(dataEnumerator.Current, out tmp_months))
-            {
-                months = tmp_months;
-                if (!dataEnumerator.MoveNext())
-                    return true;
-            }
-
-            // years
-            if (int.TryParse(dataEnumerator.Current, out tmp_years))
-            {
-                months = tmp_years;
-                years = tmp_months;
-                if (!dataEnumerator.MoveNext())
-                    return true;
-            }
-
-            // timespan
-            return TryParse(ref timeSpan, dataEnumerator.Current);
         }
 
         static bool TryParseTime(ref DateTime value, IEnumerator<string> dataEnumerator)
