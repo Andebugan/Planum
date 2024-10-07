@@ -17,7 +17,7 @@ namespace Planum.Repository
         }
 
         public bool CheckTaskMarker(string line) => line.StartsWith(ModelConfig.TaskMarkerStartSymbol) && line.EndsWith(ModelConfig.TaskMarkerEndSymbol);
-        public void ReadTask(ref IEnumerator<string> enumerator, ref List<PlanumTaskDTO> tasks)
+        public Guid ReadTask(ref IEnumerator<string> enumerator, ref List<PlanumTaskDTO> tasks)
         {
             Logger.Log("Starting task read", LogLevel.INFO);
 
@@ -47,8 +47,8 @@ namespace Planum.Repository
             }
 
             tasks.Add(task);
-
             Logger.Log($"Read finished, task: {task.Id} | {task.Name}", LogLevel.INFO);
+            return task.Id;
         }
 
         protected string GetTabs(int level)

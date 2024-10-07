@@ -1,38 +1,44 @@
 ﻿using Planum.Config;
 using Planum.Logger;
+using Planum.Model;
 using Planum.Model.Entities;
+using Planum.Model.Exporters;
 #nullable enable
 
 namespace Planum.Repository
 {
     public class TaskFileManager: ITaskFileManager
     {
+        ModelConfig ModelConfig { get; set; }
         RepoConfig RepoConfig { get; set; }
-        TaskMarkdownWriter TaskWriter { get; set; }
         TaskMarkdownReader TaskReader { get; set; }
+        TaskMarkdownExporter TaskExporter { get; set; }
         ILoggerWrapper Logger { get; set; }
 
-        public TaskFileManager(RepoConfig repoConfig, TaskMarkdownWriter taskWriter, TaskMarkdownReader taskReader, ILoggerWrapper logger)
+        public TaskFileManager(ModelConfig modelConfig, RepoConfig repoConfig, TaskMarkdownReader taskReader, TaskMarkdownExporter taskExporter, ILoggerWrapper logger)
         {
+            ModelConfig = modelConfig;
             RepoConfig = repoConfig;
-            TaskWriter = taskWriter;
             TaskReader = taskReader;
+            TaskExporter = taskExporter;
             Logger = logger;
         }
 
-        protected void ReadFromFile(string path, IList<PlanumTask> tasks, Dictionary<Guid, IList<string>> children, Dictionary<Guid, IList<string>> parents, Dictionary<Guid, IList<string>> next, ref ReadStatus readStatus)
+        protected void ReadFromFile(string path, ref List<PlanumTaskDTO> tasks)
         {
             Logger.Log(message: $"Collecting tasks from file: {path}", LogLevel.INFO);
                 
-            IEnumerator<string> linesEnumerator = (IEnumerator<string>)(File.ReadAllLines(path).ToList().GetEnumerator());
-            while (linesEnumerator.MoveNext() && readStatus.CheckOkStatus())
+            IEnumerator<string> enumerator = (IEnumerator<string>)(File.ReadAllLines(path).ToList().GetEnumerator());
+            try
             {
-                var readStatuses = readStatus.ReadStatuses;
-                var guid = TaskReader.ReadTask(ref linesEnumerator, ref readStatuses, tasks, children, parents, next);
-                readStatus.ReadStatuses = readStatuses;
+                while (enumerator.MoveNext())
+                    TaskReader.ReadTask(ref enumerator, ref tasks);
+            }
+            finally
+            {
+                enumerator.Dispose();
             }
 
-            linesEnumerator.Dispose();
             Logger.Log($"Task read complete", LogLevel.INFO);
         }
 
@@ -72,64 +78,64 @@ namespace Planum.Repository
             return filePaths;
         }
 
-        public IEnumerable<PlanumTask> Read(ref ReadStatus readStatus)
+        public IEnumerable<PlanumTask> Read()
         {
             Logger.Log($"Read starting", LogLevel.INFO);
 
-            IList<PlanumTask> tasks = new List<PlanumTask>();
-            Dictionary<Guid, IList<string>> children = new Dictionary<Guid, IList<string>>();
-            Dictionary<Guid, IList<string>> parents = new Dictionary<Guid, IList<string>>();
-            Dictionary<Guid, IList<string>> next = new Dictionary<Guid, IList<string>>();
-
+            List<PlanumTaskDTO> taskDTOs = new List<PlanumTaskDTO>();
             HashSet<string> filePaths = new HashSet<string>();
+
             foreach (var path in RepoConfig.TaskLookupPaths)
             {
                 if (!File.Exists(path) && !Directory.Exists(path))
-                    readStatus.ReadStatuses.Add(new TaskReadStatus(null, TaskReadStatusType.UNABLE_TO_FIND_TASK_FILE, path, message: "Unable to find path of directory: \"{}\""));
+                    throw new TaskRepoException($"Unable to find path of directory: \"{path}\"");
                 else
                     filePaths = SearchForMarkdownFiles(path, filePaths);
             }
 
             foreach (var path in filePaths)
-                ReadFromFile(path, tasks, children, parents, next, ref readStatus);
+                ReadFromFile(path, ref taskDTOs);
+            
+            var taskDicts = new Dictionary<Guid, string>();
+            foreach (var taskDTO in taskDTOs)
+                taskDicts[taskDTO.Id] = taskDTO.Name;
+            
+            var tasks = taskDTOs.Select(x => x.ToPlanumTask(taskDicts));
 
-            if (readStatus.CheckOkStatus())
-                TaskReader.ParseIdentities(tasks, children, parents, next);
-
-            Logger.Log($"Read completed, success: {readStatus.CheckOkStatus()}", LogLevel.INFO);
+            Logger.Log($"Read completed", LogLevel.INFO);
             return tasks;
         }
 
-        protected List<Guid> WriteUpdateToFile(IEnumerable<PlanumTask> tasks, ref IEnumerator<string> linesEnumerator, ref List<string> newLines, ref ReadStatus readStatus)
+        protected List<Guid> WriteUpdateToFile(IEnumerable<PlanumTask> tasks, ref IEnumerator<string> enumerator, ref List<string> newLines)
         {
             List<Guid> writtenIds = new List<Guid>();
             IEnumerable<Guid> taskIds = tasks.Select(x => x.Id);
 
             Logger.Log($"Task update start", LogLevel.INFO);
-            while (linesEnumerator.MoveNext() && readStatus.CheckOkStatus())
+            while (enumerator.Current != null && enumerator.MoveNext())
             {
-                if (linesEnumerator.Current.StartsWith(RepoConfig.TaskMarkerStartSymbol) && linesEnumerator.Current.EndsWith(RepoConfig.TaskMarkerEndSymbol))
+                if (enumerator.Current.StartsWith(ModelConfig.TaskMarkerStartSymbol) && enumerator.Current.EndsWith(ModelConfig.TaskMarkerEndSymbol))
                 {
-                    var readStatuses = readStatus.ReadStatuses;
-                    var taskId = TaskReader.ReadSkipTask(ref linesEnumerator, ref readStatuses);
-                    readStatus.ReadStatuses = readStatuses;
-
+                    // parse marker
+                    var tmpTasks = new List<PlanumTaskDTO>();
+                    var taskId = TaskReader.ReadTask(ref enumerator, ref tmpTasks);
+                    
                     if (taskIds.Contains(taskId))
                     {
                         PlanumTask newTask = tasks.Where(x => x.Id == taskId).First();
                         writtenIds.Add(taskId);
-                        TaskWriter.WriteTask(newLines, newTask, tasks);
+                        TaskExporter.WriteTask(newLines, newTask, tasks);
                     }
                 }
                 else
-                    newLines.Add(linesEnumerator.Current);
+                    newLines.Add(enumerator.Current);
             }
 
             Logger.Log($"Task update complete", LogLevel.INFO);
             return writtenIds;
         }
 
-        protected void WriteNewToFile(IEnumerable<PlanumTask> tasks, IEnumerable<Guid> writtenIds, ref IEnumerator<string> linesEnumerator, ref List<string> newLines)
+        protected void WriteNewToFile(IEnumerable<PlanumTask> tasks, IEnumerable<Guid> writtenIds, ref IEnumerator<string> enumerator, ref List<string> newLines)
         {
             Logger.Log($"Task insert start", LogLevel.INFO);
             IEnumerable<Guid> taskIds = tasks.Select(x => x.Id);
@@ -137,35 +143,36 @@ namespace Planum.Repository
             foreach (var id in insertedIds)
             {
                 PlanumTask newTask = tasks.Where(x => x.Id == id).First();
-                TaskWriter.WriteTask(newLines, newTask, tasks);
+                TaskExporter.WriteTask(newLines, newTask, tasks);
             }
             Logger.Log($"Task insert complete", LogLevel.INFO);
         }
 
-        protected void WriteToFile(string path, IEnumerable<PlanumTask> tasks, ref WriteStatus writeStatus, ref ReadStatus readStatus, ref Dictionary<string, IEnumerable<string>> fileLines)
+        protected void WriteToFile(string path, IEnumerable<PlanumTask> tasks, ref Dictionary<string, IEnumerable<string>> fileLines)
         {
             Logger.Log($"Writing tasks into file: {path}", LogLevel.INFO);
             if (!File.Exists(path))
-            {
-                foreach (var task in tasks)
-                    writeStatus.WriteStatuses.Add(new TaskWriteStatus(task, TaskWriteStatusType.UNABLE_TO_FIND_TASK_FILE, path, message: "Unable to find task file"));
-                return;
-            }
+                throw new TaskRepoException($"Unable to find task file at path: \"{path}\"");
 
             IEnumerable<string> lines = File.ReadAllLines(path);
             List<string> newLines = new List<string>();
-            IEnumerator<string> linesEnumerator = (IEnumerator<string>)lines.GetEnumerator();
+            IEnumerator<string> enumerator = (IEnumerator<string>)lines.GetEnumerator();
 
-            List<Guid> updatedIds = WriteUpdateToFile(tasks, ref linesEnumerator, ref newLines, ref readStatus);
-            WriteNewToFile(tasks, updatedIds, ref linesEnumerator, ref newLines);
-            linesEnumerator.Dispose();
+            try
+            {
+                List<Guid> updatedIds = WriteUpdateToFile(tasks, ref enumerator, ref newLines);
+                WriteNewToFile(tasks, updatedIds, ref enumerator, ref newLines);
+            }
+            finally
+            {
+                enumerator.Dispose();
+            }
 
-            if (writeStatus.CheckOkStatus())
-                fileLines[path] = newLines;
-            Logger.Log($"Write comleted, success: {writeStatus.CheckOkStatus() && readStatus.CheckOkStatus()}", LogLevel.INFO);
+            fileLines[path] = newLines;
+            Logger.Log($"Write comleted", LogLevel.INFO);
         }
 
-        public void Write(IEnumerable<PlanumTask> tasks, ref WriteStatus writeStatus, ref ReadStatus readStatus)
+        public void Write(IEnumerable<PlanumTask> tasks)
         {
             Logger.Log($"Write starting", LogLevel.INFO);
             Dictionary<string, IEnumerable<string>> fileLines = new Dictionary<string, IEnumerable<string>>();
@@ -180,16 +187,13 @@ namespace Planum.Repository
             }
 
             foreach (var filepath in filepaths.Keys)
-                WriteToFile(filepath, tasks.Where(x => filepaths[filepath].Contains(x.Id)), ref writeStatus, ref readStatus, ref fileLines);
+                WriteToFile(filepath, tasks.Where(x => filepaths[filepath].Contains(x.Id)), ref fileLines);
 
-            if (writeStatus.CheckOkStatus())
-            {
-                foreach (var fpath in fileLines.Keys)
-                    File.WriteAllLines(fpath, fileLines[fpath]);
-                RepoConfig.TaskLookupPaths.Clear();
-                RepoConfig.TaskLookupPaths = fileLines.Keys.ToHashSet();
-                RepoConfig.Save(Logger);
-            }
+            foreach (var fpath in fileLines.Keys)
+                File.WriteAllLines(fpath, fileLines[fpath]);
+            RepoConfig.TaskLookupPaths.Clear();
+            RepoConfig.TaskLookupPaths = fileLines.Keys.ToHashSet();
+            RepoConfig.Save(Logger);
 
             Logger.Log($"Write finished", LogLevel.INFO);
         }
