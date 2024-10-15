@@ -6,6 +6,8 @@ using Planum.Console.Commands.Special;
 using Planum.Console.Commands.Task;
 using Planum.Console.Commands.View;
 using Planum.Logger;
+using Planum.Model;
+using Planum.Model.Exporters;
 using Planum.Model.Managers;
 using Planum.Repository;
 
@@ -21,11 +23,12 @@ namespace Planum
             // config
             var consoleConfig = ConsoleConfig.Load("./ConsoleConfig.json", logger);
             var repoConfig = RepoConfig.Load(consoleConfig.RepoConfigPath, logger);
+            var modelConfig = ModelConfig.Load(consoleConfig.RepoConfigPath, logger);
 
             // repo
-            var taskReader = new TaskMarkdownReader(logger, repoConfig);
-            var taskWriter = new TaskMarkdownWriter(logger, repoConfig);
-            var taskFileManager = new TaskFileManager(repoConfig, taskWriter, taskReader, logger);
+            var taskReader = new TaskMarkdownReader(logger, modelConfig);
+            var taskExporter = new TaskMarkdownExporter(modelConfig, logger);
+            var taskFileManager = new TaskFileManager(modelConfig, repoConfig, taskReader, taskExporter, logger);
             var taskRepo = new TaskRepo(logger, taskFileManager);
 
             // managers
@@ -57,13 +60,9 @@ namespace Planum
             var selectorDeadlineDurationOption = new SelectorDeadlineDurationOption(logger, consoleConfig,
                     new OptionInfo("SDd", "select by deadline duration", "[match type][match filter type] timespan"));
             var selectorDeadlineRepeatSpanOption = new SelectorDeadlineRepeatSpanOption(logger, consoleConfig,
-                    new OptionInfo("SDrs", "select by deadline repeat span", "[match type][match filter type] timespan"));
-            var selectorDeadlineRepeatMonthsOption = new SelectorDeadlineRepeatMonthsOption(logger, consoleConfig,
-                    new OptionInfo("SDrm", "select by deadline repeat months", "[match type][match filter type] int"));
-            var selectorDeadlineRepeatYearsOption = new SelectorDeadlineRepeatYearsOption(logger, consoleConfig,
-                    new OptionInfo("SDry", "select by deadline years", "[match type][match filter type] int"));
+                    new OptionInfo("SDr", "select by deadline repeat span (timespan month year)", "[match type][match filter type] timespan"));
             var selectorDeadlineRepeatedOption = new SelectorDeadlineRepeatedOption(logger, consoleConfig,
-                    new OptionInfo("SDr", "select by deadline repeat", "[match type][match filter type] bool"));
+                    new OptionInfo("SDR", "select by deadline repeat", "[match type][match filter type] bool"));
 
             // basic commands
             var taskCommitOption = new CommitOption(logger, new OptionInfo("C", "commit buffer changes into files at the end of command execution", ""), consoleConfig);
@@ -86,9 +85,7 @@ namespace Planum
             var taskDeadlineNextAddOption = new NextAddOption(logger, taskBufferManager, new OptionInfo("Dna", "add task to be executed next after deadline completion", " fuzzy_guid"), consoleConfig);
             var taskDeadlineNextRemoveOption = new NextRemoveOption(logger, taskBufferManager, new OptionInfo("Dnr", "remove next task to be executed after pipeline completion", " fuzzy_guid"), consoleConfig);
             var taskDeadlineRemoveDeadlineOption = new RemoveDeadlineOption(logger, new OptionInfo("Drd", "remove deadline from task", " fuzzy_guid"), consoleConfig);
-            var taskDeadlineRepeatSpanOption = new RepeatSpanOption(logger, new OptionInfo("Drs", "specify repeat span", " timespan"), consoleConfig);
-            var taskDeadlineRepeatMonthsOption = new RepeatMonthsOption(logger, new OptionInfo("Drm", "specify repeat months", " int"), consoleConfig);
-            var taskDeadlineRepeatYearsOption = new RepeatYearsOption(logger, new OptionInfo("Dry", "specify repeat years", " int"), consoleConfig);
+            var taskDeadlineRepeatSpanOption = new RepeatSpanOption(logger, new OptionInfo("Drs", "specify repeat span (timespan month year)", " repeat_span"), consoleConfig);
             var taskDeadlineRepeatedOption = new RepeatedOption(logger, new OptionInfo("Dr", "enable or disable task repetition", " bool"), consoleConfig);
 
             ICommand createCommand = new CreateCommand(taskBufferManager,
@@ -116,8 +113,6 @@ namespace Planum
                         taskDeadlineNextRemoveOption,
                         taskDeadlineRemoveDeadlineOption,
                         taskDeadlineRepeatSpanOption,
-                        taskDeadlineRepeatMonthsOption,
-                        taskDeadlineRepeatYearsOption,
                         taskDeadlineRepeatedOption
                     },
                     logger);
@@ -138,8 +133,6 @@ namespace Planum
                         selectorDeadlineWarningOption,
                         selectorDeadlineDurationOption,
                         selectorDeadlineRepeatSpanOption,
-                        selectorDeadlineRepeatMonthsOption,
-                        selectorDeadlineRepeatYearsOption,
                         selectorDeadlineRepeatedOption
                     },
                     new CommandInfo("update", "update task values", " [options...]"),
@@ -166,8 +159,6 @@ namespace Planum
                         taskDeadlineNextRemoveOption,
                         taskDeadlineRemoveDeadlineOption,
                         taskDeadlineRepeatSpanOption,
-                        taskDeadlineRepeatMonthsOption,
-                        taskDeadlineRepeatYearsOption,
                         taskDeadlineRepeatedOption
                     },
                     logger);
@@ -188,8 +179,6 @@ namespace Planum
                         selectorDeadlineWarningOption,
                         selectorDeadlineDurationOption,
                         selectorDeadlineRepeatSpanOption,
-                        selectorDeadlineRepeatMonthsOption,
-                        selectorDeadlineRepeatYearsOption,
                         selectorDeadlineRepeatedOption
                     },
                     new CommandInfo("delete", "delete selected tasks", " [options...]"),
@@ -229,7 +218,7 @@ namespace Planum
                     logger);
 
             // view commands
-            var listCommand = new ListCommand(repoConfig,
+            var listCommand = new ListCommand(modelConfig, repoConfig,
                     taskBufferManager,
                     new List<SelectorBaseOption>()
                     {
@@ -246,8 +235,6 @@ namespace Planum
                         selectorDeadlineWarningOption,
                         selectorDeadlineDurationOption,
                         selectorDeadlineRepeatSpanOption,
-                        selectorDeadlineRepeatMonthsOption,
-                        selectorDeadlineRepeatYearsOption,
                         selectorDeadlineRepeatedOption
                     },
                     new CommandInfo("list", "display tasks in list format", " [options...]"),

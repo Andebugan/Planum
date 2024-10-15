@@ -31,7 +31,7 @@ namespace Planum.Console.Commands.Task
             else
             {
                 foreach (var task in result.Tasks)
-                    task.Parents = task.Parents.Except(parents.Select(x => x.Id)).ToHashSet();
+                    task.Parents = task.Parents.Except(parents).ToHashSet();
             }
             return true;
         }

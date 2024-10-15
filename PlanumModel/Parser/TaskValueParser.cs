@@ -29,6 +29,14 @@ namespace Planum.Parser
             return new List<Guid>();
         }
 
+        public static IEnumerable<Guid> ParseIdentity(string id, string name, IEnumerable<PlanumTask> tasks)
+        {
+            var taskDict = new Dictionary<Guid, string>();
+            foreach (var task in tasks)
+                taskDict[task.Id] = task.Name;
+            return ParseIdentity(id, name, taskDict);
+        }
+
         public static bool TryParseRepeat(ref RepeatSpan repeatSpan, string data)
         {
             data = data.Trim(' ', '\n');

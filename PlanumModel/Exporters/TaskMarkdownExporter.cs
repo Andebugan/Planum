@@ -78,7 +78,7 @@ namespace Planum.Model.Exporters
             return tabs;
         }
 
-        protected string AddTaskItem(string symbol, string value, int level = 0, PlanumTaskStatus? status = null)
+        protected virtual string AddTaskItem(string symbol, string value, int level = 0, PlanumTaskStatus? status = null)
         {
             var line = AddLineTabs(level) + ModelConfig.TaskItemSymbol;
             if (status is not null)

@@ -34,7 +34,7 @@ namespace Planum.Console.Commands.Task
                 {
                     var filteredDeadlines = result.DeadlineFilter.Filter(task.Deadlines);
                     foreach (var deadline in filteredDeadlines)
-                        deadline.next = deadline.next.Except(next.Select(x => x.Id)).ToHashSet();
+                        deadline.next = deadline.next.Except(next).ToHashSet();
                     task.Deadlines = filteredDeadlines.ToHashSet();
                 }
             }

@@ -1,5 +1,6 @@
 using Planum.Config;
 using Planum.Logger;
+using Planum.Model.Entities;
 using Planum.Parser;
 
 namespace Planum.Console.Commands.Task
@@ -15,8 +16,8 @@ namespace Planum.Console.Commands.Task
                 return false;
             }
 
-            TimeSpan repeatSpan = TimeSpan.Zero;
-            if (!ValueParser.TryParse(ref repeatSpan, args.Current))
+            RepeatSpan repeatSpan = new RepeatSpan();
+            if (!TaskValueParser.TryParseRepeat(ref repeatSpan, args.Current))
             {
                 lines.Add(ConsoleSpecial.AddStyle($"Unable to parse deadline repeat span from: \"{args.Current}\"", foregroundColor: ConsoleInfoColors.Error));
                 return false;

@@ -1,5 +1,6 @@
 using Planum.Config;
 using Planum.Logger;
+using Planum.Model.Entities;
 using Planum.Model.Filters;
 using Planum.Parser;
 
@@ -17,14 +18,14 @@ namespace Planum.Console.Commands.Selector
                 return false;
             }
 
-            TimeSpan repeatSpan = TimeSpan.Zero;
-            if (!ValueParser.TryParse(ref repeatSpan, args.Current) && matchFilterType != MatchFilterType.SUBSTRING)
+            RepeatSpan repeatSpan = new RepeatSpan();
+            if (!TaskValueParser.TryParseRepeat(ref repeatSpan, args.Current) && matchFilterType != MatchFilterType.SUBSTRING)
             {
                 lines.Add(ConsoleSpecial.AddStyle($"Unable to parse repeat span selector option: {args.Current}", foregroundColor: ConsoleInfoColors.Error));
                 return false;
             }
 
-            IValueMatch<TimeSpan> match = new ValueMatch<TimeSpan>(repeatSpan, args.Current);
+            IValueMatch<RepeatSpan> match = new ValueMatch<RepeatSpan>(repeatSpan, args.Current);
 
             result.DeadlineFilter.RepeatSpanFilter.AddMatch(match);
 
