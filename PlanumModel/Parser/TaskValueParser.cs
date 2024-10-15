@@ -39,6 +39,15 @@ namespace Planum.Parser
             var tmp_months = 0;
             var tmp_years = 0;
 
+            // timespan
+            TimeSpan span = TimeSpan.Zero;
+            if (ValueParser.TryParse(ref span, dataEnumerator.Current))
+            {
+                repeatSpan.Span = span;
+                if (!dataEnumerator.MoveNext())
+                    return true;
+            }                        
+
             // months
             if (int.TryParse(dataEnumerator.Current, out tmp_months))
             {
@@ -50,17 +59,10 @@ namespace Planum.Parser
             // years
             if (int.TryParse(dataEnumerator.Current, out tmp_years))
             {
-                repeatSpan.Months = tmp_years;
-                repeatSpan.Years = tmp_months;
+                repeatSpan.Years = tmp_years;
                 if (!dataEnumerator.MoveNext())
                     return true;
             }
-
-            // timespan
-            TimeSpan span = TimeSpan.Zero;
-            if (!ValueParser.TryParse(ref span, dataEnumerator.Current))
-                return false;
-            repeatSpan.Span = span;
             return true;
         }
     }

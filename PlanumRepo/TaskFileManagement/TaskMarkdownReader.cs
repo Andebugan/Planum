@@ -23,7 +23,12 @@ namespace Planum.Repository
 
             // parse task ID
             PlanumTaskDTO task = new PlanumTaskDTO();
-            ParseTaskMarker(enumerator.Current, ref task);
+            if (!TryParseTaskMarker(enumerator.Current, ref task))
+                throw new TaskRepoException($"Unable to parse guid from line: \"{enumerator.Current}\"");
+            else
+                enumerator.MoveNext();
+            if (task.Id == Guid.Empty)
+                task.Id = Guid.NewGuid();
 
             HashSet<Tuple<string, string>> parentRefs = new HashSet<Tuple<string, string>>();
             HashSet<Tuple<string, string>> childRefs = new HashSet<Tuple<string, string>>();
@@ -43,8 +48,11 @@ namespace Planum.Repository
                 else if (TryParseDeadline(ref enumerator, ref task)) { }
                 else if (TryParseChecklist(ref enumerator, ref task, ref tasks)) { }
                 else
-                    throw new TaskRepoException($"Unable to parse task at line: \"{enumerator.Current}\""); 
+                    throw new TaskRepoException($"Unable to parse task at line: \"{enumerator.Current}\"");
             }
+
+            task.Parents = parentRefs;
+            task.Children = childRefs;
 
             tasks.Add(task);
             Logger.Log($"Read finished, task: {task.Id} | {task.Name}", LogLevel.INFO);
@@ -58,7 +66,7 @@ namespace Planum.Repository
                 tabs += ModelConfig.TaskItemTabSymbol;
             return tabs;
         }
-        
+
         protected string RemoveMarkdownLink(string line)
         {
             line = line.Split("](").First();
@@ -69,7 +77,6 @@ namespace Planum.Repository
 
         protected string GetItemMark(string line, string symbol, int level = 0)
         {
-            line = line.Trim(' ', '\n');
             var markerSymbols = new string[] {
                 ModelConfig.TaskWarningMarkerSymbol,
                 ModelConfig.TaskInProgressMarkerSymbol,
@@ -78,49 +85,58 @@ namespace Planum.Repository
                 ModelConfig.TaskNotCompleteMarkerSymbol
             };
 
+            var checklistStart = GetTabs(level) +
+                        ModelConfig.TaskItemSymbol +
+                        ModelConfig.TaskCheckboxStart;
+
+            var checklistEnd = ModelConfig.TaskCheckboxEnd + symbol;
+            if (symbol != "")
+                checklistEnd += ModelConfig.TaskHeaderDelimeterSymbol;
+
             foreach (var marker in markerSymbols)
                 if (line.StartsWith(
-                            GetTabs(level) + 
-                            ModelConfig.TaskItemSymbol + 
-                            ModelConfig.TaskCheckboxStart + 
-                            marker + 
-                            ModelConfig.TaskCheckboxEnd + 
-                            " " +
-                            symbol +
-                            ModelConfig.TaskHeaderDelimeterSymbol))
+                        checklistStart +
+                        marker +
+                        checklistEnd))
                     return marker;
             return "";
         }
 
-        protected bool CheckMarkedItemLine(string line, string symbol, int level = 0) => GetItemMark(line, symbol, level) != "";
+        protected bool CheckMarkedItemLine(string line, string symbol, int level = 0) => GetItemMark(line, symbol, level).Any();
 
         protected bool CheckItemLine(string line, string symbol, int level = 0)
         {
             if (line.StartsWith(
-                        GetTabs(level) + 
-                        ModelConfig.TaskItemSymbol + 
+                        GetTabs(level) +
+                        ModelConfig.TaskItemSymbol +
+                        symbol +
                         ModelConfig.TaskHeaderDelimeterSymbol))
                 return true;
             return false;
         }
 
-        protected void ParseTaskMarker(string line, ref PlanumTaskDTO task)
+        protected bool TryParseTaskMarker(string line, ref PlanumTaskDTO task)
         {
             line = line.Trim(' ', '\n');
+            if (!(line.Contains(ModelConfig.TaskMarkerStartSymbol) && line.Contains(ModelConfig.TaskMarkerEndSymbol)))
+                return false;
             line = line.Remove(0, ModelConfig.TaskMarkerStartSymbol.Length);
             line = line.Remove(line.Length - ModelConfig.TaskMarkerEndSymbol.Length, ModelConfig.TaskMarkerEndSymbol.Length);
-            var id = Guid.NewGuid();
-            if (line.Trim() == string.Empty)
-                task.Id = id;
+            if (line == "")
+                return true;
+            Guid id;
             if (!Guid.TryParse(line, out id))
-                throw new TaskRepoException($"Unable to parse guid from line: \"{line}\"");
+                return false;
+            task.Id = id;
+            return true;
         }
 
         protected string GetTaskItem(string line, string symbol, int level = 0)
         {
             return line.Replace(
-                    GetTabs(level) + 
-                    ModelConfig.TaskItemSymbol + 
+                    GetTabs(level) +
+                    ModelConfig.TaskItemSymbol +
+                    symbol +
                     ModelConfig.TaskHeaderDelimeterSymbol,
                     "");
         }
@@ -128,24 +144,32 @@ namespace Planum.Repository
         protected string GetMarkerTaskItem(string line, string symbol, ref string taskMarker, int level = 0)
         {
             taskMarker = GetItemMark(line, symbol, level);
-            if (taskMarker == "")
+            if (!taskMarker.Any())
                 throw new TaskRepoException($"Unable to parse marked task element: \"{line}\"");
-            return line.Replace(
-                        GetTabs(level) + 
-                        ModelConfig.TaskItemSymbol + 
-                        ModelConfig.TaskCheckboxStart + 
-                        taskMarker + 
-                        ModelConfig.TaskCheckboxEnd + 
-                        " " +
-                        symbol +
-                        ModelConfig.TaskHeaderDelimeterSymbol,
-                        "");
+            var replace = GetTabs(level) +
+                        ModelConfig.TaskItemSymbol +
+                        ModelConfig.TaskCheckboxStart +
+                        taskMarker +
+                        ModelConfig.TaskCheckboxEnd +
+                        symbol;
+            if (symbol != "")
+                replace += ModelConfig.TaskHeaderDelimeterSymbol;
+            return line.Replace(replace, "");
         }
 
         protected string GetMarkerTaskItem(string line, string symbol, int level = 0)
         {
             string marker = "";
             return GetMarkerTaskItem(line, symbol, ref marker, level);
+        }
+
+        protected bool TryParseChecklistName(string line, ref PlanumTaskDTO task, int currentLevel = 0)
+        {
+            if (line == null || !CheckMarkedItemLine(line, "", currentLevel))
+                return false;
+
+            task.Name = GetMarkerTaskItem(line, "", currentLevel);
+            return true;
         }
 
         protected bool TryParseTaskName(string line, ref PlanumTaskDTO task, int currentLevel = 0)
@@ -173,7 +197,7 @@ namespace Planum.Repository
             if (line == null || !CheckItemLine(line, ModelConfig.TaskDescriptionSymbol, currentLevel))
                 return false;
 
-            task.Description = GetTaskItem(line, ModelConfig.TaskNameSymbol, currentLevel);
+            task.Description = GetTaskItem(line, ModelConfig.TaskDescriptionSymbol, currentLevel);
             return true;
         }
 
@@ -181,13 +205,22 @@ namespace Planum.Repository
         {
             if (line == null || !CheckMarkedItemLine(line, symbol, currentLevel))
                 return false;
-            
-            var task = RemoveMarkdownLink(GetMarkerTaskItem(line, symbol, currentLevel)).Split("|");
-            if (task.Length < 2)
-                throw new TaskRepoException($"Incorrect task reference format: \"{line}\"");
 
-            var taskName = task[0].Trim();
-            var taskId = task[1].Trim();
+            var task = GetMarkerTaskItem(line, symbol, currentLevel);
+
+            var taskValue = task.Split(ModelConfig.TaskLinkSymbol).First();
+            var taskIdentifiers = taskValue.Split(ModelConfig.TaskValueIdDelimiter);
+
+            var taskId = "";
+            var taskName = "";
+
+            if (taskIdentifiers.Count() == 2)
+            {
+                taskId = taskIdentifiers[1].Trim();
+                taskName = taskIdentifiers[0].Trim();
+            }
+            else if (taskIdentifiers.Count() == 1)
+                taskName = taskIdentifiers[0].Trim();
 
             taskRefs.Add(new Tuple<string, string>(taskId, taskName));
             return true;
@@ -199,71 +232,97 @@ namespace Planum.Repository
                 return false;
 
             // parse header
-            var deadline = ParseDeadlineHeader(enumerator.Current, currentLevel);
+            var deadline = new DeadlineDTO();
+            deadline.Id = Guid.NewGuid();
+            deadline.deadline = DateTime.Today;
+            ParseDeadlineHeader(ref deadline, enumerator.Current, currentLevel);
+
+            TimeSpan warningTime = TimeSpan.Zero;
+            TimeSpan durationTime = TimeSpan.Zero;
+
+            RepeatSpan repeat = new RepeatSpan();
+            bool repeated = false;
+
             HashSet<Tuple<string, string>> next = new HashSet<Tuple<string, string>>();
-            
+
             while (enumerator.Current != null && enumerator.Current.Trim() != "" && enumerator.MoveNext())
             {
-                // parse warning
-                if (CheckItemLine(enumerator.Current, ModelConfig.TaskWarningTimeSymbol, currentLevel + 1))
-                    deadline.warningTime = ParseTimeSpanItem(enumerator.Current, ModelConfig.TaskWarningTimeSymbol, currentLevel + 1);
-                // parse duration
-                else if (CheckItemLine(enumerator.Current, ModelConfig.TaskDurationTimeSymbol, currentLevel + 1))
-                    deadline.duration = ParseTimeSpanItem(enumerator.Current, ModelConfig.TaskDurationTimeSymbol, currentLevel + 1);
-                // parse repeat
-                else if (CheckItemLine(enumerator.Current, ModelConfig.TaskRepeatTimeSymbol, currentLevel + 1))
-                {
-                    var repeatSpan = new RepeatSpan();
-                    if (!TaskValueParser.TryParseRepeat(ref repeatSpan, enumerator.Current))
-                        throw new TaskRepoException($"Unable to parse repeat span from \"{enumerator.Current}\"");
-                    deadline.repeatSpan = repeatSpan;
-                }
-                // parse next
-                else if (CheckMarkedItemLine(enumerator.Current, ModelConfig.TaskNextSymbol, currentLevel + 1))
-                    TryParseTaskReference(enumerator.Current, ref next, ModelConfig.TaskNextSymbol, currentLevel + 1);
-                else
+                if (!(TryParseTimeSpanItem(ref warningTime, enumerator.Current, ModelConfig.TaskWarningTimeSymbol, currentLevel + 1) ||
+                    TryParseTimeSpanItem(ref durationTime, enumerator.Current, ModelConfig.TaskDurationTimeSymbol, currentLevel + 1) ||
+                    TryParseRepeatSpan(ref repeat, ref repeated, enumerator.Current, ModelConfig.TaskRepeatTimeSymbol, currentLevel + 1) ||
+                    TryParseTaskReference(enumerator.Current, ref next, ModelConfig.TaskNextSymbol, currentLevel + 1)))
                     break;
             }
+            
+            deadline.warningTime = warningTime;
+            deadline.duration = durationTime;
+            deadline.repeatSpan = repeat;
+            deadline.repeated = repeated;
+
+            task.Deadlines.Add(deadline);
 
             return true;
         }
 
-        protected DeadlineDTO ParseDeadlineHeader(string line, int currentLevel = 0)
+        protected void ParseDeadlineHeader(ref DeadlineDTO deadline, string line, int currentLevel = 0)
         {
-            DeadlineDTO deadline = new DeadlineDTO();
-
             var taskMarker = "";
-            var deadlineHeader = GetMarkerTaskItem(line, ModelConfig.TaskDeadlineHeaderSymbol, ref taskMarker, currentLevel); 
-            var head = deadlineHeader.Split(ModelConfig.TaskValueIdDelimiter);
+            var deadlineHeader = GetMarkerTaskItem(line, ModelConfig.TaskDeadlineHeaderSymbol, ref taskMarker, currentLevel).Trim();
 
-            var id = Guid.NewGuid();
-            var date = DateTime.Today;
+            Guid id = Guid.Empty;
+            DateTime deadlineValue = DateTime.Today;
 
-            if (head.Count() == 1)
+            if (taskMarker == ModelConfig.TaskCompleteMarkerSymbol)
+                deadline.enabled = false;
+            else
+                deadline.enabled = true;
+
+            if (!deadlineHeader.Any())
+                return;
+            else if (!deadlineHeader.Contains(ModelConfig.TaskValueIdDelimiter))
             {
-                if (!ValueParser.TryParse(ref id, head.First().Trim()) && !ValueParser.TryParse(ref date, head.First().Trim()))
+                if (ValueParser.TryParse(ref id, deadlineHeader))
+                    deadline.Id = id;
+                else if (ValueParser.TryParse(ref deadlineValue, deadlineHeader))
+                    deadline.deadline = deadlineValue;
+                else
                     throw new TaskRepoException($"Unable to parse deadline id or value from \"{line}\"");
             }
-            else if (head.Count() == 2)
+            else
             {
-                if (!ValueParser.TryParse(ref date, head[0].Trim()))
+                var dateIdSplit = deadlineHeader.Split(ModelConfig.TaskValueIdDelimiter);
+                if (!ValueParser.TryParse(ref deadlineValue, dateIdSplit[0].Trim()))
                     throw new TaskRepoException($"Unable to parse deadline date from \"{line}\"");
-                if (!ValueParser.TryParse(ref id, head[1].Trim()))
+                if (!ValueParser.TryParse(ref id, dateIdSplit[1].Trim()))
                     throw new TaskRepoException($"Unable to parse deadline id from \"{line}\"");
+                deadline.Id = id;
+                deadline.deadline = deadlineValue;
             }
-            
-            deadline.Id = id;
-            deadline.deadline = date;
-            return deadline;
         }
 
-        protected TimeSpan ParseTimeSpanItem(string line, string symbol, int currentLevel = 0)
+        protected bool TryParseTimeSpanItem(ref TimeSpan span, string line, string symbol, int currentLevel = 0)
         {
-            var item = GetTaskItem(line, symbol, currentLevel + 1);
-            var timeSpan = TimeSpan.Zero;
-            if (!ValueParser.TryParse(ref timeSpan, line))
-                throw new TaskRepoException($"Unable to parse warning time: \"{line}\"");
-            return timeSpan;
+            if (line == null || !CheckItemLine(line, symbol, currentLevel))
+                return false;
+            var item = GetTaskItem(line, symbol, currentLevel);
+            if (!ValueParser.TryParse(ref span, item))
+                return false;
+            return true;
+        }
+
+        protected bool TryParseRepeatSpan(ref RepeatSpan repeat, ref bool repeated, string line, string symbol, int currentLevel = 0)
+        {
+            if (line == null || !CheckMarkedItemLine(line, symbol, currentLevel))
+                return false;
+            if (GetItemMark(line, symbol, currentLevel) == ModelConfig.TaskCompleteMarkerSymbol)
+                repeated = true;
+            else
+                repeated = false;
+
+            var item = GetMarkerTaskItem(line, symbol, currentLevel);
+            if (!TaskValueParser.TryParseRepeat(ref repeat, item))
+                throw new TaskRepoException($"Unable to parse repeat span from \"{item}\"");
+            return true;
         }
 
         protected bool TryParseChecklist(ref IEnumerator<string> enumerator, ref PlanumTaskDTO task, ref List<PlanumTaskDTO> tasks, int currentLevel = 0)
@@ -276,7 +335,7 @@ namespace Planum.Repository
             checklistTask.Id = Guid.NewGuid();
 
             // parse header
-            if (!TryParseTaskName(enumerator.Current, ref checklistTask, currentLevel))
+            if (!TryParseChecklistName(enumerator.Current, ref checklistTask, currentLevel))
                 throw new TaskRepoException($"Unable to parse checklist name: \"{enumerator.Current}\"");
             else
                 enumerator.MoveNext();

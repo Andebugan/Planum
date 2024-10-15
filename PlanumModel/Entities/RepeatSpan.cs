@@ -30,7 +30,7 @@ namespace Planum.Model.Entities
             Months = months;
             Span = span;
         }
-        public override string ToString() => $"{Years} {Months} {Span.ToString(@"d\.h\:m")}";
+        public override string ToString() => $"{Span.ToString(@"d\.h\:m")} {Months} {Years}";
 
         public override bool Equals(object? obj)
         {

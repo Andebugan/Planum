@@ -32,20 +32,45 @@ namespace Planum.Repository
             foreach (var childItem in Children)
             {
                 var matches = TaskValueParser.ParseIdentity(childItem.Item1, childItem.Item2, tasks);
+                if (matches.Count() == 0)
+                    throw new TaskRepoException($"Unable to find child task ({childItem.Item1}|{childItem.Item2}) for task ({Id.ToString()}|{Name})");
                 if (matches.Count() != 1)
-                    throw new TaskRepoException($"Unable uniquely to find child task ({childItem.Item1}|{childItem.Item2}) for deadline ({Id}) for task ({Id.ToString()}|{Name})");
+                    throw new TaskRepoException($"Unable uniquely to find child task ({childItem.Item1}|{childItem.Item2}) for task ({Id.ToString()}|{Name})");
                 task.Children.Add(matches.First());
             }
 
             foreach (var parentItem in Parents)
             {
                 var matches = TaskValueParser.ParseIdentity(parentItem.Item1, parentItem.Item2, tasks);
+                if (matches.Count() == 0)
+                    throw new TaskRepoException($"Unable to find parent task ({parentItem.Item1}|{parentItem.Item2}) for task ({Id.ToString()}|{Name})");
                 if (matches.Count() != 1)
-                    throw new TaskRepoException($"Unable uniquely to find child task ({parentItem.Item1}|{parentItem.Item2}) for deadline ({Id}) for task ({Id.ToString()}|{Name})");
+                    throw new TaskRepoException($"Unable uniquely to find child task ({parentItem.Item1}|{parentItem.Item2}) for task ({Id.ToString()}|{Name})");
                 task.Parents.Add(matches.First());
             }
 
             return task;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = HashCode.Combine(Id.GetHashCode(), Name.GetHashCode(), Description.GetHashCode(), SaveFile.GetHashCode());
+            foreach (var tag in Tags)
+                hashCode ^= tag.GetHashCode();
+            foreach (var deadline in Deadlines)
+                hashCode ^= deadline.GetHashCode();
+            foreach (var parent in Parents)
+                hashCode ^= parent.GetHashCode();
+            foreach (var child in Children)
+                hashCode ^= child.GetHashCode();
+            return hashCode;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            return obj.GetHashCode() == GetHashCode();
         }
     }
 }

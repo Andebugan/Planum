@@ -14,6 +14,8 @@ namespace Planum.Model
 
         public string TaskDescriptionNewlineSymbol { get; set; } = "\\";
 
+        public string TaskLinkSymbol { get; set; } = "[->]";
+
         public string TaskCheckboxStart { get; set; } = "[";
         public string TaskCheckboxEnd { get; set; } = "] ";
 

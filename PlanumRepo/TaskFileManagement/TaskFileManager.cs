@@ -27,16 +27,24 @@ namespace Planum.Repository
         protected void ReadFromFile(string path, ref List<PlanumTaskDTO> tasks)
         {
             Logger.Log(message: $"Collecting tasks from file: {path}", LogLevel.INFO);
-                
+
             IEnumerator<string> enumerator = (IEnumerator<string>)(File.ReadAllLines(path).ToList().GetEnumerator());
+            var fileTasks = new List<PlanumTaskDTO>();
             try
             {
                 while (enumerator.MoveNext())
-                    TaskReader.ReadTask(ref enumerator, ref tasks);
+                    if (TaskReader.CheckTaskMarker(enumerator.Current))
+                        TaskReader.ReadTask(ref enumerator, ref fileTasks);
             }
             finally
             {
                 enumerator.Dispose();
+            }
+
+            foreach (var task in fileTasks)
+            {
+                task.SaveFile = path;
+                tasks.Add(task);
             }
 
             Logger.Log($"Task read complete", LogLevel.INFO);
@@ -112,7 +120,7 @@ namespace Planum.Repository
             IEnumerable<Guid> taskIds = tasks.Select(x => x.Id);
 
             Logger.Log($"Task update start", LogLevel.INFO);
-            while (enumerator.Current != null && enumerator.MoveNext())
+            while (enumerator.MoveNext())
             {
                 if (enumerator.Current.StartsWith(ModelConfig.TaskMarkerStartSymbol) && enumerator.Current.EndsWith(ModelConfig.TaskMarkerEndSymbol))
                 {
@@ -129,13 +137,15 @@ namespace Planum.Repository
                 }
                 else
                     newLines.Add(enumerator.Current);
+                if (enumerator.Current == null)
+                    break;
             }
 
             Logger.Log($"Task update complete", LogLevel.INFO);
             return writtenIds;
         }
 
-        protected void WriteNewToFile(IEnumerable<PlanumTask> tasks, IEnumerable<Guid> writtenIds, ref IEnumerator<string> enumerator, ref List<string> newLines)
+        protected void WriteNewToFile(IEnumerable<PlanumTask> tasks, IEnumerable<Guid> writtenIds, ref List<string> newLines)
         {
             Logger.Log($"Task insert start", LogLevel.INFO);
             IEnumerable<Guid> taskIds = tasks.Select(x => x.Id);
@@ -161,7 +171,7 @@ namespace Planum.Repository
             try
             {
                 List<Guid> updatedIds = WriteUpdateToFile(tasks, ref enumerator, ref newLines);
-                WriteNewToFile(tasks, updatedIds, ref enumerator, ref newLines);
+                WriteNewToFile(tasks, updatedIds, ref newLines);
             }
             finally
             {
@@ -191,9 +201,6 @@ namespace Planum.Repository
 
             foreach (var fpath in fileLines.Keys)
                 File.WriteAllLines(fpath, fileLines[fpath]);
-            RepoConfig.TaskLookupPaths.Clear();
-            RepoConfig.TaskLookupPaths = fileLines.Keys.ToHashSet();
-            RepoConfig.Save(Logger);
 
             Logger.Log($"Write finished", LogLevel.INFO);
         }

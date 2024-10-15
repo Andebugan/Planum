@@ -37,5 +37,17 @@ namespace Planum.Repository
 
             return deadline;
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, enabled, deadline, warningTime, duration, repeated, repeatSpan);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            return obj.GetHashCode() == GetHashCode();
+        }
     }
 }

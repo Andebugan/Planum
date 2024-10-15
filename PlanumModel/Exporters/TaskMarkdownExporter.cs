@@ -14,10 +14,32 @@ namespace Planum.Model.Exporters
             Logger = logger;
         }
 
+        public void WriteTask(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
+        {
+            Logger.Log($"Starting task write: {task.Id} | {task.Name}", LogLevel.INFO);
+            if (CheckIfChecklist(task))
+                return;
+
+            var statuses = PlanumTask.GetTaskStatuses(tasks);
+
+            WriteTaskHeader(lines, task);
+            WriteName(lines, task, tasks, statuses[task.Id]);
+            WriteTags(lines, task);
+            WriteDescription(lines, task);
+            WriteParents(lines, task, tasks, statuses);
+            WriteChildren(lines, task, tasks, statuses);
+            WriteDeadlines(lines, task, tasks, statuses);
+            WriteChecklists(lines, task, tasks, statuses);
+            lines.Add("");
+
+            Logger.Log($"Task write finished", LogLevel.INFO);
+            return;
+        }
+
         ///<summary>Add checkbox to task marker</summary>
         protected string AddCheckbox(string marker) => ModelConfig.TaskCheckboxStart + marker + ModelConfig.TaskCheckboxEnd;
 
-        protected string AddMarkdownLink(string line, string path) => "[" + line + "](" + path + ")";
+        protected string AddMarkdownLink(string path) => ModelConfig.TaskLinkSymbol + "(" + path + ")";
 
         protected string GetMarkerSymbol(PlanumTaskStatus status)
         {
@@ -32,7 +54,14 @@ namespace Planum.Model.Exporters
             return ModelConfig.TaskNotCompleteMarkerSymbol;
         }
 
-        protected string GetTaskName(PlanumTask task) => AddMarkdownLink($"{task.Name} | {task.Id.ToString()}", task.SaveFile);
+        protected string GetTaskName(PlanumTask task, IEnumerable<PlanumTask> tasks, bool uniqueName = true)
+        {
+            var name = task.Name;
+            if (tasks.Any(x => x.Id != task.Id && x.Name == task.Name))
+                name += ModelConfig.TaskValueIdDelimiter + task.Id.ToString();
+            name += " " + AddMarkdownLink(task.SaveFile);
+            return name;
+        }
 
         protected bool CheckIfChecklist(PlanumTask task)
         {
@@ -62,12 +91,9 @@ namespace Planum.Model.Exporters
 
         protected void WriteTaskHeader(IList<string> lines, PlanumTask task) => lines.Add(ModelConfig.TaskMarkerStartSymbol + task.Id.ToString() + ModelConfig.TaskMarkerEndSymbol);
 
-        protected void WriteName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0)
+        protected void WriteName(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, PlanumTaskStatus status, int level = 0)
         {
-            if (level > 0)
-                lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name + ModelConfig.TaskValueIdDelimiter + task.Id, level, status));
-            else
-                lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, task.Name, level, status));
+            lines.Add(AddTaskItem(ModelConfig.TaskNameSymbol, GetTaskName(task, tasks), level, status));
         }
 
         protected void WriteChecklistName(IList<string> lines, PlanumTask task, PlanumTaskStatus status, int level = 0)
@@ -94,8 +120,6 @@ namespace Planum.Model.Exporters
             {
                 // name
                 WriteChecklistName(lines, checklist, statuses[checklist.Id], level);
-                // tags
-                WriteTags(lines, task, level + 1);
                 // description
                 WriteDescription(lines, checklist, level + 1);
                 // deadlines
@@ -111,7 +135,7 @@ namespace Planum.Model.Exporters
                 if (CheckIfChecklist(child))
                     continue;
                 else
-                    lines.Add(AddTaskItem(ModelConfig.TaskChildSymbol, GetTaskName(child), level, statuses[child.Id]));
+                    lines.Add(AddTaskItem(ModelConfig.TaskChildSymbol, GetTaskName(child, tasks), level, statuses[child.Id]));
         }
 
         protected void WriteParents(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
@@ -120,13 +144,13 @@ namespace Planum.Model.Exporters
                 if (CheckIfChecklist(parent))
                     continue;
                 else
-                    lines.Add(AddTaskItem(ModelConfig.TaskParentSymbol, GetTaskName(parent), level, statuses[parent.Id]));
+                    lines.Add(AddTaskItem(ModelConfig.TaskParentSymbol, GetTaskName(parent, tasks), level, statuses[parent.Id]));
         }
 
         protected void WriteNext(IList<string> lines, Deadline deadline, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
         {
             foreach (var next in tasks.Where(x => deadline.next.Contains(x.Id)))
-                lines.Add(AddTaskItem(ModelConfig.TaskNextSymbol, GetTaskName(next), level, statuses[next.Id]));
+                lines.Add(AddTaskItem(ModelConfig.TaskNextSymbol, GetTaskName(next, tasks), level, statuses[next.Id]));
         }
 
         protected void WriteDeadlines(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks, Dictionary<Guid, PlanumTaskStatus> statuses, int level = 0)
@@ -156,28 +180,6 @@ namespace Planum.Model.Exporters
                 // next
                 WriteNext(lines, deadline, tasks, statuses, level + 1);
             }
-        }
-
-        public void WriteTask(IList<string> lines, PlanumTask task, IEnumerable<PlanumTask> tasks)
-        {
-            Logger.Log($"Starting task write: {task.Id} | {task.Name}", LogLevel.INFO);
-            if (CheckIfChecklist(task))
-                return;
-
-            var statuses = PlanumTask.GetTaskStatuses(tasks);
-
-            WriteTaskHeader(lines, task);
-            WriteName(lines, task, statuses[task.Id]);
-            WriteTags(lines, task);
-            WriteDescription(lines, task);
-            WriteParents(lines, task, tasks, statuses);
-            WriteChildren(lines, task, tasks, statuses);
-            WriteDeadlines(lines, task, tasks, statuses);
-            WriteChecklists(lines, task, tasks, statuses);
-            lines.Add("");
-
-            Logger.Log($"Task write finished", LogLevel.INFO);
-            return;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [ ] n: {task.Name}",
+                    $"- [ ] n: {task.Name} [->]({task.SaveFile})",
                     "",
                 };
 
@@ -50,7 +50,7 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [ ] n: {task.Name}",
+                    $"- [ ] n: {task.Name} [->]({task.SaveFile})",
                     $"- t: {string.Join(", ", task.Tags)}",
                     $"- d: {task.Description}",
                     "",
@@ -104,9 +104,9 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [ ] n: {task.Name}",
-                    $"- [ ] p: [{parentTask.Name} | {parentTask.Id.ToString()}]({parentTask.SaveFile})",
-                    $"- [ ] c: [{childTask.Name} | {childTask.Id.ToString()}]({childTask.SaveFile})",
+                    $"- [ ] n: {task.Name} [->]({task.SaveFile})",
+                    $"- [ ] p: {parentTask.Name} [->]({parentTask.SaveFile})",
+                    $"- [ ] c: {childTask.Name} [->]({childTask.SaveFile})",
                     $"- [ ] {checklistBaseTask.Name}",
                     $"  - [ ] {checklistFirstLevelTask.Name}",
                     "",
@@ -144,7 +144,7 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [x] n: {task.Name}",
+                    $"- [x] n: {task.Name} [->]({task.SaveFile})",
                     $"- [x] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     "",
                 };
@@ -179,7 +179,7 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [ ] n: {task.Name}",
+                    $"- [ ] n: {task.Name} [->]({task.SaveFile})",
                     $"- [ ] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     $"  - w: {deadline.warningTime.ToString(@"d\.h\:m")}",
                     $"  - d: {deadline.duration.ToString(@"d\.h\:m")}",
@@ -216,7 +216,7 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [w] n: {task.Name}",
+                    $"- [w] n: {task.Name} [->]({task.SaveFile})",
                     $"- [w] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     $"  - w: {deadline.warningTime.ToString(@"d\.h\:m")}",
                     $"  - d: {deadline.duration.ToString(@"d\.h\:m")}",
@@ -253,7 +253,7 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [I] n: {task.Name}",
+                    $"- [I] n: {task.Name} [->]({task.SaveFile})",
                     $"- [I] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     $"  - w: {deadline.warningTime.ToString(@"d\.h\:m")}",
                     $"  - d: {deadline.duration.ToString(@"d\.h\:m")}",
@@ -290,7 +290,7 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [O] n: {task.Name}",
+                    $"- [O] n: {task.Name} [->]({task.SaveFile})",
                     $"- [O] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     $"  - w: {deadline.warningTime.ToString(@"d\.h\:m")}",
                     $"  - d: {deadline.duration.ToString(@"d\.h\:m")}",
@@ -329,11 +329,11 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [ ] n: {task.Name}",
+                    $"- [ ] n: {task.Name} [->]({task.SaveFile})",
                     $"- [ ] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     $"  - w: {deadline.warningTime.ToString(@"d\.h\:m")}",
                     $"  - d: {deadline.duration.ToString(@"d\.h\:m")}",
-                    $"  - [x] r: 2 1 1.2:3", 
+                    $"  - [x] r: 1.2:3 1 2", 
                     "",
                 };
 
@@ -374,11 +374,11 @@ namespace PlanumModel_Test.Exporters_Test
                 var lines = new List<string>
                 {
                     $"<planum:{task.Id.ToString()}>",
-                    $"- [ ] n: {task.Name}",
+                    $"- [ ] n: {task.Name} [->]({task.SaveFile})",
                     $"- [ ] D: {deadline.deadline.ToString("H:m d.M.y")} | {deadline.Id}",
                     $"  - w: {deadline.warningTime.ToString(@"d\.h\:m")}",
                     $"  - d: {deadline.duration.ToString(@"d\.h\:m")}",
-                    $"  - [ ] n: [{nextTask.Name} | {nextTask.Id.ToString()}]({nextTask.SaveFile})",
+                    $"  - [ ] n: {nextTask.Name} [->]({nextTask.SaveFile})",
                     "",
                 };
 

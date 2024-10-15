@@ -39,8 +39,8 @@ namespace PlanumModel_Test.Parsers_Test
         }
 
         [Theory]
-        [InlineData("5 10 1.2:3", 5, 10, 1, 2, 3)]
-        [InlineData("10 1.2:3", 0, 10, 1, 2, 3)]
+        [InlineData("1.2:3 10 5", 5, 10, 1, 2, 3)]
+        [InlineData("1.2:3 10", 0, 10, 1, 2, 3)]
         [InlineData("1.2:3", 0, 0, 1, 2, 3)]
         public void TryParseRepeat_Test(string data, int year, int months, int days, int hours, int minutes)
         {
