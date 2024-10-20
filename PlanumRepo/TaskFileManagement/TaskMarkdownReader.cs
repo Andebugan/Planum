@@ -177,7 +177,8 @@ namespace Planum.Repository
             if (line == null || !CheckMarkedItemLine(line, ModelConfig.TaskNameSymbol, currentLevel))
                 return false;
 
-            task.Name = GetMarkerTaskItem(line, ModelConfig.TaskNameSymbol, currentLevel);
+            var name = GetMarkerTaskItem(line, ModelConfig.TaskNameSymbol, currentLevel);
+            task.Name = name.Split(ModelConfig.TaskLinkSymbol).First().Trim();
             return true;
         }
 

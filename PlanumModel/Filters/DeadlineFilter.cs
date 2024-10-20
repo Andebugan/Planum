@@ -52,5 +52,24 @@ namespace Planum.Model.Filters
                         (!x.next.Any() || DeadlineNextFilter.Filter(x.next).Any())
                     );
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(IdFilter.GetHashCode(),
+                    EnabledFilter.GetHashCode(),
+                    WarningFilter.GetHashCode(),
+                    DurationFilter.GetHashCode(),
+                    RepeatedFilter.GetHashCode(),
+                    RepeatSpanFilter.GetHashCode(),
+                    DeadlineValueFilter.GetHashCode(),
+                    DeadlineNextFilter.GetHashCode());
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            return obj.GetHashCode() == GetHashCode();
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace Planum.Console.Commands
     public abstract class BaseCommand<T> : ICommand
     {
         public CommandInfo CommandInfo { get; set; }
+        public bool WasExecuted { get; set; } = false;
 
         protected List<BaseOption<T>> commandOptions;
         public virtual IEnumerable<IOption> CommandOptions
@@ -45,7 +46,7 @@ namespace Planum.Console.Commands
 
                 if (!optionMatches.First().TryParseValue(ref args, ref lines, ref commandSettings))
                 {
-                    Logger.Log(message: $"Unable to parser option: {arg} {args.Current}");
+                    Logger.Log(message: $"Unable to parse option: {arg} {args.Current}");
                     lines.Add(ConsoleSpecial.AddStyle($"Unable to parse option: {arg} {args.Current}", foregroundColor: ConsoleInfoColors.Error));
                     parsingError = true;
                     break;

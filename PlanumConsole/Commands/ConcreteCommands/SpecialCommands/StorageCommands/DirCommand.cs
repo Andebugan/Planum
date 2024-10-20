@@ -30,9 +30,14 @@ namespace Planum.Console.Commands.Special
 
             if (commandSettings.ListResult)
             {
-                lines.Add(ConsoleSpecial.AddStyle("Watched directories (recursive)", TextStyle.Bold, TextForegroundColor.Cyan));
-                foreach (var path in commandSettings.TaskLookupPaths)
-                    lines.Add(ConsoleSpecial.AddStyle($"- {path}"));
+                if (commandSettings.TaskLookupPaths.Any())
+                {
+                    lines.Add(ConsoleSpecial.AddStyle("Watched directories (recursive)", TextStyle.Bold, TextForegroundColor.Cyan));
+                    foreach (var path in commandSettings.TaskLookupPaths)
+                        lines.Add(ConsoleSpecial.AddStyle($"- {path}"));
+                }
+                else
+                    lines.Add(ConsoleSpecial.AddStyle("No directories are watched", TextStyle.Bold, TextForegroundColor.Cyan));
             }
 
             Logger.Log("Successfully executed dir command");

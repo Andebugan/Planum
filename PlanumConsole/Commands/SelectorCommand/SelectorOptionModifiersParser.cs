@@ -23,10 +23,9 @@ namespace Planum.Console.Commands.Selector
 
         static Dictionary<string, MatchFilterType> matchFilterTypeParse = new Dictionary<string, MatchFilterType>()
         {
-            { "", MatchFilterType.SUBSTRING },
             { "<", MatchFilterType.LESSER },
             { "<=", MatchFilterType.LESSER_AND_EQUAL },
-            { "=", MatchFilterType.EQUAL },
+            { "==", MatchFilterType.EQUAL },
             { ">=", MatchFilterType.GREATER_AND_EQUAL },
             { ">", MatchFilterType.GREATER }
         };
@@ -34,25 +33,20 @@ namespace Planum.Console.Commands.Selector
         public static string ParseSelectorSettings(string selectorOptionName, out ValueMatchType matchType, out MatchFilterType filterType)
         {
             matchType = ValueMatchType.AND;
-            foreach (var match in matchTypeParse.Keys)
+            filterType = MatchFilterType.SUBSTRING;
+
+            var filter = matchFilterTypeParse.Keys.FirstOrDefault(x => selectorOptionName.EndsWith(x));
+            if (filter is not null && filter != string.Empty && filter != "")
             {
-                if (selectorOptionName.EndsWith(match))
-                {
-                    matchType = matchTypeParse[match];
-                    selectorOptionName = selectorOptionName.Remove(selectorOptionName.Length - match.Length, match.Length);
-                    break;
-                }
+                filterType = matchFilterTypeParse[filter];
+                selectorOptionName = selectorOptionName.Replace(filter, "");
             }
 
-            filterType = MatchFilterType.SUBSTRING;
-            foreach (var filter in matchFilterTypeParse.Keys)
+            var match = matchTypeParse.Keys.FirstOrDefault(x => selectorOptionName.EndsWith(x));
+            if (match is not null && match != string.Empty && match != "")
             {
-                if (selectorOptionName.EndsWith(filter))
-                {
-                    filterType = matchFilterTypeParse[filter];
-                    selectorOptionName = selectorOptionName.Remove(selectorOptionName.Length - filter.Length, filter.Length);
-                    break;
-                }
+                matchType = matchTypeParse[match];
+                selectorOptionName = selectorOptionName.Replace(match, "");
             }
 
             return selectorOptionName;

@@ -26,5 +26,17 @@ namespace Planum.Model.Filters
                 return true;
             return valueMatches.Where(x => x.Check(value)).Any();
         }
+
+        public override int GetHashCode()
+        {
+            return valueMatches.GetHashCode();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            return obj.GetHashCode() == GetHashCode();
+        }
     }
 }

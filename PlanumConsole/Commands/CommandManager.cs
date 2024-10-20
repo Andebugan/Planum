@@ -6,14 +6,14 @@ namespace Planum.Console.Commands
     {
         List<ICommand> Commands { get; set; }
         ILoggerWrapper Logger { get; set; }
-        ExitCommand ExitCommand { get; set; }
+        ICommand ExitCommand { get; set; }
 
         public bool IsExit 
         {
-            get => ExitCommand.Triggered;
+            get => ExitCommand.WasExecuted;
         }
 
-        public CommandManager(IEnumerable<ICommand> commands, ExitCommand exitCommand, ILoggerWrapper logger)
+        public CommandManager(IEnumerable<ICommand> commands, ICommand exitCommand, ILoggerWrapper logger)
         {
             Commands = commands.ToList();
             Logger = logger;
@@ -41,9 +41,12 @@ namespace Planum.Console.Commands
                 if (command.CheckMatch(commandEnumerator.Current))
                 {
                     result = command.Execute(ref commandEnumerator);
+                    command.WasExecuted = true;
                     match = true;
                     break;
                 }
+                else
+                    command.WasExecuted = false;
             }
 
             if (!match)

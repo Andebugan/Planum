@@ -260,7 +260,7 @@ namespace Planum
 
             var helpCommand = new HelpCommand(
                     commands,
-                    new CommandInfo("help", "display info about commands and their options", " [options...]"),
+                    new CommandInfo("help", "display info about commands and their options, to see more info about options use -o", " [options...]"),
                     new List<BaseOption<HelpCommandSettings>>()
                     {
                         new HelpShowOptionsOption(logger, new OptionInfo("o", "show options", ""), consoleConfig),

@@ -16,6 +16,7 @@ namespace Planum.Console.Commands.Selector
         public SelectorCommand(List<SelectorBaseOption> selectorOptions, CommandInfo commandInfo, List<BaseOption<T>> commandOptions, ILoggerWrapper logger) : base(commandInfo, commandOptions, logger)
         {
             this.selectorOptions = selectorOptions;
+            commandInfo.Description += " (match type modifiers: `+` for AND, `*` for OR, `!` for NOT, value type modifiers: `` for substring, `<` for lesser, `<=` for lesser and equal, `==` for equal, `>=` for greater and equal, `>` for greater)";
         }
 
         protected bool ParseSelectorSettings(ref IEnumerator<string> args, ref List<string> lines, ref TaskFilter taskFilter, ref bool match)

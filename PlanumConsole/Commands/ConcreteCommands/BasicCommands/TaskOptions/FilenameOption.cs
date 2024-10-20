@@ -14,16 +14,22 @@ namespace Planum.Console.Commands.Task
                 return false;
             }
 
-            var fullfilepath = Path.Combine(args.Current);
-            var relativeFilepath = Path.Combine(Directory.GetCurrentDirectory(), args.Current);
+            var fullfilepath = Path.GetFullPath(Path.Combine(args.Current));
+            var relativeFilepath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), args.Current));
             if (!File.Exists(fullfilepath) && !File.Exists(relativeFilepath))
             {
                 lines.Add(ConsoleSpecial.AddStyle($"Unable to find file at path: \"{fullfilepath}\" or \"{relativeFilepath}\"", foregroundColor: ConsoleInfoColors.Error));
                 return false;
             }
 
+            var filepath = "";
+            if (File.Exists(fullfilepath))
+                filepath = fullfilepath;
+            else if (File.Exists(relativeFilepath))
+                filepath = relativeFilepath;
+
             foreach (var task in result.Tasks)
-                task.SaveFile = args.Current;
+                task.SaveFile = filepath;
 
             return true;
         }

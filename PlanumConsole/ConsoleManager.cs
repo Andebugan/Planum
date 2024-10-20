@@ -27,6 +27,24 @@ namespace Planum.Console
             return line is null ? "" : line;
         }
 
+        protected IEnumerable<string> ParseArgs(string input)
+        {
+            var inputString = input.Trim();
+            var inputArgs = inputString.Split("\"");
+            bool insideQuotes = inputString.StartsWith('"');
+            IEnumerable<string> args = new List<string>();
+            foreach (var inputArg in inputArgs)
+            {
+                var arg = inputArg.Trim();
+                if (insideQuotes && arg.Length != 0)
+                    args = args.Append(arg);
+                else if (arg.Trim().Length > 0)
+                    args = args.Concat(arg.Split(' ').Where(x => x.Length > 0));
+                insideQuotes = !insideQuotes;
+            }
+            return args;
+        }
+
         public void RunConsoleMode()
         {
             Logger.Log(message: "Running console mode");
@@ -34,19 +52,7 @@ namespace Planum.Console
 
             while (!CommandManager.IsExit)
             {
-                var inputString = GetInput().Trim();
-                var inputArgs = inputString.Split("\"");
-                bool insideQuotes = inputString.StartsWith('"');
-                IEnumerable<string> args = new List<string>();
-                foreach (var inputArg in inputArgs)
-                {
-                    if (insideQuotes)
-                        args = args.Append(inputArg);
-                    else if (inputArg.Trim().Length > 0)
-                        args = args.Concat(inputArg.Split(' ').Where(x => x.Length > 0));
-                    insideQuotes = !insideQuotes;
-                }
-
+                var args = ParseArgs(GetInput()); 
                 List<string> result = CommandManager.TryExecuteCommand(args);
                 PrintResult(result);
             }

@@ -17,6 +17,7 @@ namespace Planum.Console.Commands.Special
             var lines = new List<string>();
 
             var commandSettings = new HelpCommandSettings();
+
             if (!ParseSettings(ref args, ref lines, ref commandSettings))
                 return lines;
 

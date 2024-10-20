@@ -109,5 +109,24 @@ namespace Planum.Model.Filters
                 return valueStr.IndexOf(comparedStr) >= 0 ? false: true;
             return agg;
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Value.GetHashCode(),
+                StringValue.GetHashCode(),
+                Equal.GetHashCode(),
+                Lesser.GetHashCode(),
+                Greater.GetHashCode(),
+                ValueStrInCompared.GetHashCode(),
+                ComparedStrInValue.GetHashCode()
+                );
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null)
+                return false;
+            return obj.GetHashCode() == GetHashCode();
+        }
     }
 }

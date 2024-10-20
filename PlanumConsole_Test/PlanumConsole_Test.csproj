@@ -20,4 +20,12 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PlanumConfig\PlanumConfig.csproj" />
+    <ProjectReference Include="..\PlanumLogger\PlanumLogger.csproj" />
+    <ProjectReference Include="..\PlanumModel\PlanumModel.csproj" />
+    <ProjectReference Include="..\PlanumRepo\PlanumRepo.csproj" />
+    <ProjectReference Include="..\PlanumConsole\PlanumConsole.csproj" />
+  </ItemGroup>
+
 </Project>

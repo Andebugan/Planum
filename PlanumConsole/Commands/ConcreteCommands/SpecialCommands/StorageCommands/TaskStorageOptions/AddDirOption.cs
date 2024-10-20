@@ -14,8 +14,8 @@ namespace Planum.Console.Commands.Special
                 return false;
             }
 
-            var fullDirPath = Path.Combine(args.Current);
-            var relativeDirPath = Path.Combine(Directory.GetCurrentDirectory(), args.Current);
+            var fullDirPath = Path.GetFullPath(Path.Combine(args.Current));
+            var relativeDirPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), args.Current));
             if (!Directory.Exists(fullDirPath) && !Directory.Exists(relativeDirPath))
             {
                 lines.Add(ConsoleSpecial.AddStyle($"Unable to find directory at path: \"{fullDirPath}\" or \"{relativeDirPath}\"", foregroundColor: ConsoleInfoColors.Error));
